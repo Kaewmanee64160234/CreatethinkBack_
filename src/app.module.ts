@@ -3,6 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CoursesModule } from './courses/courses.module';
+import { Course } from './courses/entities/course.entity';
 
 @Module({
   imports: [
@@ -13,7 +14,7 @@ import { CoursesModule } from './courses/courses.module';
       username: 'root',
       password: '',
       database: 'creativethinking',
-      entities: [],
+      entities: [Course],
       synchronize: true,
     }),
     CoursesModule,
