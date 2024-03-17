@@ -1,27 +1,50 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Course } from './entities/course.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class CoursesService {
+  constructor(
+    @InjectRepository(Course)
+    private courseRepository: Repository<Course>,
+  ) {}
   create(createCourseDto: CreateCourseDto) {
-    return 'This action adds a new course';
+    return this.courseRepository.save(createCourseDto);
   }
 
   findAll() {
-    return `This action returns all courses`;
+    return this.courseRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} course`;
+  async findOne(id: number) {
+    const course = await this.courseRepository.findOneBy({ id: id });
+    if (!course) {
+      throw new NotFoundException('course not found');
+    } else {
+      return course;
+    }
   }
 
-  update(id: number, updateCourseDto: UpdateCourseDto) {
-    return `This action updates a #${id} course`;
+  async update(id: number, updateCourseDto: UpdateCourseDto) {
+    const course = await this.courseRepository.findOneBy({ id: id });
+    if (!course) {
+      throw new NotFoundException('course not found');
+    }
+    return await this.courseRepository.save({
+      ...course,
+      ...updateCourseDto,
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} course`;
+  async remove(id: number) {
+    const course = await this.courseRepository.findOneBy({ id: id });
+    if (!course) {
+      throw new NotFoundException('course not found');
+    }
+    return this.courseRepository.softRemove(course);
   }
 }
