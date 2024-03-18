@@ -1,15 +1,15 @@
 import { IsNotEmpty } from 'class-validator';
 
-export class CreateCourseDto {
+export class CreateStudentDto {
   @IsNotEmpty()
-  name: string;
+  firstName: string;
 
   @IsNotEmpty()
-  credit: number;
+  lastName: string;
 
   @IsNotEmpty()
-  session: string;
+  studentId: string;
 
   @IsNotEmpty()
-  fullscore: number;
+  email: string;
 }

@@ -14,5 +14,5 @@ export class Course {
   session: string;
 
   @Column({ name: 'fullScores' })
-  fullscore: number;
+  fullScore: number;
 }
