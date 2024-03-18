@@ -14,6 +14,7 @@ import { CoursesModule } from './courses/courses.module';
 import { Course } from './courses/entities/course.entity';
 import { EnrollmentsModule } from './enrollments/enrollments.module';
 import { CourseClassroomModule } from './course-classroom/course-classroom.module';
+import { AttendancesModule } from './attendances/attendances.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { CourseClassroomModule } from './course-classroom/course-classroom.modul
     CoursesModule,
     EnrollmentsModule,
     CourseClassroomModule,
+    AttendancesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
