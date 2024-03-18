@@ -1,27 +1,50 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Student } from './entities/student.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class StudentsService {
+  constructor(
+    @InjectRepository(Student)
+    private studentRepository: Repository<Student>,
+  ) {}
   create(createStudentDto: CreateStudentDto) {
-    return 'This action adds a new student';
+    return this.studentRepository.save(createStudentDto);
   }
 
   findAll() {
-    return `This action returns all students`;
+    return this.studentRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} student`;
+  async findOne(id: number) {
+    const student = await this.studentRepository.findOneBy({ id: id });
+    if (!student) {
+      throw new NotFoundException('student not found');
+    } else {
+      return student;
+    }
   }
 
-  update(id: number, updateStudentDto: UpdateStudentDto) {
-    return `This action updates a #${id} student`;
+  async update(id: number, updateStudentDto: UpdateStudentDto) {
+    const student = await this.studentRepository.findOneBy({ id: id });
+    if (!student) {
+      throw new NotFoundException('student not found');
+    }
+    return await this.studentRepository.save({
+      ...student,
+      ...updateStudentDto,
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} student`;
+  async remove(id: number) {
+    const student = await this.studentRepository.findOneBy({ id: id });
+    if (!student) {
+      throw new NotFoundException('student not found');
+    }
+    return this.studentRepository.softRemove(student);
   }
 }

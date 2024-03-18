@@ -10,6 +10,8 @@ import { Student } from './students/entities/student.entity';
 import { User } from './users/entities/user.entity';
 import { Teacher } from './teachers/entities/teacher.entity';
 import { Classroom } from './classrooms/entities/classroom.entity';
+import { CoursesModule } from './courses/courses.module';
+import { Course } from './courses/entities/course.entity';
 
 @Module({
   imports: [
@@ -17,6 +19,7 @@ import { Classroom } from './classrooms/entities/classroom.entity';
     UsersModule,
     TeachersModule,
     ClassroomsModule,
+    CoursesModule,
     TypeOrmModule.forRoot({
       type: 'mysql',
       host: 'localhost',
@@ -24,7 +27,7 @@ import { Classroom } from './classrooms/entities/classroom.entity';
       username: 'root',
       password: '',
       database: 'creativethinking',
-      entities: [Student, User, Teacher, Classroom],
+      entities: [Student, User, Teacher, Classroom, Course],
       synchronize: true,
     }),
   ],

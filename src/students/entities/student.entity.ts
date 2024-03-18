@@ -1,8 +1,8 @@
 import { Column, PrimaryGeneratedColumn } from 'typeorm';
 
 export class Student {
-  @PrimaryGeneratedColumn()
-  stdId: number;
+  @PrimaryGeneratedColumn({ name: 'stdId' })
+  id: number;
 
   @Column()
   firstName: string;

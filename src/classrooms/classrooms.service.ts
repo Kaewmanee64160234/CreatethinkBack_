@@ -1,26 +1,50 @@
-import { Injectable } from '@nestjs/common';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateClassroomDto } from './dto/create-classroom.dto';
 import { UpdateClassroomDto } from './dto/update-classroom.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Classroom } from './entities/classroom.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class ClassroomsService {
+  constructor(
+    @InjectRepository(Classroom)
+    private classroomRepository: Repository<Classroom>,
+  ) {}
   create(createClassroomDto: CreateClassroomDto) {
-    return 'This action adds a new classroom';
+    return this.classroomRepository.save(createClassroomDto);
   }
 
   findAll() {
-    return `This action returns all classrooms`;
+    return this.classroomRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} classroom`;
+  async findOne(id: number) {
+    const classroom = await this.classroomRepository.findOneBy({ id: id });
+    if (!classroom) {
+      throw new NotFoundException('classroom not found');
+    } else {
+      return classroom;
+    }
   }
 
-  update(id: number, updateClassroomDto: UpdateClassroomDto) {
-    return `This action updates a #${id} classroom`;
+  async update(id: number, updateClassroomDto: UpdateClassroomDto) {
+    const classroom = await this.classroomRepository.findOneBy({ id: id });
+    if (!classroom) {
+      throw new NotFoundException('classroom not found');
+    }
+    return await this.classroomRepository.save({
+      ...classroom,
+      ...updateClassroomDto,
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} classroom`;
+  async remove(id: number) {
+    const classroom = await this.classroomRepository.findOneBy({ id: id });
+    if (!classroom) {
+      throw new NotFoundException('classroom not found');
+    }
+    return this.classroomRepository.softRemove(classroom);
   }
 }
