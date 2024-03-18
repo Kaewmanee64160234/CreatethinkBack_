@@ -18,6 +18,7 @@ import { AttendancesModule } from './attendances/attendances.module';
 import { Enrollment } from './enrollments/entities/enrollment.entity';
 import { CourseClassroom } from './course-classroom/entities/course-classroom.entity';
 import { Attendance } from './attendances/entities/attendance.entity';
+import { ClassroomsModule } from './classrooms/classrooms.module';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { Attendance } from './attendances/entities/attendance.entity';
       ],
       synchronize: true,
     }),
+    ClassroomsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
