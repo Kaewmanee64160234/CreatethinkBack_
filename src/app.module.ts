@@ -17,6 +17,7 @@ import { CourseClassroomModule } from './course-classroom/course-classroom.modul
 import { AttendancesModule } from './attendances/attendances.module';
 import { Enrollment } from './enrollments/entities/enrollment.entity';
 import { CourseClassroom } from './course-classroom/entities/course-classroom.entity';
+import { Attendance } from './attendances/entities/attendance.entity';
 
 @Module({
   imports: [
@@ -25,9 +26,9 @@ import { CourseClassroom } from './course-classroom/entities/course-classroom.en
     TeachersModule,
     CoursesModule,
     RoomsModule,
-    CoursesModule,
     EnrollmentsModule,
     CourseClassroomModule,
+    AttendancesModule,
     TypeOrmModule.forRoot({
       type: 'mysql',
       host: 'localhost',
@@ -43,13 +44,10 @@ import { CourseClassroom } from './course-classroom/entities/course-classroom.en
         Room,
         Enrollment,
         CourseClassroom,
+        Attendance,
       ],
       synchronize: true,
     }),
-    CoursesModule,
-    EnrollmentsModule,
-    CourseClassroomModule,
-    AttendancesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -12,8 +12,9 @@ export class StudentsService {
     @InjectRepository(Student)
     private studentRepository: Repository<Student>,
   ) {}
-  create(createStudentDto: CreateStudentDto) {
-    return this.studentRepository.save(createStudentDto);
+  async create(createStudentDto: CreateStudentDto) {
+    const student = this.studentRepository.create(createStudentDto);
+    return await this.studentRepository.save(student);
   }
 
   findAll() {

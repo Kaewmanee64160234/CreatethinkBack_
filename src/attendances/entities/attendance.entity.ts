@@ -5,7 +5,7 @@ export class Attendance {
   @PrimaryGeneratedColumn({ name: 'attendanceId' })
   id: number;
 
-  @Column({ name: 'attandanceDate' })
+  @Column({ name: 'attendanceDate' })
   date: Date;
 
   @Column({ name: 'status' })
