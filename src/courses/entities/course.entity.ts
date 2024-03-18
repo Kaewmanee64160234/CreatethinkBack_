@@ -13,6 +13,15 @@ export class Course {
   @Column({ name: 'session' })
   session: string;
 
+  @Column({ name: 'stdAmount' })
+  amount: number;
+
+  @Column({ name: 'timeIn' })
+  timeIn: Date;
+
+  @Column({ name: 'timeOut' })
+  timeOUt: Date;
+
   @Column({ name: 'fullScores' })
   fullScore: number;
 }

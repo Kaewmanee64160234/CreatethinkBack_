@@ -14,5 +14,11 @@ export class CreateCourseDto {
   amount: number;
 
   @IsNotEmpty()
+  timeIn: Date;
+
+  @IsNotEmpty()
+  timeOut: Date;
+
+  @IsNotEmpty()
   fullscore: number;
 }
