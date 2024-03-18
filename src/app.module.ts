@@ -12,6 +12,10 @@ import { CoursesModule } from './courses/courses.module';
 import { Course } from './courses/entities/course.entity';
 import { RoomsModule } from './rooms/rooms.module';
 import { Room } from './rooms/entities/room.entity';
+import { EnrollmentsModule } from './enrollments/enrollments.module';
+import { CourseClassroomModule } from './course-classroom/course-classroom.module';
+import { Enrollment } from './enrollments/entities/enrollment.entity';
+import { CourseClassroom } from './course-classroom/entities/course-classroom.entity';
 
 @Module({
   imports: [
@@ -20,6 +24,9 @@ import { Room } from './rooms/entities/room.entity';
     TeachersModule,
     CoursesModule,
     RoomsModule,
+    CoursesModule,
+    EnrollmentsModule,
+    CourseClassroomModule,
     TypeOrmModule.forRoot({
       type: 'mysql',
       host: 'localhost',
@@ -27,7 +34,15 @@ import { Room } from './rooms/entities/room.entity';
       username: 'root',
       password: '',
       database: 'creativethinking',
-      entities: [Student, User, Teacher, Course, Room],
+      entities: [
+        Student,
+        User,
+        Teacher,
+        Course,
+        Room,
+        Enrollment,
+        CourseClassroom,
+      ],
       synchronize: true,
     }),
   ],
