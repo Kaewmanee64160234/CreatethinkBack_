@@ -11,5 +11,8 @@ export class CreateCourseDto {
   session: string;
 
   @IsNotEmpty()
+  amount: number;
+
+  @IsNotEmpty()
   fullscore: number;
 }
