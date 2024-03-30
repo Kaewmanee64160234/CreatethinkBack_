@@ -25,11 +25,11 @@ export class Course {
   @Column({ name: 'stdAmount' })
   amount: number;
 
-  @Column({ name: 'timeIn' })
+  @Column({ type: 'time', name: 'timeIn' })
   timeIn: Date;
 
-  @Column({ name: 'timeOut' })
-  timeOUt: Date;
+  @Column({ type: 'time', name: 'timeOut' })
+  timeOut: Date;
 
   @Column({ name: 'fullScores' })
   fullScore: number;
@@ -39,5 +39,5 @@ export class Course {
   user: User;
 
   @OneToMany(() => Enrollment, (enrollment) => enrollment.course)
-  enrollments: Enrollment[];
+  enrollment: Enrollment[];
 }

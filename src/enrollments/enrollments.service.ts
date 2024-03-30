@@ -5,23 +5,41 @@ import { UpdateEnrollmentDto } from './dto/update-enrollment.dto';
 import { Enrollment } from './entities/enrollment.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class EnrollmentsService {
   constructor(
     @InjectRepository(Enrollment)
     private enrollmentRepository: Repository<Enrollment>,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
   ) {}
-  create(createEnrollmentDto: CreateEnrollmentDto) {
-    return this.enrollmentRepository.save(createEnrollmentDto);
+  async create(createEnrollmentDto: CreateEnrollmentDto) {
+    const enrollment = new Enrollment();
+    // create enrollment
+    const user = await this.userRepository.findOneBy({
+      id: createEnrollmentDto.userId,
+    });
+
+    if (!user) {
+      throw new NotFoundException('user not found');
+    }
+    enrollment.user = user;
+    return this.enrollmentRepository.save(enrollment);
   }
 
   findAll() {
-    return this.enrollmentRepository.find();
+    return this.enrollmentRepository.find({
+      relations: ['user', 'course'],
+    });
   }
 
   async findOne(id: number) {
-    const enrollment = await this.enrollmentRepository.findOneBy({ id: id });
+    const enrollment = await this.enrollmentRepository.findOne({
+      where: { id: id },
+      relations: ['user', 'course'],
+    });
     if (!enrollment) {
       throw new NotFoundException('enrollment not found');
     } else {

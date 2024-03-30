@@ -7,9 +7,9 @@ export class Enrollment {
   @PrimaryGeneratedColumn({ name: 'enrollmentId' })
   id: number;
 
-  @ManyToOne(() => Course, (course) => course.enrollments)
-  course: Course[];
+  @ManyToOne(() => Course, (course) => course.enrollment)
+  course: Course;
 
   @ManyToOne(() => User, (user) => user.enrollment)
-  user: User[];
+  user: User;
 }
