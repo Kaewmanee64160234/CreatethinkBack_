@@ -2,12 +2,8 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { StudentsModule } from './students/students.module';
 import { UsersModule } from './users/users.module';
-import { TeachersModule } from './teachers/teachers.module';
-import { Student } from './students/entities/student.entity';
 import { User } from './users/entities/user.entity';
-import { Teacher } from './teachers/entities/teacher.entity';
 import { CoursesModule } from './courses/courses.module';
 import { Course } from './courses/entities/course.entity';
 import { RoomsModule } from './rooms/rooms.module';
@@ -22,9 +18,7 @@ import { ClassroomsModule } from './classrooms/classrooms.module';
 
 @Module({
   imports: [
-    StudentsModule,
     UsersModule,
-    TeachersModule,
     CoursesModule,
     RoomsModule,
     EnrollmentsModule,
@@ -37,16 +31,7 @@ import { ClassroomsModule } from './classrooms/classrooms.module';
       username: 'root',
       password: '',
       database: 'creativethinking',
-      entities: [
-        Student,
-        User,
-        Teacher,
-        Course,
-        Room,
-        Enrollment,
-        CourseClassroom,
-        Attendance,
-      ],
+      entities: [User, Course, Room, Enrollment, CourseClassroom, Attendance],
       synchronize: true,
     }),
     ClassroomsModule,

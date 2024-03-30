@@ -14,6 +14,12 @@ export class CreateUserDto {
   role: string;
 
   @IsNotEmpty()
+  studentId: string;
+
+  @IsNotEmpty()
+  teacherId: string;
+
+  @IsNotEmpty()
   faceDescription1: string;
 
   @IsNotEmpty()
