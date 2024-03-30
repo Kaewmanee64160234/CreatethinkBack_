@@ -2,6 +2,9 @@ import { IsNotEmpty } from 'class-validator';
 
 export class CreateCourseDto {
   @IsNotEmpty()
+  id: string;
+
+  @IsNotEmpty()
   name: string;
 
   @IsNotEmpty()
@@ -20,5 +23,8 @@ export class CreateCourseDto {
   timeOut: Date;
 
   @IsNotEmpty()
-  fullscore: number;
+  fullScore: number;
+
+  @IsNotEmpty()
+  userId: number;
 }
