@@ -29,6 +29,31 @@ export class UsersService {
       return user;
     }
   }
+  async login(userDto: CreateUserDto) {
+    const user = await this.userRepository.findOneBy({
+      email: userDto.email,
+    });
+    if (!user) {
+      const newUser = new User();
+      newUser.email = userDto.email;
+      newUser.firstName = userDto.firstName;
+      newUser.lastName = userDto.lastName;
+      newUser.profileImage = userDto.imageProfile;
+      //split @ to id
+      const strId = userDto.email.split('@')[0];
+
+      if (isNaN(Number(strId))) {
+        newUser.role = 'teacher';
+        newUser.teacherId = strId;
+      } else {
+        newUser.role = 'student';
+        newUser.studentId = strId;
+      }
+      return await this.userRepository.save(newUser);
+    } else {
+      return user;
+    }
+  }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
     const user = await this.userRepository.findOneBy({ id: id });

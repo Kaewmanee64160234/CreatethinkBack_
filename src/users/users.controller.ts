@@ -39,4 +39,9 @@ export class UsersController {
   remove(@Param('id') id: string) {
     return this.usersService.remove(+id);
   }
+  //login controller
+  @Post('login')
+  login(@Body() createUserDto: CreateUserDto) {
+    return this.usersService.login(createUserDto);
+  }
 }

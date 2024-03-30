@@ -3,13 +3,13 @@ import {
   Get,
   Post,
   Body,
-  Patch,
+  // Patch,
   Param,
   Delete,
 } from '@nestjs/common';
 import { AttendancesService } from './attendances.service';
 import { CreateAttendanceDto } from './dto/create-attendance.dto';
-import { UpdateAttendanceDto } from './dto/update-attendance.dto';
+// import { UpdateAttendanceDto } from './dto/update-attendance.dto';
 
 @Controller('attendances')
 export class AttendancesController {
@@ -30,13 +30,13 @@ export class AttendancesController {
     return this.attendancesService.findOne(+id);
   }
 
-  @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateAttendanceDto: UpdateAttendanceDto,
-  ) {
-    return this.attendancesService.update(+id, updateAttendanceDto);
-  }
+  // @Patch(':id')
+  // update(
+  //   @Param('id') id: string,
+  //   @Body() updateAttendanceDto: UpdateAttendanceDto,
+  // ) {
+  //   return this.attendancesService.update(+id, updateAttendanceDto);
+  // }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
