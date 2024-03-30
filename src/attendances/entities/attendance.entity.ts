@@ -1,4 +1,6 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Assignment } from 'src/assignments/entities/assignment.entity';
+import { User } from 'src/users/entities/user.entity';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class Attendance {
@@ -10,4 +12,10 @@ export class Attendance {
 
   @Column({ name: 'status' })
   status: string;
+
+  @ManyToOne(() => User, (user) => user.attendance)
+  user: User;
+
+  @ManyToOne(() => Assignment, (assignment) => assignment.attendance)
+  assignment: Assignment;
 }

@@ -1,4 +1,7 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Attendance } from 'src/attendances/entities/attendance.entity';
+import { Course } from 'src/courses/entities/course.entity';
+import { Enrollment } from 'src/enrollments/entities/enrollment.entity';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 @Entity()
 export class User {
   @PrimaryGeneratedColumn({ name: 'userId' })
@@ -36,4 +39,13 @@ export class User {
 
   @Column()
   faceDescription5: string;
+
+  @OneToMany(() => Course, (course) => course.user)
+  course: Course[];
+
+  @OneToMany(() => Enrollment, (enrollment) => enrollment.user)
+  enrollment: Enrollment[];
+
+  @OneToMany(() => Attendance, (attendance) => attendance.user)
+  attendance: Attendance[];
 }

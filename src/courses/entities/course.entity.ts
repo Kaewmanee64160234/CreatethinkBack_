@@ -1,8 +1,17 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Enrollment } from 'src/enrollments/entities/enrollment.entity';
+import { User } from 'src/users/entities/user.entity';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  PrimaryColumn,
+} from 'typeorm';
 @Entity()
 export class Course {
-  @PrimaryGeneratedColumn({ name: 'coursesId' })
-  id: number;
+  @PrimaryColumn({ name: 'coursesId' })
+  id: string;
 
   @Column({ name: 'nameCourses' })
   name: string;
@@ -24,4 +33,11 @@ export class Course {
 
   @Column({ name: 'fullScores' })
   fullScore: number;
+
+  @ManyToOne(() => User, (user) => user.course)
+  @JoinColumn()
+  user: User;
+
+  @OneToMany(() => Enrollment, (enrollment) => enrollment.course)
+  enrollments: Enrollment[];
 }
