@@ -40,6 +40,9 @@ export class User {
   @Column()
   faceDescription5: string;
 
+  @Column()
+  profileImage: string;
+
   @OneToMany(() => Course, (course) => course.user)
   course: Course[];
 

@@ -12,7 +12,6 @@ import { Enrollment } from './enrollments/entities/enrollment.entity';
 import { Attendance } from './attendances/entities/attendance.entity';
 import { AssignmentsModule } from './assignments/assignments.module';
 import { Assignment } from './assignments/entities/assignment.entity';
-
 @Module({
   imports: [
     UsersModule,
@@ -30,7 +29,6 @@ import { Assignment } from './assignments/entities/assignment.entity';
       entities: [User, Course, Enrollment, Attendance, Assignment],
       synchronize: true,
     }),
-    ,
   ],
   controllers: [AppController],
   providers: [AppService],
