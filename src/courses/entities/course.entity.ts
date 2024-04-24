@@ -1,3 +1,4 @@
+import { Assignment } from 'src/assignments/entities/assignment.entity';
 import { Enrollment } from 'src/enrollments/entities/enrollment.entity';
 import { User } from 'src/users/entities/user.entity';
 import {
@@ -40,4 +41,7 @@ export class Course {
 
   @OneToMany(() => Enrollment, (enrollment) => enrollment.course)
   enrollment: Enrollment[];
+
+  @ManyToOne(() => Assignment, (assignment) => assignment.course)
+  assignment: Assignment;
 }

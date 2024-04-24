@@ -1,12 +1,34 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateAssignmentDto } from './dto/create-assignment.dto';
 import { UpdateAssignmentDto } from './dto/update-assignment.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Assignment } from './entities/assignment.entity';
+import { Repository } from 'typeorm';
+import { Course } from 'src/courses/entities/course.entity';
 
 @Injectable()
 export class AssignmentsService {
-  create(createAssignmentDto: CreateAssignmentDto) {
-    return 'This action adds a new assignment';
+  constructor(
+    @InjectRepository(Assignment)
+    private assignmentRepository: Repository<Assignment>,
+    @InjectRepository(Course)
+    private courseRepository: Repository<Course>,
+  ) {}
+  async create(createAssignmentDto: CreateAssignmentDto) {
+    const assignment = new Assignment();
+    assignment.id = createAssignmentDto.id;
+    assignment.name = createAssignmentDto.name;
+    assignment.date = createAssignmentDto.date;
+
+    const course = await this.courseRepository.findOneBy({
+      id: createAssignmentDto.courseId,
+    });
+    if (!course) {
+      throw new NotFoundException('course not found');
+    }
+    assignment.course = course[0];
+    return this.assignmentRepository.save(assignment);
   }
   findAll() {
     return `This action returns all assignments`;

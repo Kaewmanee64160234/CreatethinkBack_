@@ -9,6 +9,9 @@ export class CreateAttendanceDto {
   status: string;
 
   @IsNotEmpty()
+  userId: number;
+
+  @IsNotEmpty()
   user: User[];
   assignment: any;
 }
