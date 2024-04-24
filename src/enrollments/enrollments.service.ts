@@ -16,17 +16,16 @@ export class EnrollmentsService {
     private userRepository: Repository<User>,
   ) {}
   async create(createEnrollmentDto: CreateEnrollmentDto) {
-    const enrollment = new Enrollment();
-    // create enrollment
-    const user = await this.userRepository.findOneBy({
-      id: createEnrollmentDto.userId,
-    });
-
-    if (!user) {
-      throw new NotFoundException('user not found');
-    }
-    enrollment.user = user;
-    return this.enrollmentRepository.save(enrollment);
+    // const enrollment = new Enrollment();
+    // // create enrollment
+    // const user = await this.userRepository.findOneBy({
+    //   id: createEnrollmentDto.userId,
+    // });
+    // if (!user) {
+    //   throw new NotFoundException('user not found');
+    // }
+    // enrollment.user = user;
+    return this.enrollmentRepository.save(createEnrollmentDto);
   }
 
   findAll() {
@@ -61,7 +60,7 @@ export class EnrollmentsService {
   async remove(id: number) {
     const enrollment = await this.enrollmentRepository.findOneBy({ id: id });
     if (!enrollment) {
-      throw new NotFoundException('course not found');
+      throw new NotFoundException('enrollment not found');
     }
     return this.enrollmentRepository.softRemove(enrollment);
   }

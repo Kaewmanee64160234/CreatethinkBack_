@@ -2,11 +2,14 @@ import { Enrollment } from 'src/enrollments/entities/enrollment.entity';
 import { User } from 'src/users/entities/user.entity';
 import {
   Column,
+  CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 @Entity()
 export class Course {
@@ -40,4 +43,13 @@ export class Course {
 
   @OneToMany(() => Enrollment, (enrollment) => enrollment.course)
   enrollment: Enrollment[];
+
+  @CreateDateColumn()
+  createdDate: Date;
+
+  @UpdateDateColumn()
+  updatedDate: Date;
+
+  @DeleteDateColumn()
+  deletedDate: Date;
 }
