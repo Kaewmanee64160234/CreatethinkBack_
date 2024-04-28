@@ -44,10 +44,10 @@ export class User {
   profileImage: string;
 
   @OneToMany(() => Course, (course) => course.user)
-  course: Course[];
+  courses: Course[];
 
   @OneToMany(() => Enrollment, (enrollment) => enrollment.user)
-  enrollment: Enrollment[];
+  enrollments: Enrollment[];
 
   @OneToMany(() => Attendance, (attendance) => attendance.user)
   attendance: Attendance[];

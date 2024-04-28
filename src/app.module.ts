@@ -12,6 +12,8 @@ import { Enrollment } from './enrollments/entities/enrollment.entity';
 import { Attendance } from './attendances/entities/attendance.entity';
 import { AssignmentsModule } from './assignments/assignments.module';
 import { Assignment } from './assignments/entities/assignment.entity';
+import { RoomsModule } from './rooms/rooms.module';
+import { Room } from './rooms/entities/room.entity';
 @Module({
   imports: [
     UsersModule,
@@ -26,9 +28,10 @@ import { Assignment } from './assignments/entities/assignment.entity';
       username: 'root',
       password: '',
       database: 'creativethinking',
-      entities: [User, Course, Enrollment, Attendance, Assignment],
+      entities: [User, Course, Enrollment, Attendance, Assignment, Room],
       synchronize: true,
     }),
+    RoomsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

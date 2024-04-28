@@ -1,21 +1,41 @@
 import { Assignment } from 'src/assignments/entities/assignment.entity';
 import { User } from 'src/users/entities/user.entity';
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 @Entity()
 export class Attendance {
-  @PrimaryGeneratedColumn({ name: 'attendanceId' })
-  id: number;
+  @PrimaryGeneratedColumn()
+  attendanceId: number;
 
-  @Column({ name: 'attendanceDate' })
-  date: Date;
+  @Column({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
+  attendanceDate: Date;
 
-  @Column({ name: 'status' })
-  status: string;
+  @Column()
+  attendanceStatus: string;
 
   @ManyToOne(() => User, (user) => user.attendance)
   user: User;
 
-  @ManyToOne(() => Assignment, (assignment) => assignment.attendance)
+  @ManyToOne(() => Assignment, (assignment) => assignment.attendances)
   assignment: Assignment;
+
+  @CreateDateColumn()
+  createdDate: Date;
+
+  @UpdateDateColumn()
+  updatedDate: Date;
+
+  @DeleteDateColumn()
+  deletedDate: Date;
 }

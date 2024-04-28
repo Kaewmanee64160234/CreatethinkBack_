@@ -17,6 +17,7 @@ export class AttendancesService {
     private userRepository: Repository<User>,
   ) {}
   async create(createAttendanceDto: CreateAttendanceDto) {
+<<<<<<< HEAD
     const attendances: Attendance = new Attendance();
     attendances.date = createAttendanceDto.date;
     attendances.status = createAttendanceDto.status;
@@ -28,6 +29,39 @@ export class AttendancesService {
     }
     attendances.user = user;
     return this.attendanceRepository.save(attendances);
+=======
+    try {
+      const user = await this.userRepository.findOne({
+        where: { id: createAttendanceDto.userId },
+      });
+      const assignment = await this.assignmentRespository.findOne({
+        where: { assignmentId: createAttendanceDto.assignmentId },
+      });
+
+      if (!user || !assignment) {
+        throw new Error('User or Assignment not found');
+      }
+
+      const newAttendance = new Attendance();
+      newAttendance.attendanceDate = new Date();
+      //if date in assignment is greater than current  15 minutes create status late but in 15 minutes create status on time
+      const currentDate = new Date();
+      const assignmentDate = new Date(assignment.assignMentTime);
+      const diff = Math.abs(currentDate.getTime() - assignmentDate.getTime());
+      const diffMinutes = Math.ceil(diff / (1000 * 60));
+      if (diffMinutes > 15) {
+        newAttendance.attendanceStatus = 'late';
+      } else {
+        newAttendance.attendanceStatus = 'on time';
+      }
+      newAttendance.user = user;
+      newAttendance.assignment = assignment;
+
+      return this.attendanceRepository.save(newAttendance);
+    } catch (error) {
+      throw new Error('Error creating attendance');
+    }
+>>>>>>> 39859d4b1b9e86240f7f77e43456331e8f419301
   }
 
   findAll() {
@@ -35,15 +69,23 @@ export class AttendancesService {
   }
 
   async findOne(id: number) {
-    const attendance = await this.attendanceRepository.findOneBy({ id: id });
+    const attendance = await this.attendanceRepository.findOneBy({
+      attendanceId: id,
+    });
     if (!attendance) {
       throw new NotFoundException('attendance not found');
     } else {
       return attendance;
     }
   }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 39859d4b1b9e86240f7f77e43456331e8f419301
   async remove(id: number) {
-    const attendance = await this.attendanceRepository.findOneBy({ id: id });
+    const attendance = await this.attendanceRepository.findOneBy({
+      attendanceId: id,
+    });
     if (!attendance) {
       throw new NotFoundException('attendance not found');
     }
