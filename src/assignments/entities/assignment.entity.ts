@@ -31,6 +31,7 @@ export class Assignment {
 
   @ManyToOne(() => Course, (course) => course.assignments)
   course: Course;
+
   @CreateDateColumn()
   createdDate: Date;
 

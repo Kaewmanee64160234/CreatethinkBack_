@@ -47,7 +47,7 @@ export class User {
   course: Course[];
 
   @OneToMany(() => Enrollment, (enrollment) => enrollment.user)
-  enrollment: Enrollment[];
+  enrollments: Enrollment[];
 
   @OneToMany(() => Attendance, (attendance) => attendance.user)
   attendance: Attendance[];

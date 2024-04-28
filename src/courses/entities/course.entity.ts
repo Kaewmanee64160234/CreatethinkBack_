@@ -43,7 +43,7 @@ export class Course {
   user: User;
 
   @OneToMany(() => Enrollment, (enrollment) => enrollment.course)
-  enrollment: Enrollment[];
+  enrollments: Enrollment[];
 
   @OneToMany(() => Assignment, (assignment) => assignment.course)
   assignments: Assignment[];

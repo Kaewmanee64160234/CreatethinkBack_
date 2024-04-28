@@ -11,13 +11,13 @@ import {
 
 @Entity()
 export class Enrollment {
-  @PrimaryGeneratedColumn({ name: 'enrollmentId' })
-  id: number;
+  @PrimaryGeneratedColumn()
+  enrollmentId: number;
 
-  @ManyToOne(() => Course, (course) => course.enrollment)
+  @ManyToOne(() => Course, (course) => course.enrollments)
   course: Course;
 
-  @ManyToOne(() => User, (user) => user.enrollment)
+  @ManyToOne(() => User, (user) => user.enrollments)
   user: User;
 
   @CreateDateColumn()

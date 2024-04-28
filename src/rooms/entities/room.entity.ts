@@ -3,11 +3,13 @@ import {
   Column,
   CreateDateColumn,
   DeleteDateColumn,
+  Entity,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
+@Entity()
 export class Room {
   @PrimaryGeneratedColumn()
   roomId: number;
