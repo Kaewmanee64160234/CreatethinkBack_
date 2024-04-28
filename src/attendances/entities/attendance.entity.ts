@@ -16,8 +16,8 @@ export class Attendance {
   attendanceId: number;
 
   @Column({
-    type: 'date',
-    default: () => 'CURRENT_DATE',
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
   })
   attendanceDate: Date;
 
