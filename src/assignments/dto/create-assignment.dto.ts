@@ -2,8 +2,11 @@ import { IsNotEmpty } from 'class-validator';
 
 export class CreateAssignmentDto {
   @IsNotEmpty()
-  name: string;
+  nameAssignment: string;
 
   @IsNotEmpty()
-  date: Date;
+  roomId: number;
+
+  @IsNotEmpty()
+  courseId: string;
 }

@@ -1,3 +1,4 @@
+import { Assignment } from 'src/assignments/entities/assignment.entity';
 import { Enrollment } from 'src/enrollments/entities/enrollment.entity';
 import { User } from 'src/users/entities/user.entity';
 import {
@@ -14,7 +15,7 @@ import {
 @Entity()
 export class Course {
   @PrimaryColumn({ name: 'coursesId' })
-  id: string;
+  coursesId: string;
 
   @Column({ name: 'nameCourses' })
   name: string;
@@ -43,6 +44,9 @@ export class Course {
 
   @OneToMany(() => Enrollment, (enrollment) => enrollment.course)
   enrollment: Enrollment[];
+
+  @OneToMany(() => Assignment, (assignment) => assignment.course)
+  assignments: Assignment[];
 
   @CreateDateColumn()
   createdDate: Date;

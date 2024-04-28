@@ -21,7 +21,7 @@ export class CoursesService {
   async create(createCourseDto: CreateCourseDto) {
     //create course
     const course = new Course();
-    course.id = createCourseDto.id;
+    course.coursesId = createCourseDto.id;
     course.name = createCourseDto.name;
     course.credit = createCourseDto.credit;
     course.session = createCourseDto.session;
@@ -48,7 +48,7 @@ export class CoursesService {
     await this.enrollmentRepository.save(enrollment);
     await this.courseRepository.save(courseSave);
     return this.courseRepository.findOne({
-      where: { id: courseSave.id },
+      where: { coursesId: courseSave.coursesId },
       relations: ['user', 'enrollment', 'enrollment.user', 'enrollment.course'],
     });
   }
@@ -61,7 +61,7 @@ export class CoursesService {
 
   async findOne(id: string) {
     const course = await this.courseRepository.findOne({
-      where: { id: id },
+      where: { coursesId: id },
       relations: ['user', 'enrollment', 'enrollment.user', 'enrollment.course'],
     });
     if (!course) {
@@ -72,7 +72,7 @@ export class CoursesService {
   }
 
   async update(id: string, updateCourseDto: UpdateCourseDto) {
-    const course = await this.courseRepository.findOneBy({ id: id });
+    const course = await this.courseRepository.findOneBy({ coursesId: id });
     if (!course) {
       throw new NotFoundException('course not found');
     }
@@ -83,7 +83,7 @@ export class CoursesService {
   }
 
   async remove(id: string) {
-    const course = await this.courseRepository.findOneBy({ id: id });
+    const course = await this.courseRepository.findOneBy({ coursesId: id });
     if (!course) {
       throw new NotFoundException('course not found');
     }

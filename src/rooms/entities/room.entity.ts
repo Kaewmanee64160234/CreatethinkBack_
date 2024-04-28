@@ -1,4 +1,5 @@
-import { Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Assignment } from 'src/assignments/entities/assignment.entity';
+import { Column, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 export class Room {
   @PrimaryGeneratedColumn()
@@ -11,5 +12,8 @@ export class Room {
   roomType: string;
 
   @Column()
-  stidentAttendance: number;
+  studentAttendance: number;
+
+  @OneToMany(() => Assignment, (assignment) => assignment.room)
+  assignments: Assignment[];
 }
