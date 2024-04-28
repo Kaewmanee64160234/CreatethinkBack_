@@ -11,17 +11,13 @@ import {
 
 @Entity()
 export class Assignment {
-  @PrimaryGeneratedColumn({ name: 'assignmentId' })
+  @PrimaryGeneratedColumn()
   assignmentId: number;
 
-  @Column({ name: 'nameAssignment' })
+  @Column()
   nameAssignment: string;
 
-  @Column({
-    name: 'assignMentTime',
-    type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP',
-  })
+  @Column()
   assignMentTime: Date;
 
   @OneToMany(() => Attendance, (attendance) => attendance.assignment)

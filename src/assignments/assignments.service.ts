@@ -66,9 +66,9 @@ export class AssignmentsService {
     }
   }
 
-  update(id: number, updateAssignmentDto: UpdateAssignmentDto) {
+  async update(id: number, updateAssignmentDto: UpdateAssignmentDto) {
     //check if assignment exists
-    const assignment = this.assignmentRepository.findOne({
+    const assignment = await this.assignmentRepository.findOne({
       where: { assignmentId: id },
     });
     if (!assignment) {
@@ -91,7 +91,7 @@ export class AssignmentsService {
       where: { assignment: { assignmentId: id } },
     });
     for (let i = 0; i < attendances.length; i++) {
-      this.attendanceRepository.delete(attendances[i].id);
+      this.attendanceRepository.delete(attendances[i].attendanceId);
     }
     //delete assignment
     return this.assignmentRepository.delete(id);

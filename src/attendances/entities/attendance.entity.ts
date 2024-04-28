@@ -4,18 +4,18 @@ import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class Attendance {
-  @PrimaryGeneratedColumn({ name: 'attendanceId' })
-  id: number;
+  @PrimaryGeneratedColumn()
+  attendanceId: number;
 
-  @Column({ name: 'attendanceDate' })
-  date: Date;
+  @Column()
+  attendanceDate: Date;
 
-  @Column({ name: 'status' })
-  status: string;
+  @Column()
+  attendanceStatus: string;
 
   @ManyToOne(() => User, (user) => user.attendance)
   user: User;
 
-  @ManyToOne(() => Assignment, (assignment) => assignment.attendance)
+  @ManyToOne(() => Assignment, (assignment) => assignment.attendances)
   assignment: Assignment;
 }
