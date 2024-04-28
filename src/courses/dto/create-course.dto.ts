@@ -5,7 +5,7 @@ export class CreateCourseDto {
   id: string;
 
   @IsNotEmpty()
-  name: string;
+  nameCourses: string;
 
   @IsNotEmpty()
   credit: number;
@@ -14,7 +14,7 @@ export class CreateCourseDto {
   session: string;
 
   @IsNotEmpty()
-  amount: number;
+  stdAmount: number;
 
   @IsNotEmpty()
   timeIn: Date;

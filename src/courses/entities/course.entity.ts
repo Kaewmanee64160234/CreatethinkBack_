@@ -14,31 +14,37 @@ import {
 } from 'typeorm';
 @Entity()
 export class Course {
-  @PrimaryColumn({ name: 'coursesId' })
+  @PrimaryColumn()
   coursesId: string;
 
-  @Column({ name: 'nameCourses' })
-  name: string;
+  @Column()
+  nameCourses: string;
 
-  @Column({ name: 'credit' })
+  @Column()
   credit: number;
 
-  @Column({ name: 'session' })
+  @Column()
   session: string;
 
-  @Column({ name: 'stdAmount' })
-  amount: number;
+  @Column()
+  stdAmount: number;
 
-  @Column({ type: 'time', name: 'timeIn' })
+  @Column({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
   timeIn: Date;
 
-  @Column({ type: 'time', name: 'timeOut' })
+  @Column({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
   timeOut: Date;
 
-  @Column({ name: 'fullScores' })
+  @Column()
   fullScore: number;
 
-  @ManyToOne(() => User, (user) => user.course)
+  @ManyToOne(() => User, (user) => user.courses)
   @JoinColumn()
   user: User;
 

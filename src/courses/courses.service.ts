@@ -22,10 +22,10 @@ export class CoursesService {
     //create course
     const course = new Course();
     course.coursesId = createCourseDto.id;
-    course.name = createCourseDto.name;
+    course.nameCourses = createCourseDto.nameCourses;
     course.credit = createCourseDto.credit;
     course.session = createCourseDto.session;
-    course.amount = createCourseDto.amount;
+    course.stdAmount = createCourseDto.stdAmount;
     course.timeIn = createCourseDto.timeIn;
     course.timeOut = createCourseDto.timeOut;
     course.fullScore = createCourseDto.fullScore;
