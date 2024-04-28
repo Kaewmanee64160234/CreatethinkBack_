@@ -6,40 +6,17 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Assignment } from './entities/assignment.entity';
 import { Repository } from 'typeorm';
 import { Course } from 'src/courses/entities/course.entity';
-<<<<<<< HEAD
-
-@Injectable()
-export class AssignmentsService {
-=======
 import { Room } from 'src/rooms/entities/room.entity';
 import { Attendance } from 'src/attendances/entities/attendance.entity';
 
 @Injectable()
 export class AssignmentsService {
   //create constructor to inject assignmentRepository and courseRepository and roomRepository
->>>>>>> 39859d4b1b9e86240f7f77e43456331e8f419301
   constructor(
     @InjectRepository(Assignment)
     private assignmentRepository: Repository<Assignment>,
     @InjectRepository(Course)
     private courseRepository: Repository<Course>,
-<<<<<<< HEAD
-  ) {}
-  async create(createAssignmentDto: CreateAssignmentDto) {
-    const assignment = new Assignment();
-    assignment.id = createAssignmentDto.id;
-    assignment.name = createAssignmentDto.name;
-    assignment.date = createAssignmentDto.date;
-
-    const course = await this.courseRepository.findOneBy({
-      id: createAssignmentDto.courseId,
-    });
-    if (!course) {
-      throw new NotFoundException('course not found');
-    }
-    assignment.course = course[0];
-    return this.assignmentRepository.save(assignment);
-=======
     @InjectRepository(Room)
     private roomRepository: Repository<Room>,
     @InjectRepository(Attendance)
@@ -70,7 +47,6 @@ export class AssignmentsService {
     } catch (error) {
       throw new Error('Error creating assignment');
     }
->>>>>>> 39859d4b1b9e86240f7f77e43456331e8f419301
   }
   findAll() {
     try {

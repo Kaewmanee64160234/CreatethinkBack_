@@ -1,11 +1,19 @@
 import { Attendance } from 'src/attendances/entities/attendance.entity';
 import { Course } from 'src/courses/entities/course.entity';
 import { Enrollment } from 'src/enrollments/entities/enrollment.entity';
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 @Entity()
 export class User {
-  @PrimaryGeneratedColumn({ name: 'userId' })
-  id: number;
+  @PrimaryGeneratedColumn()
+  userId: number;
 
   @Column()
   firstName: string;
@@ -51,4 +59,13 @@ export class User {
 
   @OneToMany(() => Attendance, (attendance) => attendance.user)
   attendance: Attendance[];
+
+  @CreateDateColumn()
+  createdDate: Date;
+
+  @UpdateDateColumn()
+  updatedDate: Date;
+
+  @DeleteDateColumn()
+  deletedDate: Date;
 }

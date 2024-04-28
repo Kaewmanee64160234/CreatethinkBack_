@@ -11,10 +11,5 @@ export class CreateAttendanceDto {
   userId: number;
 
   @IsNotEmpty()
-<<<<<<< HEAD
-  user: User[];
-  assignment: any;
-=======
   assignmentId: number;
->>>>>>> 39859d4b1b9e86240f7f77e43456331e8f419301
 }

@@ -15,21 +15,10 @@ export class AttendancesService {
     private attendanceRepository: Repository<Attendance>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    @InjectRepository(Assignment)
+    private assignmentRespository: Repository<Assignment>,
   ) {}
   async create(createAttendanceDto: CreateAttendanceDto) {
-<<<<<<< HEAD
-    const attendances: Attendance = new Attendance();
-    attendances.date = createAttendanceDto.date;
-    attendances.status = createAttendanceDto.status;
-    const user = await this.userRepository.findOneBy({
-      id: createAttendanceDto.userId,
-    });
-    if (!user) {
-      throw new NotFoundException('user not found');
-    }
-    attendances.user = user;
-    return this.attendanceRepository.save(attendances);
-=======
     try {
       const user = await this.userRepository.findOne({
         where: { id: createAttendanceDto.userId },
@@ -61,7 +50,6 @@ export class AttendancesService {
     } catch (error) {
       throw new Error('Error creating attendance');
     }
->>>>>>> 39859d4b1b9e86240f7f77e43456331e8f419301
   }
 
   findAll() {
@@ -78,10 +66,7 @@ export class AttendancesService {
       return attendance;
     }
   }
-<<<<<<< HEAD
-=======
 
->>>>>>> 39859d4b1b9e86240f7f77e43456331e8f419301
   async remove(id: number) {
     const attendance = await this.attendanceRepository.findOneBy({
       attendanceId: id,
