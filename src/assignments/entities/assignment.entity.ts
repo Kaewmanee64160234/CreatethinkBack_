@@ -3,10 +3,13 @@ import { Course } from 'src/courses/entities/course.entity';
 import { Room } from 'src/rooms/entities/room.entity';
 import {
   Column,
+  CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 
 @Entity()
@@ -17,7 +20,7 @@ export class Assignment {
   @Column()
   nameAssignment: string;
 
-  @Column()
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   assignMentTime: Date;
 
   @OneToMany(() => Attendance, (attendance) => attendance.assignment)
@@ -28,4 +31,12 @@ export class Assignment {
 
   @ManyToOne(() => Course, (course) => course.assignments)
   course: Course;
+  @CreateDateColumn()
+  createdDate: Date;
+
+  @UpdateDateColumn()
+  updatedDate: Date;
+
+  @DeleteDateColumn()
+  deletedDate: Date;
 }

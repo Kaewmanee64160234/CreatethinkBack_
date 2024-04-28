@@ -1,5 +1,12 @@
 import { Assignment } from 'src/assignments/entities/assignment.entity';
-import { Column, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 export class Room {
   @PrimaryGeneratedColumn()
@@ -16,4 +23,13 @@ export class Room {
 
   @OneToMany(() => Assignment, (assignment) => assignment.room)
   assignments: Assignment[];
+
+  @CreateDateColumn()
+  createdDate: Date;
+
+  @UpdateDateColumn()
+  updatedDate: Date;
+
+  @DeleteDateColumn()
+  deletedDate: Date;
 }
