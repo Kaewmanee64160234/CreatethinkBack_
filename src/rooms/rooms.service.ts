@@ -2,50 +2,54 @@ import { Injectable } from '@nestjs/common';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { Room } from './entities/room.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
-export class RoomService {
-  //create constructor and inject room repository
+export class RoomsService {
+  //create constructor to inject roomRepository
   constructor(
     @InjectRepository(Room)
     private roomRepository: Repository<Room>,
   ) {}
   create(createRoomDto: CreateRoomDto) {
-    //create room from dto
     try {
-      //find room number if duplicate
+      //find room byroomNumber is duplicate
       const room = this.roomRepository.findOne({
         where: { roomNumber: createRoomDto.roomNumber },
       });
       if (room) {
-        throw new Error('Room number already exist');
+        throw new Error('Room already exists');
       }
-      //create room
+      //create new room
       const newRoom = this.roomRepository.create(createRoomDto);
+      //save new room
       return this.roomRepository.save(newRoom);
-    } catch (e) {
-      throw new Error('Cannot create room');
+    } catch (error) {
+      throw new Error('Error creating room');
     }
   }
 
   findAll() {
-    return this.roomRepository.find();
+    try {
+      //find all rooms
+      return this.roomRepository.find();
+    } catch (error) {
+      throw new Error('Error fetching rooms');
+    }
   }
 
   findOne(id: number) {
-    //find room by id
-    const room = this.roomRepository.findOne({ where: { roomId: id } });
-    if (!room) {
-      throw new Error('Room not found');
+    try {
+      //find room by id
+      return this.roomRepository.findOne({ where: { roomId: id } });
+    } catch (error) {
+      throw new Error('Error fetching room');
     }
-    return room;
   }
 
   update(id: number, updateRoomDto: UpdateRoomDto) {
-    //update room by id
-    //find room by id
+    //check if room exists
     const room = this.roomRepository.findOne({ where: { roomId: id } });
     if (!room) {
       throw new Error('Room not found');
@@ -55,8 +59,7 @@ export class RoomService {
   }
 
   remove(id: number) {
-    //delete room by id
-    //find room by id
+    //check if room exists
     const room = this.roomRepository.findOne({ where: { roomId: id } });
     if (!room) {
       throw new Error('Room not found');

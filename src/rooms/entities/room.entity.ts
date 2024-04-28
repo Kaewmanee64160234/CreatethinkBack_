@@ -11,5 +11,5 @@ export class Room {
   roomType: string;
 
   @Column()
-  studentAmount: number;
+  stidentAttendance: number;
 }

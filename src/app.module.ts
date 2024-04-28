@@ -13,6 +13,7 @@ import { Attendance } from './attendances/entities/attendance.entity';
 import { AssignmentsModule } from './assignments/assignments.module';
 import { Assignment } from './assignments/entities/assignment.entity';
 import { RoomModule } from './room/room.module';
+import { RoomsModule } from './rooms/rooms.module';
 @Module({
   imports: [
     UsersModule,
@@ -31,6 +32,7 @@ import { RoomModule } from './room/room.module';
       synchronize: true,
     }),
     RoomModule,
+    RoomsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
