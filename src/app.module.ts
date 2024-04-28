@@ -12,7 +12,6 @@ import { Enrollment } from './enrollments/entities/enrollment.entity';
 import { Attendance } from './attendances/entities/attendance.entity';
 import { AssignmentsModule } from './assignments/assignments.module';
 import { Assignment } from './assignments/entities/assignment.entity';
-import { RoomModule } from './room/room.module';
 import { RoomsModule } from './rooms/rooms.module';
 @Module({
   imports: [
@@ -31,7 +30,6 @@ import { RoomsModule } from './rooms/rooms.module';
       entities: [User, Course, Enrollment, Attendance, Assignment],
       synchronize: true,
     }),
-    RoomModule,
     RoomsModule,
   ],
   controllers: [AppController],
