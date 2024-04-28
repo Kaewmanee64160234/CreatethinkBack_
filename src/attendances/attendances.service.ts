@@ -44,13 +44,13 @@ export class AttendancesService {
         await this.attendanceRepository.save(user);
       }
       const assignment = await this.assignmentRespository.findOne({
-        where: { id: createAttendanceDto.assignment[i].id },
+        where: { assignmentId: createAttendanceDto.assignment[i].id },
       });
       if (assignment) {
-        const assignment = new Assignment();
-        assignment.name = createAttendanceDto.assignment[i].name;
-        assignment.date = createAttendanceDto.assignment[i].date;
-        await this.attendanceRepository.save(assignment);
+        const assignmentObj = new Assignment();
+        assignmentObj.nameAssignment = createAttendanceDto.assignment[i].name;
+        assignmentObj.assignMentTime = createAttendanceDto.assignment[i].date;
+        await this.assignmentRespository.save(assignmentObj);
       }
     }
     await this.attendanceRepository.save(attendances);

@@ -12,17 +12,17 @@ export class RoomsService {
     @InjectRepository(Room)
     private roomRepository: Repository<Room>,
   ) {}
-  create(createRoomDto: CreateRoomDto) {
+  async create(createRoomDto: CreateRoomDto) {
     try {
       //find room byroomNumber is duplicate
-      const room = this.roomRepository.findOne({
+      const room = await this.roomRepository.findOne({
         where: { roomNumber: createRoomDto.roomNumber },
       });
       if (room) {
         throw new Error('Room already exists');
       }
       //create new room
-      const newRoom = this.roomRepository.create(createRoomDto);
+      const newRoom = await this.roomRepository.create(createRoomDto);
       //save new room
       return this.roomRepository.save(newRoom);
     } catch (error) {
@@ -48,9 +48,9 @@ export class RoomsService {
     }
   }
 
-  update(id: number, updateRoomDto: UpdateRoomDto) {
+  async update(id: number, updateRoomDto: UpdateRoomDto) {
     //check if room exists
-    const room = this.roomRepository.findOne({ where: { roomId: id } });
+    const room = await this.roomRepository.findOne({ where: { roomId: id } });
     if (!room) {
       throw new Error('Room not found');
     }
@@ -58,13 +58,17 @@ export class RoomsService {
     return this.roomRepository.update(id, updateRoomDto);
   }
 
-  remove(id: number) {
+  async remove(id: number) {
     //check if room exists
-    const room = this.roomRepository.findOne({ where: { roomId: id } });
+    const room = await this.roomRepository.findOne({ where: { roomId: id } });
     if (!room) {
       throw new Error('Room not found');
     }
     //delete room
     return this.roomRepository.delete(id);
+  }
+  //find room by roomNumber
+  async findByRoomNumber(roomNumber: string) {
+    return this.roomRepository.findOne({ where: { roomNumber: roomNumber } });
   }
 }

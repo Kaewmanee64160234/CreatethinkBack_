@@ -29,6 +29,11 @@ export class RoomsController {
   findOne(@Param('id') id: string) {
     return this.roomsService.findOne(+id);
   }
+  //find room by name
+  @Get('/name/:name')
+  findByName(@Param('name') name: string) {
+    return this.roomsService.findByRoomNumber(name);
+  }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateRoomDto: UpdateRoomDto) {
