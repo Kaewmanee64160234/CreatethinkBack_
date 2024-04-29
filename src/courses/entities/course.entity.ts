@@ -54,9 +54,6 @@ export class Course {
   @OneToMany(() => Assignment, (assignment) => assignment.course)
   assignments: Assignment[];
 
-  @ManyToOne(() => Assignment, (assignment) => assignment.course)
-  assignment: Assignment;
-
   @CreateDateColumn()
   createdDate: Date;
 

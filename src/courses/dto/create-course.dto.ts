@@ -2,7 +2,7 @@ import { IsNotEmpty } from 'class-validator';
 
 export class CreateCourseDto {
   @IsNotEmpty()
-  id: string;
+  coursesId: string;
 
   @IsNotEmpty()
   nameCourses: string;

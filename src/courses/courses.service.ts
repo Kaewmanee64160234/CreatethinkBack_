@@ -19,9 +19,17 @@ export class CoursesService {
     private enrollmentRepository: Repository<Enrollment>,
   ) {}
   async create(createCourseDto: CreateCourseDto) {
-    //create course
+    // Check if user exists
+    const user = await this.userRepository.findOne({
+      where: { userId: createCourseDto.userId },
+    });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // Create course instance and set properties including the primary key
     const course = new Course();
-    course.coursesId = createCourseDto.id;
+    course.coursesId = createCourseDto.coursesId; // Set the primary key value
     course.nameCourses = createCourseDto.nameCourses;
     course.credit = createCourseDto.credit;
     course.session = createCourseDto.session;
@@ -29,28 +37,12 @@ export class CoursesService {
     course.timeIn = createCourseDto.timeIn;
     course.timeOut = createCourseDto.timeOut;
     course.fullScore = createCourseDto.fullScore;
+    course.user = user; // Assign the user to the course
 
-    const courseSave = await this.courseRepository.save(course);
-    //check if user exists
+    // Save course to database
+    const savedCourse = await this.courseRepository.save(course);
 
-    const user = await this.userRepository.findOne({
-      where: { userId: createCourseDto.userId },
-    });
-    if (!user) {
-      throw new NotFoundException('user not found');
-    }
-    courseSave.user = user;
-
-    //create enrollment
-    const enrollment = new Enrollment();
-    enrollment.course = courseSave;
-    enrollment.user = courseSave.user;
-    await this.enrollmentRepository.save(enrollment);
-    await this.courseRepository.save(courseSave);
-    return this.courseRepository.findOne({
-      where: { coursesId: courseSave.coursesId },
-      relations: ['user', 'enrollment', 'enrollment.user', 'enrollment.course'],
-    });
+    return savedCourse;
   }
 
   findAll() {
