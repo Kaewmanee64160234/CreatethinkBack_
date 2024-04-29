@@ -34,7 +34,7 @@ export class CoursesService {
     //check if user exists
 
     const user = await this.userRepository.findOne({
-      where: { id: createCourseDto.userId },
+      where: { userId: createCourseDto.userId },
     });
     if (!user) {
       throw new NotFoundException('user not found');
