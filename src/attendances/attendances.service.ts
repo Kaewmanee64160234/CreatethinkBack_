@@ -21,7 +21,7 @@ export class AttendancesService {
   async create(createAttendanceDto: CreateAttendanceDto) {
     try {
       const user = await this.userRepository.findOne({
-        where: { id: createAttendanceDto.userId },
+        where: { userId: createAttendanceDto.userId },
       });
       const assignment = await this.assignmentRespository.findOne({
         where: { assignmentId: createAttendanceDto.assignmentId },

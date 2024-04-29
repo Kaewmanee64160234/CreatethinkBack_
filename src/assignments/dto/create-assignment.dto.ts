@@ -5,6 +5,14 @@ export class CreateAssignmentDto {
   nameAssignment: string;
 
   @IsNotEmpty()
+  date: Date;
+
+  @IsNotEmpty()
+  courseId: string;
+
+  @IsNotEmpty()
+  id: number;
+
   roomId: number;
 
   @IsNotEmpty()

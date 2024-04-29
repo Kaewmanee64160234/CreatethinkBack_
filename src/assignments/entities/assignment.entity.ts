@@ -1,5 +1,6 @@
 import { Attendance } from 'src/attendances/entities/attendance.entity';
 import { Course } from 'src/courses/entities/course.entity';
+
 import { Room } from 'src/rooms/entities/room.entity';
 import {
   Column,
