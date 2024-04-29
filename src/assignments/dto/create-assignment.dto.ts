@@ -10,8 +10,5 @@ export class CreateAssignmentDto {
   @IsNotEmpty()
   courseId: string;
 
-  @IsNotEmpty()
-  id: number;
-
   roomId: number;
 }

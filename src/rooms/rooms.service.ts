@@ -22,9 +22,9 @@ export class RoomsService {
         throw new Error('Room already exists');
       }
       //create new room
-      const newRoom = await this.roomRepository.create(createRoomDto);
+      const newRoom = await this.roomRepository.save(createRoomDto);
       //save new room
-      return this.roomRepository.save(newRoom);
+      return newRoom;
     } catch (error) {
       throw new Error('Error creating room');
     }
@@ -55,7 +55,8 @@ export class RoomsService {
       throw new Error('Room not found');
     }
     //update room
-    return this.roomRepository.update(id, updateRoomDto);
+    const updatedRoom = await this.roomRepository.update(id, updateRoomDto);
+    return updatedRoom;
   }
 
   async remove(id: number) {

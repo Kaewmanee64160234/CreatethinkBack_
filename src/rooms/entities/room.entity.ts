@@ -13,8 +13,8 @@ import {
 export class Room {
   @PrimaryGeneratedColumn()
   roomId: number;
-
-  @Column()
+  // unniqe
+  @Column({ unique: true })
   roomNumber: string;
 
   @Column()
