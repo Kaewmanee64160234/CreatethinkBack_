@@ -13,13 +13,16 @@ import { Attendance } from './attendances/entities/attendance.entity';
 import { AssignmentsModule } from './assignments/assignments.module';
 import { Assignment } from './assignments/entities/assignment.entity';
 import { RoomsModule } from './rooms/rooms.module';
+import { Room } from './rooms/entities/room.entity';
 @Module({
   imports: [
+    RoomsModule,
     UsersModule,
     CoursesModule,
     EnrollmentsModule,
     AttendancesModule,
     AssignmentsModule,
+
     TypeOrmModule.forRoot({
       type: 'mysql',
       host: 'localhost',
@@ -27,10 +30,10 @@ import { RoomsModule } from './rooms/rooms.module';
       username: 'root',
       password: '',
       database: 'creativethinking',
-      entities: [User, Course, Enrollment, Attendance, Assignment],
+      entities: [User, Room, Course, Enrollment, Attendance, Assignment],
       synchronize: true,
+      logging: true,
     }),
-    RoomsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

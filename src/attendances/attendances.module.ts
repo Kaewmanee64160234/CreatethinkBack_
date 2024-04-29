@@ -10,5 +10,6 @@ import { Assignment } from 'src/assignments/entities/assignment.entity';
   imports: [TypeOrmModule.forFeature([Attendance, User, Assignment])],
   controllers: [AttendancesController],
   providers: [AttendancesService],
+  exports: [AttendancesService],
 })
 export class AttendancesModule {}
