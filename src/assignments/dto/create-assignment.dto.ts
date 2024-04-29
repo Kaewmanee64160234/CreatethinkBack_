@@ -14,7 +14,4 @@ export class CreateAssignmentDto {
   id: number;
 
   roomId: number;
-
-  @IsNotEmpty()
-  courseId: string;
 }
