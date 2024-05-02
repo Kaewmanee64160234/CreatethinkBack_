@@ -47,7 +47,7 @@ export class CoursesService {
 
   findAll() {
     return this.courseRepository.find({
-      relations: ['user', 'enrollment', 'enrollment.user', 'enrollment.course'],
+      // relations: ['user', 'enrollment', 'enrollment.user', 'enrollment.course'],
     });
   }
 
