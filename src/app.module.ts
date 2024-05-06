@@ -32,7 +32,7 @@ import { Room } from './rooms/entities/room.entity';
       database: 'creativethinking',
       entities: [User, Room, Course, Enrollment, Attendance, Assignment],
       synchronize: true,
-      logging: true,
+      // logging: true,
     }),
   ],
   controllers: [AppController],

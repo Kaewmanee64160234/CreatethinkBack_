@@ -42,4 +42,9 @@ export class AssignmentsController {
   remove(@Param('id') id: string) {
     return this.assignmentsService.remove(+id);
   }
+  //getAssignmentByCourseId
+  @Get('course/:id')
+  getAssignmentByCourseId(@Param('id') id: string) {
+    return this.assignmentsService.getAssignmentByCourseId(id);
+  }
 }

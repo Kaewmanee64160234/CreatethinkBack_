@@ -96,4 +96,15 @@ export class AssignmentsService {
     //delete assignment
     return this.assignmentRepository.delete(id);
   }
+  //get Assginment by course id
+  async getAssignmentByCourseId(courseId: string) {
+    try {
+      return this.assignmentRepository.find({
+        where: { course: { coursesId: courseId } },
+        relations: ['room', 'course', 'course.user'],
+      });
+    } catch (error) {
+      throw new Error('Error fetching assignment');
+    }
+  }
 }
