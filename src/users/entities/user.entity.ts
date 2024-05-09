@@ -28,6 +28,9 @@ export class User {
   role: string;
 
   @Column()
+  status: string;
+
+  @Column()
   studentId: string;
 
   @Column()

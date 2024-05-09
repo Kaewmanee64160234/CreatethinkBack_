@@ -12,6 +12,8 @@ export class CreateUserDto {
 
   role: string;
 
+  status: string;
+
   studentId: string;
 
   teacherId: string;
