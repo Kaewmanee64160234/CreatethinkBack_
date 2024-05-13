@@ -33,13 +33,25 @@ export class Course {
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP',
   })
-  timeIn: Date;
+  timeInLab: Date;
 
   @Column({
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP',
   })
-  timeOut: Date;
+  timeOutLab: Date;
+
+  @Column({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
+  timeInLec: Date;
+
+  @Column({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
+  timeOutLec: Date;
 
   @Column()
   fullScore: number;

@@ -34,8 +34,10 @@ export class CoursesService {
     course.credit = createCourseDto.credit;
     course.session = createCourseDto.session;
     course.stdAmount = createCourseDto.stdAmount;
-    course.timeIn = createCourseDto.timeIn;
-    course.timeOut = createCourseDto.timeOut;
+    course.timeInLab = createCourseDto.timeInLab;
+    course.timeOutLab = createCourseDto.timeOutLab;
+    course.timeInLec = createCourseDto.timeInLec;
+    course.timeOutLec = createCourseDto.timeOutLec;
     course.fullScore = createCourseDto.fullScore;
     course.user = user; // Assign the user to the course
 

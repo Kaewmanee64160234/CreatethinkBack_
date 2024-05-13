@@ -74,4 +74,16 @@ export class UsersService {
     }
     return this.userRepository.softRemove(user);
   }
+
+  //custom function find course by userId
+  async findCourseByUserId(id: number) {
+    const user = await this.userRepository.findOne({
+      where: { userId: id },
+      relations: ['courses'],
+    });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return user.courses;
+  }
 }

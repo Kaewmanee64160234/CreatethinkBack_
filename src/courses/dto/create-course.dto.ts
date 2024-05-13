@@ -17,10 +17,16 @@ export class CreateCourseDto {
   stdAmount: number;
 
   @IsNotEmpty()
-  timeIn: Date;
+  timeInLab: Date;
 
   @IsNotEmpty()
-  timeOut: Date;
+  timeOutLab: Date;
+
+  @IsNotEmpty()
+  timeInLec: Date;
+
+  @IsNotEmpty()
+  timeOutLec: Date;
 
   @IsNotEmpty()
   fullScore: number;
