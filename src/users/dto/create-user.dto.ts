@@ -10,10 +10,13 @@ export class CreateUserDto {
   @IsNotEmpty()
   email: string;
 
+  @IsNotEmpty()
   role: string;
 
+  @IsNotEmpty()
   status: string;
 
+  @IsNotEmpty()
   studentId: string;
 
   teacherId: string;
