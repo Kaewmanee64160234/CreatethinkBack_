@@ -8,6 +8,9 @@ export class CreateCourseDto {
   nameCourses: string;
 
   @IsNotEmpty()
+  typeCourses: string;
+
+  @IsNotEmpty()
   credit: number;
 
   @IsNotEmpty()
