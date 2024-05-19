@@ -16,7 +16,6 @@ export class CreateUserDto {
   @IsNotEmpty()
   status: string;
 
-  @IsNotEmpty()
   studentId: string;
 
   teacherId: string;
@@ -30,7 +29,4 @@ export class CreateUserDto {
   faceDescription4: string;
 
   faceDescription5: string;
-
-  @IsNotEmpty()
-  imageProfile: string;
 }

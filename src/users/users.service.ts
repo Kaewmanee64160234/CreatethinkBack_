@@ -12,9 +12,28 @@ export class UsersService {
     @InjectRepository(User)
     private userRepository: Repository<User>,
   ) {}
-  async create(createUserDto: CreateUserDto) {
-    const user = this.userRepository.create(createUserDto);
-    return await this.userRepository.save(user);
+  async create(createUserDto: CreateUserDto, imageFile: Express.Multer.File) {
+    try {
+      const newUser = new User();
+      if (imageFile) {
+        const imageBase64 = imageFile.buffer.toString('base64');
+        const imageData = `data:${imageFile.mimetype};base64,${imageBase64}`;
+        newUser.profileImage = imageData;
+      } else {
+        newUser.profileImage = null;
+      }
+      newUser.firstName = createUserDto.firstName;
+      newUser.lastName = createUserDto.lastName;
+      newUser.email = createUserDto.email;
+      newUser.role = createUserDto.role;
+      newUser.status = createUserDto.status;
+      newUser.studentId = createUserDto.studentId;
+      newUser.teacherId = createUserDto.teacherId;
+      const user = await this.userRepository.create(newUser);
+      return await this.userRepository.save(user);
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   findAll() {
@@ -38,7 +57,6 @@ export class UsersService {
       newUser.email = userDto.email;
       newUser.firstName = userDto.firstName;
       newUser.lastName = userDto.lastName;
-      newUser.profileImage = userDto.imageProfile;
       //split @ to id
       const strId = userDto.email.split('@')[0];
 
@@ -55,15 +73,30 @@ export class UsersService {
     }
   }
 
-  async update(id: number, updateUserDto: UpdateUserDto) {
-    const user = await this.userRepository.findOneBy({ userId: id });
-    if (!user) {
-      throw new NotFoundException('user not found');
-    }
-    return await this.userRepository.save({
-      ...user,
-      ...updateUserDto,
-    });
+  async update(
+    id: number,
+    updateUserDto: UpdateUserDto,
+    imageFile: Express.Multer.File,
+  ) {
+    try {
+      const newUser = new User();
+      if (imageFile) {
+        const imageBase64 = imageFile.buffer.toString('base64');
+        const imageData = `data:${imageFile.mimetype};base64,${imageBase64}`;
+        newUser.profileImage = imageData;
+      } else {
+        newUser.profileImage = null;
+      }
+      newUser.firstName = updateUserDto.firstName;
+      newUser.lastName = updateUserDto.lastName;
+      newUser.email = updateUserDto.email;
+      newUser.role = updateUserDto.role;
+      newUser.status = updateUserDto.status;
+      newUser.studentId = updateUserDto.studentId;
+      newUser.teacherId = updateUserDto.teacherId;
+      const user = await this.userRepository.findOneBy({ userId: id });
+      return await this.userRepository.save({ ...user, ...newUser });
+    } catch (error) {}
   }
 
   async remove(id: number) {

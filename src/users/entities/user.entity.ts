@@ -51,7 +51,7 @@ export class User {
   @Column()
   faceDescription5: string;
 
-  @Column()
+  @Column({ type: 'text', default: 'no-image.jpg', nullable: true })
   profileImage: string;
 
   @OneToMany(() => Course, (course) => course.user)
