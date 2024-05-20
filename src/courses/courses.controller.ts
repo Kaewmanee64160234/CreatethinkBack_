@@ -39,4 +39,14 @@ export class CoursesController {
   remove(@Param('id') id: string) {
     return this.coursesService.remove(id);
   }
+
+  @Get('teach/:teachId')
+  async findCoursesByTeacherId(@Param('teachId') teachId: string) {
+    return this.coursesService.findCoursesByTeacherId(teachId);
+  }
+
+  @Get('/student/:studentId')
+  async findCoursesByStudentId(@Param('studentId') studentId: string) {
+    return this.coursesService.findCoursesByStudentId(studentId);
+  }
 }

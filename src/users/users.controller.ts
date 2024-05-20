@@ -55,9 +55,4 @@ export class UsersController {
   login(@Body() createUserDto: CreateUserDto) {
     return this.usersService.login(createUserDto);
   }
-
-  @Get(':id/courses')
-  findCourseByUserID(@Param('id') id: string) {
-    return this.usersService.findCourseByUserId(+id);
-  }
 }

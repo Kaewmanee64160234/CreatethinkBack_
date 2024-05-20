@@ -21,6 +21,9 @@ export class Course {
   nameCourses: string;
 
   @Column()
+  typeCourses: string;
+
+  @Column()
   credit: number;
 
   @Column()

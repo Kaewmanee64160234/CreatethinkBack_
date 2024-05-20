@@ -31,6 +31,7 @@ export class CoursesService {
     const course = new Course();
     course.coursesId = createCourseDto.coursesId; // Set the primary key value
     course.nameCourses = createCourseDto.nameCourses;
+    course.typeCourses = createCourseDto.typeCourses;
     course.credit = createCourseDto.credit;
     course.session = createCourseDto.session;
     course.stdAmount = createCourseDto.stdAmount;
@@ -82,5 +83,24 @@ export class CoursesService {
       throw new NotFoundException('course not found');
     }
     return this.courseRepository.softRemove(course);
+  }
+  async findCoursesByTeacherId(id: string) {
+    const courses = await this.courseRepository.find({
+      where: { user: { teacherId: id } },
+    });
+    if (!courses || courses.length === 0) {
+      throw new NotFoundException('Courses not found for this user');
+    }
+    return courses;
+  }
+
+  async findCoursesByStudentId(id: string) {
+    const courses = await this.courseRepository.find({
+      where: { user: { studentId: id } },
+    });
+    if (!courses || courses.length === 0) {
+      throw new NotFoundException('Courses not found for this studentId');
+    }
+    return courses;
   }
 }
