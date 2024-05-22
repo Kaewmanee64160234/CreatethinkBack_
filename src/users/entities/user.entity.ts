@@ -36,20 +36,20 @@ export class User {
   @Column()
   teacherId: string;
 
-  @Column()
-  faceDescription1: string;
+  @Column({ type: 'json', nullable: true })
+  faceDescription1: number[];
 
-  @Column()
-  faceDescription2: string;
+  @Column({ type: 'json', nullable: true })
+  faceDescription2: number[];
 
-  @Column()
-  faceDescription3: string;
+  @Column({ type: 'json', nullable: true })
+  faceDescription3: number[];
 
-  @Column()
-  faceDescription4: string;
+  @Column({ type: 'json', nullable: true })
+  faceDescription4: number[];
 
-  @Column()
-  faceDescription5: string;
+  @Column({ type: 'json', nullable: true })
+  faceDescription5: number[];
 
   @Column({ type: 'text', default: 'no-image.jpg', nullable: true })
   profileImage: string;
