@@ -10,8 +10,10 @@ export class CreateUserDto {
   @IsNotEmpty()
   email: string;
 
+  @IsNotEmpty()
   role: string;
 
+  @IsNotEmpty()
   status: string;
 
   studentId: string;
@@ -27,7 +29,4 @@ export class CreateUserDto {
   faceDescription4: string;
 
   faceDescription5: string;
-
-  @IsNotEmpty()
-  imageProfile: string;
 }

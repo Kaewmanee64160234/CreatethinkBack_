@@ -14,6 +14,7 @@ import { AssignmentsModule } from './assignments/assignments.module';
 import { Assignment } from './assignments/entities/assignment.entity';
 import { RoomsModule } from './rooms/rooms.module';
 import { Room } from './rooms/entities/room.entity';
+import { AuthModule } from './auth/auth.module';
 @Module({
   imports: [
     RoomsModule,
@@ -34,6 +35,8 @@ import { Room } from './rooms/entities/room.entity';
       synchronize: true,
       // logging: true,
     }),
+
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
