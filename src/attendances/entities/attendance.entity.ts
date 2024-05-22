@@ -24,14 +24,14 @@ export class Attendance {
   @Column()
   attendanceStatus: string;
 
-  @Column({ type: 'text' })
-  attendanceImage: string;
+  @Column()
+  attendanceImage: Buffer;
 
   @Column()
   attendanceConfirmStatus: string;
 
-  @ManyToOne(() => User, (user) => user.attendance)
-  user: User;
+  @ManyToOne(() => User, (user) => user.attendance, { nullable: true })
+  user: User | null;
 
   @ManyToOne(() => Assignment, (assignment) => assignment.attendances)
   assignment: Assignment;

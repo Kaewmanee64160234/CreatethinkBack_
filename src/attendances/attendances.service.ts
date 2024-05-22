@@ -7,6 +7,7 @@ import { Attendance } from './entities/attendance.entity';
 import { Repository } from 'typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { Assignment } from 'src/assignments/entities/assignment.entity';
+import { Buffer } from 'buffer';
 
 @Injectable()
 export class AttendancesService {
@@ -16,49 +17,48 @@ export class AttendancesService {
     @InjectRepository(User)
     private userRepository: Repository<User>,
     @InjectRepository(Assignment)
-    private assignmentRespository: Repository<Assignment>,
+    private assignmentRepository: Repository<Assignment>,
   ) {}
+
   async create(
     createAttendanceDto: CreateAttendanceDto,
     imageFile: Express.Multer.File,
   ) {
     try {
-      const assignment = await this.assignmentRespository.findOne({
+      if (!imageFile || !imageFile.buffer) {
+        throw new Error('No file uploaded or file buffer is unavailable');
+      }
+
+      const assignment = await this.assignmentRepository.findOne({
         where: { assignmentId: createAttendanceDto.assignmentId },
       });
 
       if (!assignment) {
-        throw new Error('User or Assignment not found');
+        throw new Error('Assignment not found');
       }
 
       const newAttendance = new Attendance();
-      if (createAttendanceDto.userId != null) {
-        const user = await this.userRepository.findOne({
-          where: { userId: createAttendanceDto.userId },
-        });
-        newAttendance.user = user;
-      } else {
-        newAttendance.user = null;
-      }
-      newAttendance.attendanceDate = new Date();
+      newAttendance.user = createAttendanceDto.userId
+        ? await this.userRepository.findOne({
+            where: { userId: createAttendanceDto.userId },
+          })
+        : null;
 
+      newAttendance.attendanceDate = new Date();
+      newAttendance.attendanceImage = imageFile.buffer;
       newAttendance.attendanceConfirmStatus =
         createAttendanceDto.attendanceConfirmStatus;
-      //if date in assignment is greater than current  15 minutes create status late but in 15 minutes create status on time
+
       const currentDate = new Date();
       const assignmentDate = new Date(assignment.assignMentTime);
       const diff = Math.abs(currentDate.getTime() - assignmentDate.getTime());
-      const diffMinutes = Math.ceil(diff / (1000 * 60));
-      if (diffMinutes > 15) {
-        newAttendance.attendanceStatus = 'late';
-      } else {
-        newAttendance.attendanceStatus = 'on time';
-      }
+      newAttendance.attendanceStatus =
+        Math.ceil(diff / (1000 * 60)) > 15 ? 'late' : 'on time';
       newAttendance.assignment = assignment;
-      newAttendance.attendanceImage = createAttendanceDto.attendanceImage;
 
       return this.attendanceRepository.save(newAttendance);
     } catch (error) {
+      console.error('Error in create attendance:', error);
       throw new Error('Error creating attendance');
     }
   }
@@ -86,5 +86,18 @@ export class AttendancesService {
       throw new NotFoundException('attendance not found');
     }
     return this.attendanceRepository.softRemove(attendance);
+  }
+
+  //getAttendanceBy AssignmentId
+  async getAttendanceByAssignmentId(assignmentId: number) {
+    const attendances = await this.attendanceRepository.find({
+      where: { assignment: { assignmentId: assignmentId } },
+      relations: ['assignment', 'user'],
+    });
+    if (!attendances) {
+      throw new NotFoundException('attendances not found');
+    } else {
+      return attendances;
+    }
   }
 }

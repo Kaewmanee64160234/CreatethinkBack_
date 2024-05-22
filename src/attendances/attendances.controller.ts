@@ -8,6 +8,7 @@ import {
   Delete,
   UseInterceptors,
   UploadedFile,
+  BadRequestException,
 } from '@nestjs/common';
 
 import { AttendancesService } from './attendances.service';
@@ -21,12 +22,15 @@ export class AttendancesController {
   constructor(private readonly attendancesService: AttendancesService) {}
 
   @Post()
-  @UseInterceptors(FileInterceptor('imageFile')) // 'imageFile' is the name of the file input in the form
+  @UseInterceptors(FileInterceptor('imageFile')) // Make sure 'imageFile' matches the FormData key on the frontend
   create(
+    @UploadedFile() file: Express.Multer.File,
     @Body() createAttendanceDto: CreateAttendanceDto,
-    @UploadedFile() imageFile: Express.Multer.File,
   ) {
-    return this.attendancesService.create(createAttendanceDto, imageFile);
+    if (!file || !file.buffer) {
+      throw new BadRequestException('File must be uploaded');
+    }
+    return this.attendancesService.create(createAttendanceDto, file);
   }
 
   @Get()
@@ -50,5 +54,10 @@ export class AttendancesController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.attendancesService.remove(+id);
+  }
+
+  @Get('/assignments/:assignmentId')
+  findByAssignmentId(@Param('assignmentId') assignmentId: string) {
+    return this.attendancesService.getAttendanceByAssignmentId(+assignmentId);
   }
 }
