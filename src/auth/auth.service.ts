@@ -15,17 +15,17 @@ export class AuthService {
     private userService: Repository<User>,
   ) {}
 
-  async validateUser(email: string, pass: string): Promise<any> {
-    const user = await this.usersService.findOneByEmail(email);
-    console.log(user.password);
-    const isMatch = await bcrypt.compare(pass, user.password);
-    if (user && isMatch) {
-      const { password, ...result } = user;
+  // async validateUser(email: string, pass: string): Promise<any> {
+  //   const user = await this.usersService.findOneByEmail(email);
+  //   console.log(user.password);
+  //   const isMatch = await bcrypt.compare(pass, user.password);
+  //   if (user && isMatch) {
+  //     const { password, ...result } = user;
 
-      return result;
-    }
-    return null;
-  }
+  //     return result;
+  //   }
+  //   return null;
+  // }
 
   async login(user: any) {
     const user_ = await this.usersService.findOne(user.id);

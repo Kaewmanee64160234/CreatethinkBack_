@@ -7,7 +7,6 @@ export class CreateAttendanceDto {
   @IsNotEmpty()
   attendanceStatus: string;
 
-  @IsNotEmpty()
   userId: number;
 
   @IsNotEmpty()

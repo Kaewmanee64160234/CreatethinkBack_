@@ -23,23 +23,25 @@ export class AttendancesService {
     imageFile: Express.Multer.File,
   ) {
     try {
-      const user = await this.userRepository.findOne({
-        where: { userId: createAttendanceDto.userId },
-      });
       const assignment = await this.assignmentRespository.findOne({
         where: { assignmentId: createAttendanceDto.assignmentId },
       });
 
-      if (!user || !assignment) {
+      if (!assignment) {
         throw new Error('User or Assignment not found');
       }
 
       const newAttendance = new Attendance();
-      newAttendance.attendanceDate = new Date();
-      //save image to base 64
-      if (imageFile) {
-        newAttendance.attendanceImage = imageFile.buffer.toString('base64');
+      if (createAttendanceDto.userId != null) {
+        const user = await this.userRepository.findOne({
+          where: { userId: createAttendanceDto.userId },
+        });
+        newAttendance.user = user;
+      } else {
+        newAttendance.user = null;
       }
+      newAttendance.attendanceDate = new Date();
+
       newAttendance.attendanceConfirmStatus =
         createAttendanceDto.attendanceConfirmStatus;
       //if date in assignment is greater than current  15 minutes create status late but in 15 minutes create status on time
@@ -52,8 +54,8 @@ export class AttendancesService {
       } else {
         newAttendance.attendanceStatus = 'on time';
       }
-      newAttendance.user = user;
       newAttendance.assignment = assignment;
+      newAttendance.attendanceImage = createAttendanceDto.attendanceImage;
 
       return this.attendanceRepository.save(newAttendance);
     } catch (error) {
