@@ -90,14 +90,41 @@ export class AttendancesService {
 
   //getAttendanceBy AssignmentId
   async getAttendanceByAssignmentId(assignmentId: number) {
-    const attendances = await this.attendanceRepository.find({
-      where: { assignment: { assignmentId: assignmentId } },
-      relations: ['assignment', 'user'],
+    try {
+      const attendances = await this.attendanceRepository.find({
+        where: { assignment: { assignmentId: assignmentId } },
+        relations: ['user'],
+      });
+      if (!attendances) {
+        throw new NotFoundException('attendances not found');
+      } else {
+        return attendances;
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  //update
+  async update(id: number, updateAttendanceDto: UpdateAttendanceDto) {
+    const attendance = await this.attendanceRepository.findOne({
+      where: {
+        attendanceId: id,
+        user: { studentId: updateAttendanceDto.user.studentId },
+      },
     });
-    if (!attendances) {
-      throw new NotFoundException('attendances not found');
+
+    if (attendance) {
+      throw new NotFoundException('attendance not found');
     } else {
-      return attendances;
+      const attendance_ = await this.attendanceRepository.findOne({
+        where: {
+          attendanceId: id,
+        },
+      });
+      attendance_.attendanceConfirmStatus =
+        updateAttendanceDto.attendanceConfirmStatus;
+      return this.attendanceRepository.save(attendance_);
     }
   }
 }
