@@ -6,9 +6,14 @@ import {
   // Patch,
   Param,
   Delete,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
+
 import { AttendancesService } from './attendances.service';
 import { CreateAttendanceDto } from './dto/create-attendance.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+
 // import { UpdateAttendanceDto } from './dto/update-attendance.dto';
 
 @Controller('attendances')
@@ -16,8 +21,12 @@ export class AttendancesController {
   constructor(private readonly attendancesService: AttendancesService) {}
 
   @Post()
-  create(@Body() createAttendanceDto: CreateAttendanceDto) {
-    return this.attendancesService.create(createAttendanceDto);
+  @UseInterceptors(FileInterceptor('imageFile')) // 'imageFile' is the name of the file input in the form
+  create(
+    @Body() createAttendanceDto: CreateAttendanceDto,
+    @UploadedFile() imageFile: Express.Multer.File,
+  ) {
+    return this.attendancesService.create(createAttendanceDto, imageFile);
   }
 
   @Get()

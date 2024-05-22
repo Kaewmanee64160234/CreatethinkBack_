@@ -24,6 +24,12 @@ export class Attendance {
   @Column()
   attendanceStatus: string;
 
+  @Column({ type: 'text' })
+  attendanceImage: string;
+
+  @Column()
+  attendanceConfirmStatus: string;
+
   @ManyToOne(() => User, (user) => user.attendance)
   user: User;
 

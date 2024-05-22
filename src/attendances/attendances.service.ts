@@ -18,7 +18,10 @@ export class AttendancesService {
     @InjectRepository(Assignment)
     private assignmentRespository: Repository<Assignment>,
   ) {}
-  async create(createAttendanceDto: CreateAttendanceDto) {
+  async create(
+    createAttendanceDto: CreateAttendanceDto,
+    imageFile: Express.Multer.File,
+  ) {
     try {
       const user = await this.userRepository.findOne({
         where: { userId: createAttendanceDto.userId },
@@ -33,6 +36,12 @@ export class AttendancesService {
 
       const newAttendance = new Attendance();
       newAttendance.attendanceDate = new Date();
+      //save image to base 64
+      if (imageFile) {
+        newAttendance.attendanceImage = imageFile.buffer.toString('base64');
+      }
+      newAttendance.attendanceConfirmStatus =
+        createAttendanceDto.attendanceConfirmStatus;
       //if date in assignment is greater than current  15 minutes create status late but in 15 minutes create status on time
       const currentDate = new Date();
       const assignmentDate = new Date(assignment.assignMentTime);

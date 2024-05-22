@@ -12,4 +12,9 @@ export class CreateAttendanceDto {
 
   @IsNotEmpty()
   assignmentId: number;
+
+  attendanceImage: string;
+
+  @IsNotEmpty()
+  attendanceConfirmStatus: string;
 }
