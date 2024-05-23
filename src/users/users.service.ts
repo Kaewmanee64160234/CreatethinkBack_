@@ -29,6 +29,8 @@ export class UsersService {
       newUser.status = createUserDto.status;
       newUser.studentId = createUserDto.studentId;
       newUser.teacherId = createUserDto.teacherId;
+      newUser.faceDescription1 = createUserDto.faceDescription1;
+
       const user = await this.userRepository.create(newUser);
       return await this.userRepository.save(user);
     } catch (error) {
@@ -94,6 +96,8 @@ export class UsersService {
       newUser.status = updateUserDto.status;
       newUser.studentId = updateUserDto.studentId;
       newUser.teacherId = updateUserDto.teacherId;
+
+      newUser.faceDescription1 = updateUserDto.faceDescription1;
       const user = await this.userRepository.findOneBy({ userId: id });
       return await this.userRepository.save({ ...user, ...newUser });
     } catch (error) {}
