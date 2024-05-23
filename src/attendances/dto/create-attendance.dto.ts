@@ -1,4 +1,5 @@
 import { IsNotEmpty } from 'class-validator';
+import { Assignment } from 'src/assignments/entities/assignment.entity';
 import { User } from 'src/users/entities/user.entity';
 
 export class CreateAttendanceDto {
@@ -17,4 +18,6 @@ export class CreateAttendanceDto {
   attendanceConfirmStatus: string;
 
   user: User;
+  assignment: Assignment;
+  attendanceId: number;
 }

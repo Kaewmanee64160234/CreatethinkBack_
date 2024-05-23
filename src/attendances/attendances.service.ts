@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateAttendanceDto } from './dto/create-attendance.dto';
 import { UpdateAttendanceDto } from './dto/update-attendance.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -8,6 +8,7 @@ import { Repository } from 'typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { Assignment } from 'src/assignments/entities/assignment.entity';
 import { Buffer } from 'buffer';
+import { HttpErrorByCode } from '@nestjs/common/utils/http-error-by-code.util';
 
 @Injectable()
 export class AttendancesService {
@@ -107,23 +108,40 @@ export class AttendancesService {
 
   //update
   async update(id: number, updateAttendanceDto: UpdateAttendanceDto) {
+    console.log(updateAttendanceDto);
+    const user = await this.userRepository.findOne({
+      where: { userId: updateAttendanceDto.user.userId },
+    });
     const attendance = await this.attendanceRepository.findOne({
       where: {
-        attendanceId: id,
-        user: { studentId: updateAttendanceDto.user.studentId },
+        user: { studentId: user.studentId },
+        assignment: {
+          assignmentId: updateAttendanceDto.assignment.assignmentId,
+        },
       },
     });
+    // console.log(updateAttendanceDto);
+    console.log(attendance);
 
-    if (attendance) {
-      throw new NotFoundException('attendance not found');
+    if (
+      attendance != null &&
+      (attendance.attendanceConfirmStatus == 'confirmed' ||
+        attendance.attendanceConfirmStatus == 'recheck')
+    ) {
+      // send nopermition exeption 403
+
+      throw new HttpErrorByCode[403]('You do not have permission to update');
     } else {
       const attendance_ = await this.attendanceRepository.findOne({
         where: {
+          assignment: { assignmentId: updateAttendanceDto.assignmentId },
           attendanceId: id,
         },
       });
       attendance_.attendanceConfirmStatus =
         updateAttendanceDto.attendanceConfirmStatus;
+      attendance_.attendanceStatus = updateAttendanceDto.attendanceStatus;
+      attendance_.user = user;
       return this.attendanceRepository.save(attendance_);
     }
   }
