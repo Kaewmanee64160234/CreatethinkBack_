@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UsersModule } from 'src/users/users.module';
 import { PassportModule } from '@nestjs/passport/dist';
-import { LocalStrategy } from './local.strategy';
+// import { LocalStrategy } from './local.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './constants';
 import { JwtStrategy } from './jwt.strategy';
@@ -23,12 +23,12 @@ import { User } from 'src/users/entities/user.entity';
   ],
   providers: [
     AuthService,
-    LocalStrategy,
+    // LocalStrategy,
     JwtStrategy,
-    {
-      provide: APP_GUARD,
-      useClass: RolesGuard,
-    },
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: RolesGuard,
+    // },
   ],
   exports: [AuthService],
 })

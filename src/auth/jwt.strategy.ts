@@ -18,8 +18,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: any) {
-    const user_ = await this.userRepository.findOneBy({ id: payload.id });
-    return { userId: payload.sub, login: payload.login, role: user_.role };
-  }
+  // async validate(payload: any) {
+  //   const user_ = await this.userRepository.findOneBy({ id: payload.id });
+  //   return { userId: payload.sub, login: payload.login, role: user_.role };
+  // }
 }
