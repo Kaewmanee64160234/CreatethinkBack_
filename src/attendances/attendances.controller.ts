@@ -62,4 +62,13 @@ export class AttendancesController {
   findByAssignmentId(@Param('assignmentId') assignmentId: string) {
     return this.attendancesService.getAttendanceByAssignmentId(+assignmentId);
   }
+  // getAttendanceByStatusInAssignment
+  @Get('/assignments/status/:assignmentId')
+  getAttendanceByStatusInAssignment(
+    @Param('assignmentId') assignmentId: string,
+  ) {
+    return this.attendancesService.getAttendanceByStatusInAssignment(
+      +assignmentId,
+    );
+  }
 }

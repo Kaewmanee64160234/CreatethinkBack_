@@ -4,7 +4,7 @@ import { CreateAttendanceDto } from './dto/create-attendance.dto';
 import { UpdateAttendanceDto } from './dto/update-attendance.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Attendance } from './entities/attendance.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { Assignment } from 'src/assignments/entities/assignment.entity';
 import { Buffer } from 'buffer';
@@ -143,6 +143,27 @@ export class AttendancesService {
       attendance_.attendanceStatus = updateAttendanceDto.attendanceStatus;
       attendance_.user = user;
       return this.attendanceRepository.save(attendance_);
+    }
+  }
+
+  //get attendance by status
+  async getAttendanceByStatusInAssignment(assignmentId: number) {
+    try {
+      console.log(assignmentId);
+      const attendances = await this.attendanceRepository.find({
+        where: {
+          attendanceStatus: In(['present', 'recheck']),
+          assignment: { assignmentId: assignmentId },
+        },
+        relations: ['user'],
+      });
+      if (!attendances) {
+        throw new NotFoundException('attendances not found');
+      } else {
+        return attendances;
+      }
+    } catch (error) {
+      console.log(error);
     }
   }
 }
