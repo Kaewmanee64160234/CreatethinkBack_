@@ -1,4 +1,6 @@
 import { IsNotEmpty } from 'class-validator';
+import { Assignment } from 'src/assignments/entities/assignment.entity';
+import { User } from 'src/users/entities/user.entity';
 
 export class CreateAttendanceDto {
   @IsNotEmpty()
@@ -7,9 +9,15 @@ export class CreateAttendanceDto {
   @IsNotEmpty()
   attendanceStatus: string;
 
-  @IsNotEmpty()
   userId: number;
 
   @IsNotEmpty()
   assignmentId: number;
+
+  @IsNotEmpty()
+  attendanceConfirmStatus: string;
+
+  user: User;
+  assignment: Assignment;
+  attendanceId: number;
 }

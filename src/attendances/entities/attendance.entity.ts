@@ -24,8 +24,14 @@ export class Attendance {
   @Column()
   attendanceStatus: string;
 
-  @ManyToOne(() => User, (user) => user.attendance)
-  user: User;
+  @Column()
+  attendanceImage: Buffer;
+
+  @Column()
+  attendanceConfirmStatus: string;
+
+  @ManyToOne(() => User, (user) => user.attendance, { nullable: true })
+  user: User | null;
 
   @ManyToOne(() => Assignment, (assignment) => assignment.attendances)
   assignment: Assignment;

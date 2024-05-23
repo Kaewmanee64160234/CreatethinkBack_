@@ -6,7 +6,7 @@ import { PassportModule } from '@nestjs/passport/dist';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './constants';
 import { JwtStrategy } from './jwt.strategy';
-import { APP_GUARD } from '@nestjs/core';
+// import { APP_GUARD } from '@nestjs/core';
 // import { RolesGuard } from 'src/authorize/roles.guard';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/user.entity';
@@ -30,6 +30,7 @@ import { User } from 'src/users/entities/user.entity';
     //   useClass: RolesGuard,
     // },
   ],
+
   exports: [AuthService],
 })
 export class AuthModule {}
