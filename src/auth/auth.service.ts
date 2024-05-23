@@ -1,8 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { User } from 'src/users/entities/user.entity';
-import * as bcrypt from 'bcrypt';
+// import * as bcrypt from 'bcrypt';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 
@@ -15,17 +15,16 @@ export class AuthService {
     private userService: Repository<User>,
   ) {}
 
-  async validateUser(email: string, pass: string): Promise<any> {
-    const user = await this.usersService.findOneByEmail(email);
-    console.log(user.password);
-    const isMatch = await bcrypt.compare(pass, user.password);
-    if (user && isMatch) {
-      const { password, ...result } = user;
+  // async validateUser(email: string): Promise<any> {
+  //   const user = await this.usersService.findOneByEmail(email);
+  //   const isMatch = await bcrypt.compare(user.email);
+  //   if (user && isMatch) {
+  //     const { password, ...result } = user;
 
-      return result;
-    }
-    return null;
-  }
+  //     return result;
+  //   }
+  //   return null;
+  // }
 
   async login(user: any) {
     const user_ = await this.usersService.findOne(user.id);

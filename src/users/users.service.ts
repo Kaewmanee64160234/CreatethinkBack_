@@ -107,4 +107,19 @@ export class UsersService {
     }
     return this.userRepository.softRemove(user);
   }
+
+  async findOneByEmail(name: string) {
+    try {
+      const user = await this.userRepository.findOne({
+        where: { email: name }, // Here we are using the email to find the user
+      });
+      if (user) {
+        return user;
+      } else {
+        throw new NotFoundException();
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  }
 }
