@@ -7,8 +7,8 @@ export class CreateEnrollmentDto {
   userId: number;
 
   @IsNotEmpty()
-  user?: User; // User id
+  courseId: string;
 
-  @IsNotEmpty()
+  user?: User; // User id
   course?: Course;
 }

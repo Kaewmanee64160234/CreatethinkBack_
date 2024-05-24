@@ -94,13 +94,13 @@ export class CoursesService {
     return courses;
   }
 
-  async findCoursesByStudentId(id: string) {
-    const courses = await this.courseRepository.find({
-      where: { user: { studentId: id } },
-    });
-    if (!courses || courses.length === 0) {
-      throw new NotFoundException('Courses not found for this studentId');
-    }
-    return courses;
-  }
+  // async findCoursesByStudentId(id: string) {
+  //   const courses = await this.courseRepository.find({
+  //     where: { user: { studentId: id } },
+  //   });
+  //   if (!courses || courses.length === 0) {
+  //     throw new NotFoundException('Courses not found for this studentId');
+  //   }
+  //   return courses;
+  // }
 }
