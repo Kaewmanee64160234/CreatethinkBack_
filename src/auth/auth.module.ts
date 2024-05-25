@@ -6,10 +6,11 @@ import { LocalStrategy } from './local.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './constants';
 import { JwtStrategy } from './jwt.strategy';
-import { APP_GUARD } from '@nestjs/core';
-import { RolesGuard } from 'src/authorize/roles.guard';
+// import { APP_GUARD } from '@nestjs/core';
+// import { RolesGuard } from 'src/authorize/roles.guard';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/user.entity';
+import { AuthController } from './auth.controller';
 
 @Module({
   imports: [
@@ -17,11 +18,12 @@ import { User } from 'src/users/entities/user.entity';
     PassportModule,
     JwtModule.register({
       secret: jwtConstants.secret,
-      signOptions: { expiresIn: '1w' },
+      signOptions: { expiresIn: '60s' },
     }),
     TypeOrmModule.forFeature([User]),
   ],
   providers: [AuthService, LocalStrategy, JwtStrategy],
   exports: [AuthService],
+  controllers: [AuthController],
 })
 export class AuthModule {}

@@ -16,9 +16,8 @@ export class UsersService {
     try {
       const newUser = new User();
       if (imageFile) {
-        const imageBase64 = imageFile.buffer.toString('base64');
-        const imageData = `data:${imageFile.mimetype};base64,${imageBase64}`;
-        newUser.profileImage = imageData;
+        console.log('Image file received:', imageFile); // Debugging line
+        newUser.profileImage = `${imageFile.originalname}`;
       } else {
         newUser.profileImage = null;
       }
@@ -35,6 +34,7 @@ export class UsersService {
       return await this.userRepository.save(user);
     } catch (error) {
       console.log(error);
+      throw new Error('Error creating user');
     }
   }
 
@@ -51,15 +51,18 @@ export class UsersService {
     }
   }
   async login(userDto: CreateUserDto) {
+    // Check if the user already exists by email
     const user = await this.userRepository.findOneBy({
       email: userDto.email,
     });
     if (!user) {
+      // If the user doesn't exist, create a new user
       const newUser = new User();
       newUser.email = userDto.email;
       newUser.firstName = userDto.firstName;
       newUser.lastName = userDto.lastName;
-      //split @ to id
+
+      // Split email to determine if the user is a teacher or student
       const strId = userDto.email.split('@')[0];
 
       if (isNaN(Number(strId))) {
@@ -69,8 +72,11 @@ export class UsersService {
         newUser.role = 'student';
         newUser.studentId = strId;
       }
+
+      // Save the new user and return it
       return await this.userRepository.save(newUser);
     } else {
+      // If user exists, return the existing user
       return user;
     }
   }
