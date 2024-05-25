@@ -21,15 +21,8 @@ export class AttendancesService {
     private assignmentRepository: Repository<Assignment>,
   ) {}
 
-  async create(
-    createAttendanceDto: CreateAttendanceDto,
-    imageFile: Express.Multer.File,
-  ) {
+  async create(createAttendanceDto: CreateAttendanceDto) {
     try {
-      if (!imageFile || !imageFile.buffer) {
-        throw new Error('No file uploaded or file buffer is unavailable');
-      }
-
       const assignment = await this.assignmentRepository.findOne({
         where: { assignmentId: createAttendanceDto.assignmentId },
       });
@@ -46,7 +39,7 @@ export class AttendancesService {
         : null;
 
       newAttendance.attendanceDate = new Date();
-      newAttendance.attendanceImage = imageFile.buffer;
+      newAttendance.attendanceImage = createAttendanceDto.attendanceImage;
       newAttendance.attendanceConfirmStatus =
         createAttendanceDto.attendanceConfirmStatus;
 

@@ -11,6 +11,7 @@ export class CreateAttendanceDto {
 
   userId: number;
 
+  studentId: number;
   @IsNotEmpty()
   assignmentId: number;
 
@@ -20,4 +21,5 @@ export class CreateAttendanceDto {
   user: User;
   assignment: Assignment;
   attendanceId: number;
+  attendanceImage: string;
 }
