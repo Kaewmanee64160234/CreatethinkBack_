@@ -45,8 +45,8 @@ export class CoursesController {
     return this.coursesService.findCoursesByTeacherId(teachId);
   }
 
-  @Get('/student/:studentId')
-  async findCoursesByStudentId(@Param('studentId') studentId: string) {
-    return this.coursesService.findCoursesByStudentId(studentId);
-  }
+  // @Get('/student/:studentId')
+  // async findCoursesByStudentId(@Param('studentId') studentId: string) {
+  //   return this.coursesService.findCoursesByStudentId(studentId);
+  // }
 }

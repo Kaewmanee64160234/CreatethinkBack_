@@ -5,24 +5,40 @@ import { UpdateEnrollmentDto } from './dto/update-enrollment.dto';
 import { Enrollment } from './entities/enrollment.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { User } from 'src/users/entities/user.entity';
+import { Course } from 'src/courses/entities/course.entity';
 
 @Injectable()
 export class EnrollmentsService {
   constructor(
     @InjectRepository(Enrollment)
     private enrollmentRepository: Repository<Enrollment>,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
+    @InjectRepository(Course)
+    private courseRepository: Repository<Course>,
   ) {}
   async create(createEnrollmentDto: CreateEnrollmentDto) {
-    // const enrollment = new Enrollment();
-    // // create enrollment
-    // const user = await this.userRepository.findOneBy({
-    //   id: createEnrollmentDto.userId,
-    // });
-    // if (!user) {
-    //   throw new NotFoundException('user not found');
-    // }
-    // enrollment.user = user;
-    return this.enrollmentRepository.save(createEnrollmentDto);
+    // create the enrollment with user and course
+    const user = await this.userRepository.findOneBy({
+      userId: createEnrollmentDto.userId,
+    });
+    if (!user) {
+      throw new NotFoundException('user not found');
+    }
+    const course = await this.courseRepository.findOneBy({
+      coursesId: createEnrollmentDto.courseId,
+    });
+    if (!course) {
+      throw new NotFoundException('course not found');
+    }
+    const enrollment = new Enrollment();
+    enrollment.user = user;
+    enrollment.course = course;
+
+    const saveEnrollment = await this.enrollmentRepository.save(enrollment);
+
+    return saveEnrollment;
   }
 
   findAll() {
@@ -64,5 +80,16 @@ export class EnrollmentsService {
       throw new NotFoundException('enrollment not found');
     }
     return this.enrollmentRepository.softRemove(enrollment);
+  }
+
+  async findCoursesByStudentId(id: string) {
+    const enrollment = await this.enrollmentRepository.find({
+      where: { user: { studentId: id } },
+      relations: ['user', 'course', 'course.user'],
+    });
+    if (!enrollment || enrollment.length === 0) {
+      throw new NotFoundException('enrollment not found for this studentId');
+    }
+    return enrollment;
   }
 }
