@@ -193,4 +193,41 @@ export class AttendancesService {
     console.log(attendance);
     return this.attendanceRepository.save(attendance);
   }
+  //get attendance by couse id
+  async getAttendanceByCourseId(courseId: number) {
+    try {
+      const attendances = await this.attendanceRepository.find({
+        where: { assignment: { course: { coursesId: String(courseId) } } },
+        relations: ['user', 'assignment'],
+      });
+      if (!attendances) {
+        throw new NotFoundException('attendances not found');
+      } else {
+        return attendances;
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  //check all attendance
+  async checkAllAttendance(assigmentId: number) {
+    const attendances = await this.attendanceRepository.find({
+      where: {
+        attendanceStatus: 'on time',
+        assignment: { assignmentId: assigmentId },
+      },
+    });
+    //loop
+    attendances.forEach((attendance) => {
+      attendance.attendanceStatus = 'present';
+      this.attendanceRepository.save(attendance);
+    });
+    console.log('attendances', attendances);
+    if (!attendances) {
+      throw new NotFoundException('attendances not found');
+    } else {
+      return attendances;
+    }
+  }
 }

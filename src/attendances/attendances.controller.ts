@@ -114,4 +114,15 @@ export class AttendancesController {
   async rejectAttendance(@Param('id') id: string) {
     return this.attendancesService.rejectAttendance(+id);
   }
+  // getAttendanceByCourseId
+  @Get('/courses/:courseId')
+  getAttendanceByCourseId(@Param('courseId') courseId: string) {
+    return this.attendancesService.getAttendanceByCourseId(+courseId);
+  }
+  // checkAllAttendance
+
+  @Get('/checkAllAttendance/:assigmentId')
+  checkAllAttendance(@Param('assigmentId') assigmentId: string) {
+    return this.attendancesService.checkAllAttendance(+assigmentId);
+  }
 }

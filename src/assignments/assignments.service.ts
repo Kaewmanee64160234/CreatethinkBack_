@@ -60,7 +60,10 @@ export class AssignmentsService {
   findOne(id: number) {
     try {
       //find assignment by id
-      return this.assignmentRepository.findOne({ where: { assignmentId: id } });
+      return this.assignmentRepository.findOne({
+        where: { assignmentId: id },
+        relations: ['course'],
+      });
     } catch (error) {
       throw new Error('Error fetching assignment');
     }
@@ -102,7 +105,7 @@ export class AssignmentsService {
       return this.assignmentRepository.find({
         where: { course: { coursesId: courseId } },
         relations: ['room', 'course', 'course.user'],
-        order: { createdDate: 'DESC' },
+        order: { createdDate: 'asc' },
       });
     } catch (error) {
       throw new Error('Error fetching assignment');
