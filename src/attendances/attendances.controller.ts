@@ -71,33 +71,10 @@ export class AttendancesController {
   }
 
   @Patch(':id')
-  @UseInterceptors(
-    FileInterceptor('file', {
-      storage: diskStorage({
-        destination: './attendance_image',
-        filename: (req, file, cb) => {
-          const idStudent = req.body.user.studentId;
-          const date = new Date();
-          const formattedDate = `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`;
-          const name = `${idStudent}_${formattedDate}`;
-          const filename = name + extname(file.originalname);
-          return cb(null, filename);
-        },
-      }),
-    }),
-  )
-  update(
+  async update(
     @Param('id') id: string,
     @Body() updateAttendanceDto: UpdateAttendanceDto,
-    @UploadedFile() file: Express.Multer.File,
   ) {
-    const idStudent = updateAttendanceDto.user.studentId;
-    const idAssignment = updateAttendanceDto.assignment.assignmentId;
-    const date = new Date();
-    const formattedDate = `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`;
-    updateAttendanceDto.attendanceImage =
-      `${idStudent}_${idAssignment}_${formattedDate}` +
-      extname(file.originalname);
     return this.attendancesService.update(+id, updateAttendanceDto);
   }
 

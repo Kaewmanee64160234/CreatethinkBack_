@@ -9,6 +9,8 @@ import { User } from 'src/users/entities/user.entity';
 import { Assignment } from 'src/assignments/entities/assignment.entity';
 import { Buffer } from 'buffer';
 import { HttpErrorByCode } from '@nestjs/common/utils/http-error-by-code.util';
+import path, { extname, join } from 'path';
+import { promises as fsPromises, renameSync } from 'fs';
 
 @Injectable()
 export class AttendancesService {
@@ -23,6 +25,7 @@ export class AttendancesService {
 
   async create(createAttendanceDto: CreateAttendanceDto) {
     try {
+      console.log('Received DTO:', createAttendanceDto);
       const assignment = await this.assignmentRepository.findOne({
         where: { assignmentId: createAttendanceDto.assignmentId },
       });
@@ -32,12 +35,12 @@ export class AttendancesService {
       }
 
       const newAttendance = new Attendance();
-      newAttendance.user = createAttendanceDto.userId
-        ? await this.userRepository.findOne({
-            where: { userId: createAttendanceDto.userId },
-          })
-        : null;
-
+      newAttendance.user =
+        createAttendanceDto.user === null
+          ? null
+          : await this.userRepository.findOne({
+              where: { studentId: createAttendanceDto.studentId + '' },
+            });
       newAttendance.attendanceDate = new Date();
       newAttendance.attendanceImage = createAttendanceDto.attendanceImage;
       newAttendance.attendanceConfirmStatus =
@@ -93,6 +96,7 @@ export class AttendancesService {
       if (!attendances) {
         throw new NotFoundException('attendances not found');
       } else {
+        console.log(attendances.length);
         return attendances;
       }
     } catch (error) {
@@ -119,7 +123,7 @@ export class AttendancesService {
 
     if (
       attendance != null &&
-      (attendance.attendanceConfirmStatus == 'confirmed' ||
+      (attendance.attendanceStatus !== 'on time' ||
         attendance.attendanceConfirmStatus == 'recheck')
     ) {
       // send nopermition exeption 403
