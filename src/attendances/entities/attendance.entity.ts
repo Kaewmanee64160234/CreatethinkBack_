@@ -25,7 +25,7 @@ export class Attendance {
   attendanceStatus: string;
 
   @Column()
-  attendanceImage: Buffer;
+  attendanceImage: string;
 
   @Column()
   attendanceConfirmStatus: string;
