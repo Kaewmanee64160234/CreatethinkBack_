@@ -106,7 +106,8 @@ export class AttendancesService {
 
   //update
   async update(id: number, updateAttendanceDto: UpdateAttendanceDto) {
-    console.log(updateAttendanceDto);
+    console.log(updateAttendanceDto.assignment);
+
     const user = await this.userRepository.findOne({
       where: { userId: updateAttendanceDto.user.userId },
     });
@@ -119,7 +120,6 @@ export class AttendancesService {
       },
     });
     // console.log(updateAttendanceDto);
-    console.log(attendance);
 
     if (
       attendance != null &&
@@ -150,7 +150,7 @@ export class AttendancesService {
       console.log(assignmentId);
       const attendances = await this.attendanceRepository.find({
         where: {
-          attendanceStatus: In(['present', 'recheck']),
+          attendanceConfirmStatus: In(['recheck']),
           assignment: { assignmentId: assignmentId },
         },
         relations: ['user'],
@@ -163,5 +163,34 @@ export class AttendancesService {
     } catch (error) {
       console.log(error);
     }
+  }
+
+  //  confirmAttendance
+  async confirmAttendance(id: number) {
+    const attendance = await this.attendanceRepository.findOne({
+      where: { attendanceId: id },
+      relations: ['assignment'],
+    });
+    if (!attendance) {
+      throw new NotFoundException('attendance not found');
+    }
+    attendance.attendanceConfirmStatus = 'confirmed';
+    attendance.attendanceStatus = 'present';
+    return this.attendanceRepository.save(attendance);
+  }
+  //rejectAttendance
+  async rejectAttendance(id: number) {
+    const attendance = await this.attendanceRepository.findOne({
+      where: { attendanceId: id },
+      relations: ['assignment'],
+    });
+    if (!attendance) {
+      throw new NotFoundException('attendance not found');
+    }
+    attendance.attendanceConfirmStatus = 'confirmed';
+    attendance.attendanceStatus = 'on time';
+    attendance.user = null;
+    console.log(attendance);
+    return this.attendanceRepository.save(attendance);
   }
 }

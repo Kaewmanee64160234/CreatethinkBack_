@@ -103,4 +103,15 @@ export class AttendancesController {
   ) {
     res.sendFile(imageFile, { root: './attendance_image' });
   }
+
+  //confirm attendance
+  @Patch('confirm/:id')
+  async confirmAttendance(@Param('id') id: string) {
+    return this.attendancesService.confirmAttendance(+id);
+  }
+  //reject attendance
+  @Patch('reject/:id')
+  async rejectAttendance(@Param('id') id: string) {
+    return this.attendancesService.rejectAttendance(+id);
+  }
 }
