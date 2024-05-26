@@ -9,6 +9,7 @@ import {
   UseInterceptors,
   UploadedFile,
   Patch,
+  Res,
 } from '@nestjs/common';
 import { AttendancesService } from './attendances.service';
 import { CreateAttendanceDto } from './dto/create-attendance.dto';
@@ -18,6 +19,7 @@ import { diskStorage } from 'multer';
 import { extname, join } from 'path';
 import { renameSync } from 'fs';
 import { v4 as uuidv4 } from 'uuid';
+import { Response } from 'express';
 
 @Controller('attendances')
 export class AttendancesController {
@@ -54,7 +56,7 @@ export class AttendancesController {
 
     // Update DTO with the new file name
     createAttendanceDto.attendanceImage = intendedFilename;
-
+    console.log(intendedFilename);
     // Proceed with your service logic
     return this.attendancesService.create(createAttendanceDto);
   }
@@ -116,5 +118,12 @@ export class AttendancesController {
     return this.attendancesService.getAttendanceByStatusInAssignment(
       +assignmentId,
     );
+  }
+  @Get('image/:imageFile')
+  async getImageByFileName(
+    @Param('imageFile') imageFile: string,
+    @Res() res: Response,
+  ) {
+    res.sendFile(imageFile, { root: './attendance_image' });
   }
 }

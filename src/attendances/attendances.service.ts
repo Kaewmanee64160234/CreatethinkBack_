@@ -42,6 +42,7 @@ export class AttendancesService {
       newAttendance.attendanceImage = createAttendanceDto.attendanceImage;
       newAttendance.attendanceConfirmStatus =
         createAttendanceDto.attendanceConfirmStatus;
+      newAttendance.attendanceImage = createAttendanceDto.attendanceImage;
 
       const currentDate = new Date();
       const assignmentDate = new Date(assignment.assignMentTime);
