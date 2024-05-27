@@ -15,12 +15,12 @@ export class UsersService {
   async create(createUserDto: CreateUserDto, imageFile: Express.Multer.File) {
     try {
       const newUser = new User();
-      if (imageFile) {
-        console.log('Image file received:', imageFile); // Debugging line
-        newUser.profileImage = `${imageFile.originalname}`;
-      } else {
-        newUser.profileImage = null;
-      }
+      // if (imageFile) {
+      //   console.log('Image file received:', imageFile); // Debugging line
+      //   newUser.profileImage = `${imageFile.originalname}`;
+      // } else {
+      //   newUser.profileImage = null;
+      // }
       newUser.firstName = createUserDto.firstName;
       newUser.lastName = createUserDto.lastName;
       newUser.email = createUserDto.email;
@@ -28,7 +28,11 @@ export class UsersService {
       newUser.status = createUserDto.status;
       newUser.studentId = createUserDto.studentId;
       newUser.teacherId = createUserDto.teacherId;
-      newUser.faceDescription1 = createUserDto.faceDescription1;
+      newUser.image1 = createUserDto.image1;
+      newUser.image2 = createUserDto.image2;
+      newUser.image3 = createUserDto.image3;
+      newUser.image4 = createUserDto.image4;
+      newUser.image5 = createUserDto.image5;
 
       const user = await this.userRepository.create(newUser);
       return await this.userRepository.save(user);
@@ -88,13 +92,13 @@ export class UsersService {
   ) {
     try {
       const newUser = new User();
-      if (imageFile) {
-        const imageBase64 = imageFile.buffer.toString('base64');
-        const imageData = `data:${imageFile.mimetype};base64,${imageBase64}`;
-        newUser.profileImage = imageData;
-      } else {
-        newUser.profileImage = null;
-      }
+      // if (imageFile) {
+      //   const imageBase64 = imageFile.buffer.toString('base64');
+      //   const imageData = `data:${imageFile.mimetype};base64,${imageBase64}`;
+      //   newUser.profileImage = imageData;
+      // } else {
+      //   newUser.profileImage = null;
+      // }
       newUser.firstName = updateUserDto.firstName;
       newUser.lastName = updateUserDto.lastName;
       newUser.email = updateUserDto.email;
@@ -102,8 +106,11 @@ export class UsersService {
       newUser.status = updateUserDto.status;
       newUser.studentId = updateUserDto.studentId;
       newUser.teacherId = updateUserDto.teacherId;
-
-      newUser.faceDescription1 = updateUserDto.faceDescription1;
+      newUser.image1 = updateUserDto.image1;
+      newUser.image2 = updateUserDto.image2;
+      newUser.image3 = updateUserDto.image3;
+      newUser.image4 = updateUserDto.image4;
+      newUser.image5 = updateUserDto.image5;
       const user = await this.userRepository.findOneBy({ userId: id });
       return await this.userRepository.save({ ...user, ...newUser });
     } catch (error) {}

@@ -37,19 +37,34 @@ export class User {
   teacherId: string;
 
   @Column({ type: 'json', nullable: true })
-  faceDescription1: number[];
+  faceDescription1: number;
 
   @Column({ type: 'json', nullable: true })
-  faceDescription2: number[];
+  faceDescription2: number;
 
   @Column({ type: 'json', nullable: true })
-  faceDescription3: number[];
+  faceDescription3: number;
 
   @Column({ type: 'json', nullable: true })
-  faceDescription4: number[];
+  faceDescription4: number;
 
   @Column({ type: 'json', nullable: true })
-  faceDescription5: number[];
+  faceDescription5: number;
+
+  @Column({ type: 'text', default: 'no-image.jpg', nullable: true })
+  image1: string;
+
+  @Column({ type: 'text', default: 'no-image.jpg', nullable: true })
+  image2: string;
+
+  @Column({ type: 'text', default: 'no-image.jpg', nullable: true })
+  image3: string;
+
+  @Column({ type: 'text', default: 'no-image.jpg', nullable: true })
+  image4: string;
+
+  @Column({ type: 'text', default: 'no-image.jpg', nullable: true })
+  image5: string;
 
   @Column({ type: 'text', default: 'no-image.jpg', nullable: true })
   profileImage: string;
