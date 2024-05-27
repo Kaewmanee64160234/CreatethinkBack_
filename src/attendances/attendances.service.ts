@@ -9,6 +9,8 @@ import { User } from 'src/users/entities/user.entity';
 import { Assignment } from 'src/assignments/entities/assignment.entity';
 import { Buffer } from 'buffer';
 import { HttpErrorByCode } from '@nestjs/common/utils/http-error-by-code.util';
+import path, { extname, join } from 'path';
+import { promises as fsPromises, renameSync } from 'fs';
 
 @Injectable()
 export class AttendancesService {
@@ -23,6 +25,7 @@ export class AttendancesService {
 
   async create(createAttendanceDto: CreateAttendanceDto) {
     try {
+      console.log('Received DTO:', createAttendanceDto);
       const assignment = await this.assignmentRepository.findOne({
         where: { assignmentId: createAttendanceDto.assignmentId },
       });
@@ -32,12 +35,12 @@ export class AttendancesService {
       }
 
       const newAttendance = new Attendance();
-      newAttendance.user = createAttendanceDto.userId
-        ? await this.userRepository.findOne({
-            where: { userId: createAttendanceDto.userId },
-          })
-        : null;
-
+      newAttendance.user =
+        createAttendanceDto.user === null
+          ? null
+          : await this.userRepository.findOne({
+              where: { studentId: createAttendanceDto.studentId + '' },
+            });
       newAttendance.attendanceDate = new Date();
       newAttendance.attendanceImage = createAttendanceDto.attendanceImage;
       newAttendance.attendanceConfirmStatus =
@@ -93,6 +96,7 @@ export class AttendancesService {
       if (!attendances) {
         throw new NotFoundException('attendances not found');
       } else {
+        console.log(attendances.length);
         return attendances;
       }
     } catch (error) {
@@ -102,7 +106,8 @@ export class AttendancesService {
 
   //update
   async update(id: number, updateAttendanceDto: UpdateAttendanceDto) {
-    console.log(updateAttendanceDto);
+    console.log(updateAttendanceDto.assignment);
+
     const user = await this.userRepository.findOne({
       where: { userId: updateAttendanceDto.user.userId },
     });
@@ -115,11 +120,10 @@ export class AttendancesService {
       },
     });
     // console.log(updateAttendanceDto);
-    console.log(attendance);
 
     if (
       attendance != null &&
-      (attendance.attendanceConfirmStatus == 'confirmed' ||
+      (attendance.attendanceStatus !== 'on time' ||
         attendance.attendanceConfirmStatus == 'recheck')
     ) {
       // send nopermition exeption 403
@@ -146,7 +150,7 @@ export class AttendancesService {
       console.log(assignmentId);
       const attendances = await this.attendanceRepository.find({
         where: {
-          attendanceStatus: In(['present', 'recheck']),
+          attendanceConfirmStatus: In(['recheck']),
           assignment: { assignmentId: assignmentId },
         },
         relations: ['user'],
@@ -158,6 +162,72 @@ export class AttendancesService {
       }
     } catch (error) {
       console.log(error);
+    }
+  }
+
+  //  confirmAttendance
+  async confirmAttendance(id: number) {
+    const attendance = await this.attendanceRepository.findOne({
+      where: { attendanceId: id },
+      relations: ['assignment'],
+    });
+    if (!attendance) {
+      throw new NotFoundException('attendance not found');
+    }
+    attendance.attendanceConfirmStatus = 'confirmed';
+    attendance.attendanceStatus = 'present';
+    return this.attendanceRepository.save(attendance);
+  }
+  //rejectAttendance
+  async rejectAttendance(id: number) {
+    const attendance = await this.attendanceRepository.findOne({
+      where: { attendanceId: id },
+      relations: ['assignment'],
+    });
+    if (!attendance) {
+      throw new NotFoundException('attendance not found');
+    }
+    attendance.attendanceConfirmStatus = 'confirmed';
+    attendance.attendanceStatus = 'on time';
+    attendance.user = null;
+    console.log(attendance);
+    return this.attendanceRepository.save(attendance);
+  }
+  //get attendance by couse id
+  async getAttendanceByCourseId(courseId: number) {
+    try {
+      const attendances = await this.attendanceRepository.find({
+        where: { assignment: { course: { coursesId: String(courseId) } } },
+        relations: ['user', 'assignment'],
+      });
+      if (!attendances) {
+        throw new NotFoundException('attendances not found');
+      } else {
+        return attendances;
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  //check all attendance
+  async checkAllAttendance(assigmentId: number) {
+    const attendances = await this.attendanceRepository.find({
+      where: {
+        attendanceStatus: 'on time',
+        assignment: { assignmentId: assigmentId },
+      },
+    });
+    //loop
+    attendances.forEach((attendance) => {
+      attendance.attendanceStatus = 'present';
+      this.attendanceRepository.save(attendance);
+    });
+    console.log('attendances', attendances);
+    if (!attendances) {
+      throw new NotFoundException('attendances not found');
+    } else {
+      return attendances;
     }
   }
 }

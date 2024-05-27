@@ -71,33 +71,10 @@ export class AttendancesController {
   }
 
   @Patch(':id')
-  @UseInterceptors(
-    FileInterceptor('file', {
-      storage: diskStorage({
-        destination: './attendance_image',
-        filename: (req, file, cb) => {
-          const idStudent = req.body.user.studentId;
-          const date = new Date();
-          const formattedDate = `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`;
-          const name = `${idStudent}_${formattedDate}`;
-          const filename = name + extname(file.originalname);
-          return cb(null, filename);
-        },
-      }),
-    }),
-  )
-  update(
+  async update(
     @Param('id') id: string,
     @Body() updateAttendanceDto: UpdateAttendanceDto,
-    @UploadedFile() file: Express.Multer.File,
   ) {
-    const idStudent = updateAttendanceDto.user.studentId;
-    const idAssignment = updateAttendanceDto.assignment.assignmentId;
-    const date = new Date();
-    const formattedDate = `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`;
-    updateAttendanceDto.attendanceImage =
-      `${idStudent}_${idAssignment}_${formattedDate}` +
-      extname(file.originalname);
     return this.attendancesService.update(+id, updateAttendanceDto);
   }
 
@@ -125,5 +102,27 @@ export class AttendancesController {
     @Res() res: Response,
   ) {
     res.sendFile(imageFile, { root: './attendance_image' });
+  }
+
+  //confirm attendance
+  @Patch('confirm/:id')
+  async confirmAttendance(@Param('id') id: string) {
+    return this.attendancesService.confirmAttendance(+id);
+  }
+  //reject attendance
+  @Patch('reject/:id')
+  async rejectAttendance(@Param('id') id: string) {
+    return this.attendancesService.rejectAttendance(+id);
+  }
+  // getAttendanceByCourseId
+  @Get('/courses/:courseId')
+  getAttendanceByCourseId(@Param('courseId') courseId: string) {
+    return this.attendancesService.getAttendanceByCourseId(+courseId);
+  }
+  // checkAllAttendance
+
+  @Get('/checkAllAttendance/:assigmentId')
+  checkAllAttendance(@Param('assigmentId') assigmentId: string) {
+    return this.attendancesService.checkAllAttendance(+assigmentId);
   }
 }

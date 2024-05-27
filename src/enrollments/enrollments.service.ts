@@ -38,7 +38,10 @@ export class EnrollmentsService {
 
     const saveEnrollment = await this.enrollmentRepository.save(enrollment);
 
-    return saveEnrollment;
+    return this.enrollmentRepository.findOne({
+      where: { enrollmentId: saveEnrollment.enrollmentId },
+      relations: ['user', 'course', 'course.user'],
+    });
   }
 
   findAll() {
