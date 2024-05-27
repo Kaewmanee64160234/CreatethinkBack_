@@ -14,14 +14,17 @@ export class AuthService {
     @InjectRepository(User)
     private userRepository: Repository<User>,
   ) {}
-  async login(user: User) {
-    const existingUser = await this.usersService.findOne(user.userId);
+  async login(email: string) {
+    const existingUser = await this.userRepository.findOne({
+      where: { email: email },
+    });
+    console.log(existingUser);
     if (!existingUser) {
       throw new NotFoundException('User not found');
     }
     const payload = {
-      login: user.email,
-      sub: user.userId,
+      login: existingUser.email,
+      sub: existingUser.userId,
       role: existingUser.role,
     };
     return {
