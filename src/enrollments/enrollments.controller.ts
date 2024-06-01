@@ -46,4 +46,9 @@ export class EnrollmentsController {
   async findCoursesByStudentId(@Param('studentId') studentId: string) {
     return this.enrollmentsService.findCoursesByStudentId(studentId);
   }
+
+  @Get('/course/:courseId')
+  async findStdByCourseId(@Param('courseId') courseId: string) {
+    return this.enrollmentsService.findStdByCourseId(courseId);
+  }
 }

@@ -7,6 +7,7 @@ import { Course } from './entities/course.entity';
 import { Repository } from 'typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { Enrollment } from 'src/enrollments/entities/enrollment.entity';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class CoursesService {
@@ -26,11 +27,12 @@ export class CoursesService {
     if (!user) {
       throw new NotFoundException('User not found');
     }
-
+    const shortUuid = uuidv4().substr(0, 10);
     // Create course instance and set properties including the primary key
     const course = new Course();
     course.coursesId = createCourseDto.coursesId; // Set the primary key value
     course.nameCourses = createCourseDto.nameCourses;
+    course.codeCourses = shortUuid;
     course.typeCourses = createCourseDto.typeCourses;
     course.credit = createCourseDto.credit;
     course.session = createCourseDto.session;

@@ -95,4 +95,15 @@ export class EnrollmentsService {
     }
     return enrollment;
   }
+
+  async findStdByCourseId(id: string) {
+    const enrollment = await this.enrollmentRepository.find({
+      where: { course: { coursesId: id } },
+      relations: ['user'],
+    });
+    if (!enrollment || enrollment.length === 0) {
+      throw new NotFoundException('enrollment not found for this studentId');
+    }
+    return enrollment;
+  }
 }
