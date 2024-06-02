@@ -26,10 +26,10 @@ export class AssignmentsService {
     try {
       //find room and course by id
       const room = await this.roomRepository.findOne({
-        where: { roomId: createAssignmentDto.roomId },
+        where: { roomId: createAssignmentDto.room.roomId },
       });
       const course = await this.courseRepository.findOne({
-        where: { coursesId: createAssignmentDto.courseId },
+        where: { coursesId: createAssignmentDto.course.coursesId },
       });
 
       if (!room || !course) {

@@ -10,13 +10,14 @@ import {
   UploadedFile,
   UploadedFiles,
   BadRequestException,
+  Res,
   // UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
-
+import { Response } from 'express';
 // import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
@@ -121,5 +122,11 @@ export class UsersController {
   @Get('/course/:courseId')
   getUserByCourseId(@Param('courseId') courseId: string) {
     return this.usersService.getUserByCourseId(courseId);
+  }
+
+  @Get(':id/image')
+  async getImage(@Param('id') id: string, @Res() res: Response) {
+    const user = await this.usersService.findOne(+id);
+    res.sendFile(user.image1, { root: './user_images' });
   }
 }

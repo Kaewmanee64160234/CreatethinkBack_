@@ -4,7 +4,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { Repository } from 'typeorm';
+import { Equal, Repository } from 'typeorm';
 import { Course } from 'src/courses/entities/course.entity';
 
 @Injectable()
@@ -146,14 +146,14 @@ export class UsersService {
   //getUserByCouseId
   async getUserByCourseId(courseId: string) {
     try {
-      const course = await this.courseRepository.findOne({
-        where: { coursesId: courseId },
-        relations: ['user'],
+      const user = await this.userRepository.find({
+        where: { enrollments: { course: Equal(courseId) } },
+        relations: ['enrollments', 'enrollments.course'],
       });
-      if (!course) {
+      if (!user) {
         throw new NotFoundException('Course not found');
       } else {
-        return course.user;
+        return user;
       }
     } catch (error) {
       throw new Error('Error fetching user');
