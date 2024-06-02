@@ -20,6 +20,11 @@ export class Course {
   @Column()
   nameCourses: string;
 
+  @Column({
+    default: () => `UUID()`,
+  })
+  codeCourses: string;
+
   @Column()
   typeCourses: string;
 

@@ -9,6 +9,7 @@ import {
   UseInterceptors,
   UploadedFiles,
   BadRequestException,
+  Res,
   // UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
@@ -67,7 +68,7 @@ export class UsersController {
 
   // @UseGuards(JwtAuthGuard, RolesGuard)
   @Get()
-  // @Roles(Role.Student)
+  // @Roles(Role.Teacher)
   findAll() {
     return this.usersService.findAll();
   }
@@ -124,5 +125,17 @@ export class UsersController {
   @Post('login')
   login(@Body() createUserDto: CreateUserDto) {
     return this.usersService.login(createUserDto);
+  }
+
+  // getUserByCourseId
+  @Get('/course/:courseId')
+  getUserByCourseId(@Param('courseId') courseId: string) {
+    return this.usersService.getUserByCourseId(courseId);
+  }
+
+  @Get(':id/image')
+  async getImage(@Param('id') id: string, @Res() res: Response) {
+    const user = await this.usersService.findOne(+id);
+    res.sendFile(user.image1, { root: './user_images' });
   }
 }

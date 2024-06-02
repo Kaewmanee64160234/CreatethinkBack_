@@ -26,10 +26,10 @@ export class AssignmentsService {
     try {
       //find room and course by id
       const room = await this.roomRepository.findOne({
-        where: { roomId: createAssignmentDto.roomId },
+        where: { roomId: createAssignmentDto.room.roomId },
       });
       const course = await this.courseRepository.findOne({
-        where: { coursesId: createAssignmentDto.courseId },
+        where: { coursesId: createAssignmentDto.course.coursesId },
       });
 
       if (!room || !course) {
@@ -105,7 +105,7 @@ export class AssignmentsService {
       return this.assignmentRepository.find({
         where: { course: { coursesId: courseId } },
         relations: ['room', 'course', 'course.user'],
-        order: { createdDate: 'asc' },
+        order: { createdDate: 'desc' },
       });
     } catch (error) {
       throw new Error('Error fetching assignment');
