@@ -16,7 +16,7 @@ export class UsersService {
     @InjectRepository(Course)
     private courseRepository: Repository<Course>,
   ) {}
-  async create(createUserDto: CreateUserDto, imageFile: Express.Multer.File) {
+  async create(createUserDto: CreateUserDto) {
     try {
       const newUser = new User();
       // if (imageFile) {

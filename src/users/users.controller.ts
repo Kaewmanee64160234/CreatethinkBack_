@@ -8,17 +8,19 @@ import {
   Delete,
   UseInterceptors,
   UploadedFile,
-  UseGuards,
+  UploadedFiles,
+  BadRequestException,
+  // UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+
 // import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { diskStorage } from 'multer';
-import { extname, join } from 'path';
+import { extname } from 'path';
 import { v4 as uuidv4 } from 'uuid';
-import { renameSync } from 'fs';
 // import { RolesGuard } from 'src/authorize/roles.guard';
 // import { Roles } from 'src/authorize/roles.decorator';
 // import { Role } from 'src/types/Role.enum';
@@ -28,36 +30,41 @@ export class UsersController {
 
   @Post()
   @UseInterceptors(
-    FileInterceptor('file', {
+    FilesInterceptor('files', 5, {
+      // Now expecting 5 files
       storage: diskStorage({
-        destination: './user_image',
+        destination: './user_images',
         filename: (req, file, cb) => {
-          // Temp filename just to save the file initially
-          const tempFilename = uuidv4() + extname(file.originalname);
-          cb(null, tempFilename);
+          const uniqueSuffix = `${Date.now()}-${uuidv4()}${extname(file.originalname)}`;
+          cb(null, uniqueSuffix);
         },
       }),
     }),
   )
   async create(
     @Body() createUserDto: CreateUserDto,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFiles() files: Array<Express.Multer.File>,
   ) {
-    const studentId = createUserDto.studentId;
-    const intendedFilename = `${studentId}${extname(file.originalname)}`;
+    if (files.length !== 5) {
+      throw new BadRequestException('Exactly 5 images are required.');
+    }
+    console.log('Received data:', createUserDto);
+    console.log('Received files:', files);
+    files.forEach((file, index) => {
+      createUserDto[`image${index + 1}`] = file.filename;
+      createUserDto[`faceDescription${index + 1}`] =
+        createUserDto[`faceDescription${index + 1}`];
+    });
 
-    const oldPath = join('./user_image', file.filename);
-    const newPath = join('./user_image', intendedFilename);
-    renameSync(oldPath, newPath);
-
-    createUserDto.image1 = intendedFilename;
-    createUserDto.image2 = intendedFilename;
-    createUserDto.image3 = intendedFilename;
-    createUserDto.image4 = intendedFilename;
-    createUserDto.image5 = intendedFilename;
-    console.log(intendedFilename);
-
-    return this.usersService.create(createUserDto, file);
+    try {
+      const result = await this.usersService.create(createUserDto);
+      return result;
+    } catch (error) {
+      console.error('Error during user creation:', error);
+      throw new BadRequestException(
+        'Failed to create user due to invalid input',
+      );
+    }
   }
 
   // @UseGuards(JwtAuthGuard, RolesGuard)
