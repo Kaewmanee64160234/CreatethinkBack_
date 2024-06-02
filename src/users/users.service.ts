@@ -5,12 +5,16 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
+import { Course } from 'src/courses/entities/course.entity';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    //inject course
+    @InjectRepository(Course)
+    private courseRepository: Repository<Course>,
   ) {}
   async create(createUserDto: CreateUserDto, imageFile: Express.Multer.File) {
     try {
@@ -137,6 +141,22 @@ export class UsersService {
       }
     } catch (e) {
       console.log(e);
+    }
+  }
+  //getUserByCouseId
+  async getUserByCourseId(courseId: string) {
+    try {
+      const course = await this.courseRepository.findOne({
+        where: { coursesId: courseId },
+        relations: ['user'],
+      });
+      if (!course) {
+        throw new NotFoundException('Course not found');
+      } else {
+        return course.user;
+      }
+    } catch (error) {
+      throw new Error('Error fetching user');
     }
   }
 }

@@ -86,9 +86,15 @@ export class EnrollmentsService {
   }
 
   async findCoursesByStudentId(id: string) {
+    const user = await this.userRepository.findOne({
+      where: { studentId: id },
+    });
+    if (!user) {
+      throw new NotFoundException('user not found');
+    }
     const enrollment = await this.enrollmentRepository.find({
-      where: { user: { studentId: id } },
-      relations: ['user', 'course', 'course.user'],
+      where: { user: { userId: user.userId } },
+      relations: ['course', 'course.user'],
     });
     if (!enrollment || enrollment.length === 0) {
       throw new NotFoundException('enrollment not found for this studentId');

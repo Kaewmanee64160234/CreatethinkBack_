@@ -60,9 +60,9 @@ export class UsersController {
     return this.usersService.create(createUserDto, file);
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  // @UseGuards(JwtAuthGuard, RolesGuard)
   @Get()
-  @Roles(Role.Teacher)
+  // @Roles(Role.Teacher)
   findAll() {
     return this.usersService.findAll();
   }
@@ -108,5 +108,11 @@ export class UsersController {
   @Post('login')
   login(@Body() createUserDto: CreateUserDto) {
     return this.usersService.login(createUserDto);
+  }
+
+  // getUserByCourseId
+  @Get('/course/:courseId')
+  getUserByCourseId(@Param('courseId') courseId: string) {
+    return this.usersService.getUserByCourseId(courseId);
   }
 }
