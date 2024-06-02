@@ -19,6 +19,7 @@ import { FilesInterceptor } from '@nestjs/platform-express';
 // import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
+import { Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 // import { RolesGuard } from 'src/authorize/roles.guard';
 // import { Roles } from 'src/authorize/roles.decorator';
