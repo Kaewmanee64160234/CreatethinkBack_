@@ -14,14 +14,14 @@ import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+// import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { diskStorage } from 'multer';
 import { extname, join } from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import { renameSync } from 'fs';
-import { RolesGuard } from 'src/authorize/roles.guard';
-import { Roles } from 'src/authorize/roles.decorator';
-import { Role } from 'src/types/Role.enum';
+// import { RolesGuard } from 'src/authorize/roles.guard';
+// import { Roles } from 'src/authorize/roles.decorator';
+// import { Role } from 'src/types/Role.enum';
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}

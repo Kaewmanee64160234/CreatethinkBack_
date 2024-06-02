@@ -105,7 +105,7 @@ export class AssignmentsService {
       return this.assignmentRepository.find({
         where: { course: { coursesId: courseId } },
         relations: ['room', 'course', 'course.user'],
-        order: { createdDate: 'asc' },
+        order: { createdDate: 'desc' },
       });
     } catch (error) {
       throw new Error('Error fetching assignment');
