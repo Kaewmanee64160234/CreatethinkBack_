@@ -4,23 +4,21 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { Repository } from 'typeorm';
+import { Equal, Repository } from 'typeorm';
+import { Course } from 'src/courses/entities/course.entity';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    //inject course
+    @InjectRepository(Course)
+    private courseRepository: Repository<Course>,
   ) {}
   async create(createUserDto: CreateUserDto) {
     try {
       const newUser = new User();
-      // if (imageFile) {
-      //   console.log('Image file received:', imageFile); // Debugging line
-      //   newUser.profileImage = `${imageFile.originalname}`;
-      // } else {
-      //   newUser.profileImage = null;
-      // }
       newUser.firstName = createUserDto.firstName;
       newUser.lastName = createUserDto.lastName;
       newUser.email = createUserDto.email;
@@ -85,20 +83,9 @@ export class UsersService {
     }
   }
 
-  async update(
-    id: number,
-    updateUserDto: UpdateUserDto,
-    imageFile: Express.Multer.File,
-  ) {
+  async update(id: number, updateUserDto: UpdateUserDto) {
     try {
       const newUser = new User();
-      // if (imageFile) {
-      //   const imageBase64 = imageFile.buffer.toString('base64');
-      //   const imageData = `data:${imageFile.mimetype};base64,${imageBase64}`;
-      //   newUser.profileImage = imageData;
-      // } else {
-      //   newUser.profileImage = null;
-      // }
       newUser.firstName = updateUserDto.firstName;
       newUser.lastName = updateUserDto.lastName;
       newUser.email = updateUserDto.email;
@@ -137,6 +124,22 @@ export class UsersService {
       }
     } catch (e) {
       console.log(e);
+    }
+  }
+  //getUserByCouseId
+  async getUserByCourseId(courseId: string) {
+    try {
+      const user = await this.userRepository.find({
+        where: { enrollments: { course: Equal(courseId) } },
+        relations: ['enrollments', 'enrollments.course'],
+      });
+      if (!user) {
+        throw new NotFoundException('Course not found');
+      } else {
+        return user;
+      }
+    } catch (error) {
+      throw new Error('Error fetching user');
     }
   }
 }

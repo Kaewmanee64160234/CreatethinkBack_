@@ -7,18 +7,19 @@ import {
   Param,
   Delete,
   UseInterceptors,
-  UploadedFile,
   UploadedFiles,
   BadRequestException,
+  Res,
   // UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import { FilesInterceptor } from '@nestjs/platform-express';
 // import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
+import { Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 // import { RolesGuard } from 'src/authorize/roles.guard';
 // import { Roles } from 'src/authorize/roles.decorator';
@@ -68,7 +69,7 @@ export class UsersController {
 
   // @UseGuards(JwtAuthGuard, RolesGuard)
   @Get()
-  // @Roles(Role.Student)
+  // @Roles(Role.Teacher)
   findAll() {
     return this.usersService.findAll();
   }
@@ -80,30 +81,41 @@ export class UsersController {
 
   @Patch(':id')
   @UseInterceptors(
-    FileInterceptor('file', {
+    FilesInterceptor('files', 5, {
       storage: diskStorage({
-        destination: './user_image',
+        destination: './user_images',
         filename: (req, file, cb) => {
-          const studentId = req.body.user.studentId;
-          const name = `${studentId}`;
-          const filename = name + extname(file.originalname);
-          return cb(null, filename);
+          const uniqueSuffix = `${Date.now()}-${uuidv4()}${extname(file.originalname)}`;
+          cb(null, uniqueSuffix);
         },
       }),
     }),
   )
-  update(
+  async update(
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFiles() files: Array<Express.Multer.File>,
   ) {
-    const studentId = updateUserDto.studentId;
-    updateUserDto.image1 = `${studentId}` + extname(file.originalname);
-    updateUserDto.image2 = `${studentId}` + extname(file.originalname);
-    updateUserDto.image3 = `${studentId}` + extname(file.originalname);
-    updateUserDto.image4 = `${studentId}` + extname(file.originalname);
-    updateUserDto.image5 = `${studentId}` + extname(file.originalname);
-    return this.usersService.update(+id, updateUserDto, file);
+    if (files.length !== 5) {
+      throw new BadRequestException('Exactly 5 images are required.');
+    }
+    console.log('Received data:', updateUserDto);
+    console.log('Received files:', files);
+    files.forEach((file, index) => {
+      updateUserDto[`image${index + 1}`] = file.filename;
+      updateUserDto[`faceDescription${index + 1}`] =
+        updateUserDto[`faceDescription${index + 1}`];
+    });
+
+    try {
+      const result = await this.usersService.update(+id, updateUserDto);
+      return result;
+    } catch (error) {
+      console.error('Error during user update:', error);
+      throw new BadRequestException(
+        'Failed to update user due to invalid input',
+      );
+    }
   }
 
   @Delete(':id')
@@ -114,5 +126,17 @@ export class UsersController {
   @Post('login')
   login(@Body() createUserDto: CreateUserDto) {
     return this.usersService.login(createUserDto);
+  }
+
+  // getUserByCourseId
+  @Get('/course/:courseId')
+  getUserByCourseId(@Param('courseId') courseId: string) {
+    return this.usersService.getUserByCourseId(courseId);
+  }
+
+  @Get(':id/image')
+  async getImage(@Param('id') id: string, @Res() res: Response) {
+    const user = await this.usersService.findOne(+id);
+    res.sendFile(user.image1, { root: './user_images' });
   }
 }
