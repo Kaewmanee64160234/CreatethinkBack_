@@ -96,9 +96,6 @@ export class UsersController {
     @Body() updateUserDto: UpdateUserDto,
     @UploadedFiles() files: Array<Express.Multer.File>,
   ) {
-    if (files.length !== 5) {
-      throw new BadRequestException('Exactly 5 images are required.');
-    }
     console.log('Received data:', updateUserDto);
     console.log('Received files:', files);
     files.forEach((file, index) => {
@@ -138,5 +135,10 @@ export class UsersController {
   async getImage(@Param('id') id: string, @Res() res: Response) {
     const user = await this.usersService.findOne(+id);
     res.sendFile(user.image1, { root: './user_images' });
+  }
+
+  @Get('image/filename/:filename')
+  async serveImage(@Param('filename') filename: string, @Res() res: Response) {
+    res.status(200).sendFile(filename, { root: './user_images' });
   }
 }
