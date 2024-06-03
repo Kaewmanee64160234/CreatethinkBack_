@@ -129,4 +129,9 @@ export class UsersController {
     const user = await this.usersService.findOne(+id);
     res.sendFile(user.image1, { root: './user_images' });
   }
+  //get image by file name
+  @Get('image/filename/:filename')
+  async serveImage(@Param('filename') filename: string, @Res() res: Response) {
+    res.status(200).sendFile(filename, { root: './user_images' });
+  }
 }
