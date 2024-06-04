@@ -19,12 +19,6 @@ export class UsersService {
   async create(createUserDto: CreateUserDto) {
     try {
       const newUser = new User();
-      // if (imageFile) {
-      //   console.log('Image file received:', imageFile); // Debugging line
-      //   newUser.profileImage = `${imageFile.originalname}`;
-      // } else {
-      //   newUser.profileImage = null;
-      // }
       newUser.firstName = createUserDto.firstName;
       newUser.lastName = createUserDto.lastName;
       newUser.email = createUserDto.email;
@@ -89,20 +83,9 @@ export class UsersService {
     }
   }
 
-  async update(
-    id: number,
-    updateUserDto: UpdateUserDto,
-    imageFile: Express.Multer.File,
-  ) {
+  async update(id: number, updateUserDto: UpdateUserDto) {
     try {
       const newUser = new User();
-      // if (imageFile) {
-      //   const imageBase64 = imageFile.buffer.toString('base64');
-      //   const imageData = `data:${imageFile.mimetype};base64,${imageBase64}`;
-      //   newUser.profileImage = imageData;
-      // } else {
-      //   newUser.profileImage = null;
-      // }
       newUser.firstName = updateUserDto.firstName;
       newUser.lastName = updateUserDto.lastName;
       newUser.email = updateUserDto.email;
