@@ -140,6 +140,15 @@ export class AttendancesService {
         updateAttendanceDto.attendanceConfirmStatus;
       attendance_.attendanceStatus = updateAttendanceDto.attendanceStatus;
       attendance_.user = user;
+      //'if in time' 15 min late set attendanceStatus to 'late'
+      const currentDate = new Date();
+      const assignmentDate = new Date(
+        updateAttendanceDto.assignment.assignMentTime,
+      );
+      const diff = Math.abs(currentDate.getTime() - assignmentDate.getTime());
+      attendance_.attendanceStatus =
+        Math.ceil(diff / (1000 * 60)) > 2 ? 'late' : 'on time';
+
       return this.attendanceRepository.save(attendance_);
     }
   }
@@ -175,7 +184,7 @@ export class AttendancesService {
       throw new NotFoundException('attendance not found');
     }
     attendance.attendanceConfirmStatus = 'confirmed';
-    attendance.attendanceStatus = 'present';
+
     return this.attendanceRepository.save(attendance);
   }
   //rejectAttendance
@@ -188,7 +197,6 @@ export class AttendancesService {
       throw new NotFoundException('attendance not found');
     }
     attendance.attendanceConfirmStatus = 'confirmed';
-    attendance.attendanceStatus = 'on time';
     attendance.user = null;
     console.log(attendance);
     return this.attendanceRepository.save(attendance);

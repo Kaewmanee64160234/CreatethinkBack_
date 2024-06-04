@@ -16,8 +16,7 @@ import { CreateAttendanceDto } from './dto/create-attendance.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UpdateAttendanceDto } from './dto/update-attendance.dto';
 import { diskStorage } from 'multer';
-import { extname, join } from 'path';
-import { renameSync } from 'fs';
+import { extname } from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import { Response } from 'express';
 
