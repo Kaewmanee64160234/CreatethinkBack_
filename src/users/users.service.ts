@@ -27,10 +27,10 @@ export class UsersService {
       newUser.studentId = createUserDto.studentId;
       newUser.teacherId = createUserDto.teacherId;
       newUser.image1 = createUserDto.image1;
-      newUser.image2 = createUserDto.image2;
-      newUser.image3 = createUserDto.image3;
-      newUser.image4 = createUserDto.image4;
-      newUser.image5 = createUserDto.image5;
+      // newUser.image2 = createUserDto.image2;
+      // newUser.image3 = createUserDto.image3;
+      // newUser.image4 = createUserDto.image4;
+      // newUser.image5 = createUserDto.image5;
 
       const user = await this.userRepository.create(newUser);
       return await this.userRepository.save(user);
@@ -94,10 +94,10 @@ export class UsersService {
       newUser.studentId = updateUserDto.studentId;
       newUser.teacherId = updateUserDto.teacherId;
       newUser.image1 = updateUserDto.image1;
-      newUser.image2 = updateUserDto.image2;
-      newUser.image3 = updateUserDto.image3;
-      newUser.image4 = updateUserDto.image4;
-      newUser.image5 = updateUserDto.image5;
+      // newUser.image2 = updateUserDto.image2;
+      // newUser.image3 = updateUserDto.image3;
+      // newUser.image4 = updateUserDto.image4;
+      // newUser.image5 = updateUserDto.image5;
       const user = await this.userRepository.findOneBy({ userId: id });
       return await this.userRepository.save({ ...user, ...newUser });
     } catch (error) {}
@@ -135,6 +135,22 @@ export class UsersService {
       });
       if (!user) {
         throw new NotFoundException('Course not found');
+      } else {
+        return user;
+      }
+    } catch (error) {
+      throw new Error('Error fetching user');
+    }
+  }
+
+  //getUserByStudentId
+  async getUserByStudentId(studentId: string, teacherId: string) {
+    try {
+      const user = await this.userRepository.findOne({
+        where: { studentId: studentId, teacherId: teacherId },
+      });
+      if (!user) {
+        throw new NotFoundException('User not found');
       } else {
         return user;
       }
