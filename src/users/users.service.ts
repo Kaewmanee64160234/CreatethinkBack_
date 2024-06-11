@@ -4,7 +4,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { Equal, Repository } from 'typeorm';
+import { Equal, Like, Repository } from 'typeorm';
 import { Course } from 'src/courses/entities/course.entity';
 
 @Injectable()
@@ -144,18 +144,13 @@ export class UsersService {
   }
 
   //getUserByStudentId
-  async getUserByStudentId(studentId: string, teacherId: string) {
-    try {
-      const user = await this.userRepository.findOne({
-        where: { studentId: studentId, teacherId: teacherId },
-      });
-      if (!user) {
-        throw new NotFoundException('User not found');
-      } else {
-        return user;
-      }
-    } catch (error) {
-      throw new Error('Error fetching user');
-    }
+  async searchUsers(search: string): Promise<User[]> {
+    return this.userRepository
+      .createQueryBuilder('user')
+      .where('user.studentId LIKE :search', { search: `%${search}%` })
+      .orWhere('user.teacherId LIKE :search', { search: `%${search}%` })
+      .orWhere('user.firstName LIKE :search', { search: `%${search}%` })
+      .orWhere('user.lastName LIKE :search', { search: `%${search}%` })
+      .getMany();
   }
 }

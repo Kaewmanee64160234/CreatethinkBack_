@@ -11,6 +11,7 @@ import {
   BadRequestException,
   Res,
   UseGuards,
+  Query,
   // UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
@@ -26,12 +27,18 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { RolesGuard } from 'src/authorize/roles.guard';
 import { Roles } from 'src/authorize/roles.decorator';
 import { Role } from 'src/types/Role.enum';
+import { User } from './entities/user.entity';
 // import { RolesGuard } from 'src/authorize/roles.guard';
 // import { Roles } from 'src/authorize/roles.decorator';
 // import { Role } from 'src/types/Role.enum';
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
+
+  @Get('search')
+  async searchUsers(@Query('search') search: string): Promise<User[]> {
+    return this.usersService.searchUsers(search);
+  }
 
   @Post()
   @UseInterceptors(
@@ -137,13 +144,7 @@ export class UsersController {
   }
 
   //getusersBystudentId
-  @Get('/student/:studentId')
-  getusersBystudentId(
-    @Param('studentId') studentId: string,
-    teacherId: string,
-  ) {
-    return this.usersService.getUserByStudentId(studentId, teacherId);
-  }
+
   @Get(':id/image')
   async getImage(@Param('id') id: string, @Res() res: Response) {
     const user = await this.usersService.findOne(+id);
