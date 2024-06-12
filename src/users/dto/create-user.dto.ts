@@ -20,23 +20,23 @@ export class CreateUserDto {
 
   teacherId: string;
 
-  faceDescription1: number;
+  // faceDescription1: number;
 
-  faceDescription2: number;
+  // faceDescription2: number;
 
-  faceDescription3: number;
+  // faceDescription3: number;
 
-  faceDescription4: number;
+  // faceDescription4: number;
 
-  faceDescription5: number;
+  // faceDescription5: number;
 
   image1: string;
 
-  image2: string;
+  // image2: string;
 
-  image3: string;
+  // image3: string;
 
-  image4: string;
+  // image4: string;
 
-  image5: string;
+  // image5: string;
 }

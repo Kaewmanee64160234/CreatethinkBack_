@@ -4,7 +4,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { Equal, Repository } from 'typeorm';
+import { Equal, Like, Repository } from 'typeorm';
 import { Course } from 'src/courses/entities/course.entity';
 
 @Injectable()
@@ -27,10 +27,10 @@ export class UsersService {
       newUser.studentId = createUserDto.studentId;
       newUser.teacherId = createUserDto.teacherId;
       newUser.image1 = createUserDto.image1;
-      newUser.image2 = createUserDto.image2;
-      newUser.image3 = createUserDto.image3;
-      newUser.image4 = createUserDto.image4;
-      newUser.image5 = createUserDto.image5;
+      // newUser.image2 = createUserDto.image2;
+      // newUser.image3 = createUserDto.image3;
+      // newUser.image4 = createUserDto.image4;
+      // newUser.image5 = createUserDto.image5;
 
       const user = await this.userRepository.create(newUser);
       return await this.userRepository.save(user);
@@ -94,10 +94,10 @@ export class UsersService {
       newUser.studentId = updateUserDto.studentId;
       newUser.teacherId = updateUserDto.teacherId;
       newUser.image1 = updateUserDto.image1;
-      newUser.image2 = updateUserDto.image2;
-      newUser.image3 = updateUserDto.image3;
-      newUser.image4 = updateUserDto.image4;
-      newUser.image5 = updateUserDto.image5;
+      // newUser.image2 = updateUserDto.image2;
+      // newUser.image3 = updateUserDto.image3;
+      // newUser.image4 = updateUserDto.image4;
+      // newUser.image5 = updateUserDto.image5;
       const user = await this.userRepository.findOneBy({ userId: id });
       return await this.userRepository.save({ ...user, ...newUser });
     } catch (error) {}
@@ -141,5 +141,16 @@ export class UsersService {
     } catch (error) {
       throw new Error('Error fetching user');
     }
+  }
+
+  //getUserByStudentId
+  async searchUsers(search: string): Promise<User[]> {
+    return this.userRepository
+      .createQueryBuilder('user')
+      .where('user.studentId LIKE :search', { search: `%${search}%` })
+      .orWhere('user.teacherId LIKE :search', { search: `%${search}%` })
+      .orWhere('user.firstName LIKE :search', { search: `%${search}%` })
+      .orWhere('user.lastName LIKE :search', { search: `%${search}%` })
+      .getMany();
   }
 }
