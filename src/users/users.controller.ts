@@ -10,6 +10,8 @@ import {
   UploadedFiles,
   BadRequestException,
   Res,
+  UseGuards,
+  Query,
   // UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
@@ -21,6 +23,11 @@ import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { RolesGuard } from 'src/authorize/roles.guard';
+import { Roles } from 'src/authorize/roles.decorator';
+import { Role } from 'src/types/Role.enum';
+import { User } from './entities/user.entity';
 // import { RolesGuard } from 'src/authorize/roles.guard';
 // import { Roles } from 'src/authorize/roles.decorator';
 // import { Role } from 'src/types/Role.enum';
@@ -28,9 +35,14 @@ import { v4 as uuidv4 } from 'uuid';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @Get('search')
+  async searchUsers(@Query('search') search: string): Promise<User[]> {
+    return this.usersService.searchUsers(search);
+  }
+
   @Post()
   @UseInterceptors(
-    FilesInterceptor('files', 5, {
+    FilesInterceptor('files', 1, {
       // Now expecting 5 files
       storage: diskStorage({
         destination: './user_images',
@@ -45,15 +57,15 @@ export class UsersController {
     @Body() createUserDto: CreateUserDto,
     @UploadedFiles() files: Array<Express.Multer.File>,
   ) {
-    if (files.length !== 5) {
-      throw new BadRequestException('Exactly 5 images are required.');
+    if (files.length !== 1) {
+      throw new BadRequestException('Exactly 1 image are required.');
     }
     console.log('Received data:', createUserDto);
     console.log('Received files:', files);
     files.forEach((file, index) => {
       createUserDto[`image${index + 1}`] = file.filename;
-      createUserDto[`faceDescription${index + 1}`] =
-        createUserDto[`faceDescription${index + 1}`];
+      // createUserDto[`faceDescription${index + 1}`] =
+      //   createUserDto[`faceDescription${index + 1}`];
     });
 
     try {
@@ -67,9 +79,9 @@ export class UsersController {
     }
   }
 
-  // @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Get()
-  // @Roles(Role.Teacher)
+  @Roles(Role.Teacher)
   findAll() {
     return this.usersService.findAll();
   }
@@ -81,7 +93,7 @@ export class UsersController {
 
   @Patch(':id')
   @UseInterceptors(
-    FilesInterceptor('files', 5, {
+    FilesInterceptor('files', 1, {
       storage: diskStorage({
         destination: './user_images',
         filename: (req, file, cb) => {
@@ -96,15 +108,12 @@ export class UsersController {
     @Body() updateUserDto: UpdateUserDto,
     @UploadedFiles() files: Array<Express.Multer.File>,
   ) {
-    if (files.length !== 5) {
-      throw new BadRequestException('Exactly 5 images are required.');
-    }
     console.log('Received data:', updateUserDto);
     console.log('Received files:', files);
     files.forEach((file, index) => {
       updateUserDto[`image${index + 1}`] = file.filename;
-      updateUserDto[`faceDescription${index + 1}`] =
-        updateUserDto[`faceDescription${index + 1}`];
+      // updateUserDto[`faceDescription${index + 1}`] =
+      //   updateUserDto[`faceDescription${index + 1}`];
     });
 
     try {
@@ -134,9 +143,16 @@ export class UsersController {
     return this.usersService.getUserByCourseId(courseId);
   }
 
+  //getusersBystudentId
+
   @Get(':id/image')
   async getImage(@Param('id') id: string, @Res() res: Response) {
     const user = await this.usersService.findOne(+id);
     res.sendFile(user.image1, { root: './user_images' });
+  }
+
+  @Get('image/filename/:filename')
+  async serveImage(@Param('filename') filename: string, @Res() res: Response) {
+    res.status(200).sendFile(filename, { root: './user_images' });
   }
 }
