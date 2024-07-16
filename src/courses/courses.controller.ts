@@ -6,10 +6,15 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { CoursesService } from './courses.service';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { RolesGuard } from 'src/authorize/roles.guard';
+import { Roles } from 'src/authorize/roles.decorator';
+import { Role } from 'src/types/Role.enum';
 
 @Controller('courses')
 export class CoursesController {
@@ -20,6 +25,9 @@ export class CoursesController {
     return this.coursesService.create(createCourseDto);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Get()
+  @Roles(Role.Teacher)
   @Get()
   findAll() {
     return this.coursesService.findAll();
