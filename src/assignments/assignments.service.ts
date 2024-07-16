@@ -17,29 +17,21 @@ export class AssignmentsService {
     private assignmentRepository: Repository<Assignment>,
     @InjectRepository(Course)
     private courseRepository: Repository<Course>,
-    @InjectRepository(Room)
-    private roomRepository: Repository<Room>,
+
     @InjectRepository(Attendance)
     private attendanceRepository: Repository<Attendance>,
   ) {}
   async create(createAssignmentDto: CreateAssignmentDto) {
     try {
       //find room and course by id
-      const room = await this.roomRepository.findOne({
-        where: { roomId: createAssignmentDto.room.roomId },
-      });
+
       const course = await this.courseRepository.findOne({
         where: { coursesId: createAssignmentDto.course.coursesId },
       });
 
-      if (!room || !course) {
-        throw new Error('Room or Course not found');
-      }
-
       //create new assignment
       const newAssignment = new Assignment();
       newAssignment.nameAssignment = createAssignmentDto.nameAssignment;
-      newAssignment.room = room;
       newAssignment.course = course;
       newAssignment.assignMentTime = new Date();
       //save new assignment
@@ -104,7 +96,7 @@ export class AssignmentsService {
     try {
       return this.assignmentRepository.find({
         where: { course: { coursesId: courseId } },
-        relations: ['room', 'course', 'course.user'],
+        relations: ['course', 'course.user'],
         order: { createdDate: 'desc' },
       });
     } catch (error) {
