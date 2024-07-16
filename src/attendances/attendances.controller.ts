@@ -16,8 +16,7 @@ import { CreateAttendanceDto } from './dto/create-attendance.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UpdateAttendanceDto } from './dto/update-attendance.dto';
 import { diskStorage } from 'multer';
-import { extname, join } from 'path';
-import { renameSync } from 'fs';
+import { extname } from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import { Response } from 'express';
 
@@ -42,21 +41,7 @@ export class AttendancesController {
     @UploadedFile() file: Express.Multer.File,
     @Body() createAttendanceDto: CreateAttendanceDto,
   ) {
-    // Construct the intended filename
-    const idStudent = createAttendanceDto.studentId;
-    const idAssignment = createAttendanceDto.assignmentId;
-    const date = new Date();
-    const formattedDate = `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`;
-    const intendedFilename = `${idStudent}_${idAssignment}_${formattedDate}${extname(file.originalname)}`;
-
-    // Rename the file
-    const oldPath = join('./attendance_image', file.filename);
-    const newPath = join('./attendance_image', intendedFilename);
-    renameSync(oldPath, newPath);
-
-    // Update DTO with the new file name
-    createAttendanceDto.attendanceImage = intendedFilename;
-    console.log(intendedFilename);
+    createAttendanceDto.attendanceImage = file.filename;
     // Proceed with your service logic
     return this.attendancesService.create(createAttendanceDto);
   }
