@@ -1,7 +1,6 @@
 import { Attendance } from 'src/attendances/entities/attendance.entity';
 import { Course } from 'src/courses/entities/course.entity';
 
-import { Room } from 'src/rooms/entities/room.entity';
 import {
   Column,
   CreateDateColumn,
@@ -26,9 +25,6 @@ export class Assignment {
 
   @OneToMany(() => Attendance, (attendance) => attendance.assignment)
   attendances: Attendance[];
-
-  @ManyToOne(() => Room, (room) => room.assignments)
-  room: Room;
 
   @ManyToOne(() => Course, (course) => course.assignments)
   course: Course;
