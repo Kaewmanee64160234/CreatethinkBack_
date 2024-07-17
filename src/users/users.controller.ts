@@ -18,19 +18,16 @@ import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { FilesInterceptor } from '@nestjs/platform-express';
-// import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { RolesGuard } from 'src/authorize/roles.guard';
-import { Roles } from 'src/authorize/roles.decorator';
-import { Role } from 'src/types/Role.enum';
 import { User } from './entities/user.entity';
-// import { RolesGuard } from 'src/authorize/roles.guard';
-// import { Roles } from 'src/authorize/roles.decorator';
-// import { Role } from 'src/types/Role.enum';
+import { Role } from 'src/types/role.enum';
+import { Roles } from 'src/authorize/roles.decorator';
+
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}

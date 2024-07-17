@@ -6,12 +6,14 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  Generated,
   JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
+
 @Entity()
 export class Course {
   @PrimaryColumn()
@@ -20,9 +22,8 @@ export class Course {
   @Column()
   nameCourses: string;
 
-  @Column({
-    default: () => `UUID()`,
-  })
+  @Column()
+  @Generated('uuid')
   codeCourses: string;
 
   @Column()
