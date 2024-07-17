@@ -103,13 +103,14 @@ export class EnrollmentsService {
   }
 
   async findStdByCourseId(id: string) {
-    const enrollment = await this.enrollmentRepository.find({
+    const enrollments = await this.enrollmentRepository.find({
       where: { course: { coursesId: id } },
       relations: ['user'],
     });
-    if (!enrollment || enrollment.length === 0) {
-      throw new NotFoundException('enrollment not found for this studentId');
+    console.log('1', enrollments);
+    if (!enrollments || enrollments.length === 0) {
+      throw new NotFoundException('No enrollments found for this course ID');
     }
-    return enrollment;
+    return enrollments;
   }
 }

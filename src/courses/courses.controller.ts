@@ -6,10 +6,19 @@ import {
   Patch,
   Param,
   Delete,
+  BadRequestException,
+  UploadedFile,
+  UseInterceptors,
+  UseGuards,
 } from '@nestjs/common';
 import { CoursesService } from './courses.service';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { RolesGuard } from 'src/authorize/roles.guard';
+import { Roles } from 'src/authorize/roles.decorator';
+import { Role } from 'src/types/Role.enum';
 
 @Controller('courses')
 export class CoursesController {
@@ -20,6 +29,21 @@ export class CoursesController {
     return this.coursesService.create(createCourseDto);
   }
 
+  @Post('upload')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: { fileSize: 10 * 1024 * 1024 }, // Limit file size to 10MB
+    }),
+  )
+  async uploadFile(@UploadedFile() file: Express.Multer.File) {
+    if (!file) {
+      throw new BadRequestException('File not found');
+    }
+    return this.coursesService.processFile(file);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Teacher)
   @Get()
   findAll() {
     return this.coursesService.findAll();

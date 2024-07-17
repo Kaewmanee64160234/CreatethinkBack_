@@ -8,6 +8,7 @@ import { Repository } from 'typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { Enrollment } from 'src/enrollments/entities/enrollment.entity';
 import { v4 as uuidv4 } from 'uuid';
+import * as XLSX from 'xlsx';
 
 @Injectable()
 export class CoursesService {
@@ -49,6 +50,34 @@ export class CoursesService {
 
     return savedCourse;
   }
+
+  processFile = (file) => {
+    const workbook = XLSX.read(file.buffer, { type: 'buffer' });
+    const sheetName = workbook.SheetNames[0];
+    const worksheet = workbook.Sheets[sheetName];
+    let jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+    jsonData = jsonData.filter((entry) => {
+      const id = entry['__EMPTY_1'];
+      const name = entry['__EMPTY_2'];
+      // Check for non-empty and valid integer ID
+      return (
+        id &&
+        !isNaN(Number(id)) &&
+        Number.isInteger(Number(id)) &&
+        name &&
+        name.trim() !== ''
+      );
+    });
+
+    // Optionally, rename keys
+    jsonData = jsonData.map((entry) => ({
+      id: entry['__EMPTY_1'],
+      name: entry['__EMPTY_2'].replace(/นาย|นางสาว|นาง/g, '').trim(),
+    }));
+    console.log('Processed data:', jsonData);
+    return jsonData;
+  };
 
   findAll() {
     return this.courseRepository.find({
