@@ -11,6 +11,7 @@ import { Buffer } from 'buffer';
 import { HttpErrorByCode } from '@nestjs/common/utils/http-error-by-code.util';
 import path, { extname, join } from 'path';
 import { promises as fsPromises, renameSync } from 'fs';
+import { Enrollment } from 'src/enrollments/entities/enrollment.entity';
 
 @Injectable()
 export class AttendancesService {
@@ -21,6 +22,8 @@ export class AttendancesService {
     private userRepository: Repository<User>,
     @InjectRepository(Assignment)
     private assignmentRepository: Repository<Assignment>,
+    @InjectRepository(Enrollment)
+    private enrollmentRepository: Repository<Enrollment>,
   ) {}
 
   async create(createAttendanceDto: CreateAttendanceDto) {
@@ -51,7 +54,7 @@ export class AttendancesService {
       const assignmentDate = new Date(assignment.assignMentTime);
       const diff = Math.abs(currentDate.getTime() - assignmentDate.getTime());
       newAttendance.attendanceStatus =
-        Math.ceil(diff / (1000 * 60)) > 15 ? 'late' : 'on time';
+        Math.ceil(diff / (1000 * 60)) > 15 ? 'late' : 'present';
       newAttendance.assignment = assignment;
 
       return this.attendanceRepository.save(newAttendance);
@@ -124,7 +127,7 @@ export class AttendancesService {
       });
       if (
         attendance != null &&
-        (attendance.attendanceStatus !== 'on time' ||
+        (attendance.attendanceStatus !== 'present' ||
           attendance.attendanceConfirmStatus == 'recheck')
       ) {
         // send nopermition exeption 403
@@ -148,7 +151,7 @@ export class AttendancesService {
         );
         const diff = Math.abs(currentDate.getTime() - assignmentDate.getTime());
         attendance_.attendanceStatus =
-          Math.ceil(diff / (1000 * 60)) > 2 ? 'late' : 'on time';
+          Math.ceil(diff / (1000 * 60)) > 2 ? 'late' : 'present';
 
         return this.attendanceRepository.save(attendance_);
       }
@@ -186,13 +189,6 @@ export class AttendancesService {
       attendance_.attendanceStatus = updateAttendanceDto.attendanceStatus;
       attendance_.user = user;
       //'if in time' 15 min late set attendanceStatus to 'late'
-      const currentDate = new Date();
-      const assignmentDate = new Date(
-        updateAttendanceDto.assignment.assignMentTime,
-      );
-      const diff = Math.abs(currentDate.getTime() - assignmentDate.getTime());
-      attendance_.attendanceStatus =
-        Math.ceil(diff / (1000 * 60)) > 2 ? 'late' : 'on time';
 
       return this.attendanceRepository.save(attendance_);
     } catch (error) {
@@ -271,23 +267,58 @@ export class AttendancesService {
   }
 
   //check all attendance
-  async checkAllAttendance(assigmentId: number) {
-    const attendances = await this.attendanceRepository.find({
-      where: {
-        attendanceStatus: 'on time',
-        assignment: { assignmentId: assigmentId },
-      },
+  async checkAllAttendance(assignmentId: number) {
+    // Fetch the assignment and its related course
+    const assignment = await this.assignmentRepository.findOne({
+      where: { assignmentId: assignmentId },
+      relations: ['course'],
     });
-    //loop
-    attendances.forEach((attendance) => {
-      attendance.attendanceStatus = 'present';
-      this.attendanceRepository.save(attendance);
-    });
-    console.log('attendances', attendances);
-    if (!attendances) {
-      throw new NotFoundException('attendances not found');
-    } else {
-      return attendances;
+    if (!assignment) {
+      throw new NotFoundException('Assignment not found');
     }
+
+    const course = assignment.course;
+
+    // Fetch the enrollments for the course
+    const enrollments = await this.enrollmentRepository.find({
+      where: { course: { coursesId: course.coursesId } },
+      relations: ['user'],
+    });
+
+    if (!enrollments.length) {
+      throw new NotFoundException('No enrollments found for this course');
+    }
+
+    // Loop through the enrolled students and create or update attendance records
+    for (const enrollment of enrollments) {
+      const student = enrollment.user;
+
+      let attendance = await this.attendanceRepository.findOne({
+        where: { user: student, assignment: assignment },
+      });
+
+      if (!attendance) {
+        // Create new attendance record if not found
+        attendance = new Attendance();
+        attendance.user = student;
+        attendance.assignment = assignment;
+        attendance.attendanceDate = new Date();
+        attendance.attendanceStatus = 'absent';
+        attendance.attendanceConfirmStatus = 'not confirmed';
+      }
+      if (
+        attendance.attendanceStatus === 'present' ||
+        attendance.attendanceStatus === 'present'
+      ) {
+        // Update attendance status if it is 'present'
+        attendance.attendanceStatus = 'present';
+        attendance.attendanceConfirmStatus = 'confirmed';
+      }
+
+      await this.attendanceRepository.save(attendance);
+    }
+
+    console.log('All student attendance checked');
+    return 'All student attendance checked';
   }
 }
