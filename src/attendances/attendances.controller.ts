@@ -62,6 +62,14 @@ export class AttendancesController {
   ) {
     return this.attendancesService.update(+id, updateAttendanceDto);
   }
+  // updateByTeacher
+  @Patch('teacher/:id')
+  async updateByTeacher(
+    @Param('id') id: string,
+    @Body() updateAttendanceDto: UpdateAttendanceDto,
+  ) {
+    return this.attendancesService.updateByTeacher(+id, updateAttendanceDto);
+  }
 
   @Delete(':id')
   remove(@Param('id') id: string) {

@@ -62,7 +62,9 @@ export class AttendancesService {
   }
 
   findAll() {
-    return this.attendanceRepository.find();
+    return this.attendanceRepository.find({
+      relations: ['user'],
+    });
   }
 
   async findOne(id: number) {
@@ -106,30 +108,73 @@ export class AttendancesService {
 
   //update
   async update(id: number, updateAttendanceDto: UpdateAttendanceDto) {
-    console.log(updateAttendanceDto.assignment);
+    try {
+      console.log(updateAttendanceDto.assignment);
 
-    const user = await this.userRepository.findOne({
-      where: { userId: updateAttendanceDto.user.userId },
-    });
-    const attendance = await this.attendanceRepository.findOne({
-      where: {
-        user: { studentId: user.studentId },
-        assignment: {
-          assignmentId: updateAttendanceDto.assignment.assignmentId,
+      const user = await this.userRepository.findOne({
+        where: { userId: updateAttendanceDto.user.userId },
+      });
+      const attendance = await this.attendanceRepository.findOne({
+        where: {
+          user: { studentId: user.studentId },
+          assignment: {
+            assignmentId: updateAttendanceDto.assignment.assignmentId,
+          },
         },
-      },
-    });
+      });
+      if (
+        attendance != null &&
+        (attendance.attendanceStatus !== 'on time' ||
+          attendance.attendanceConfirmStatus == 'recheck')
+      ) {
+        // send nopermition exeption 403
+
+        throw new HttpErrorByCode[403]('You do not have permission to update');
+      } else {
+        const attendance_ = await this.attendanceRepository.findOne({
+          where: {
+            assignment: { assignmentId: updateAttendanceDto.assignmentId },
+            attendanceId: id,
+          },
+        });
+        attendance_.attendanceConfirmStatus =
+          updateAttendanceDto.attendanceConfirmStatus;
+        attendance_.attendanceStatus = updateAttendanceDto.attendanceStatus;
+        attendance_.user = user;
+        //'if in time' 15 min late set attendanceStatus to 'late'
+        const currentDate = new Date();
+        const assignmentDate = new Date(
+          updateAttendanceDto.assignment.assignMentTime,
+        );
+        const diff = Math.abs(currentDate.getTime() - assignmentDate.getTime());
+        attendance_.attendanceStatus =
+          Math.ceil(diff / (1000 * 60)) > 2 ? 'late' : 'on time';
+
+        return this.attendanceRepository.save(attendance_);
+      }
+    } catch (error) {
+      console.log('--------------');
+      console.log(error);
+    }
+
     // console.log(updateAttendanceDto);
+  }
 
-    if (
-      attendance != null &&
-      (attendance.attendanceStatus !== 'on time' ||
-        attendance.attendanceConfirmStatus == 'recheck')
-    ) {
-      // send nopermition exeption 403
+  // update by teacher
+  async updateByTeacher(id: number, updateAttendanceDto: UpdateAttendanceDto) {
+    try {
+      const user = await this.userRepository.findOne({
+        where: { userId: updateAttendanceDto.user.userId },
+      });
+      const attendance = await this.attendanceRepository.findOne({
+        where: {
+          user: { studentId: user.studentId },
+          assignment: {
+            assignmentId: updateAttendanceDto.assignment.assignmentId,
+          },
+        },
+      });
 
-      throw new HttpErrorByCode[403]('You do not have permission to update');
-    } else {
       const attendance_ = await this.attendanceRepository.findOne({
         where: {
           assignment: { assignmentId: updateAttendanceDto.assignmentId },
@@ -150,6 +195,9 @@ export class AttendancesService {
         Math.ceil(diff / (1000 * 60)) > 2 ? 'late' : 'on time';
 
       return this.attendanceRepository.save(attendance_);
+    } catch (error) {
+      console.log('--------------');
+      console.log(error);
     }
   }
 
@@ -176,16 +224,20 @@ export class AttendancesService {
 
   //  confirmAttendance
   async confirmAttendance(id: number) {
-    const attendance = await this.attendanceRepository.findOne({
-      where: { attendanceId: id },
-      relations: ['assignment'],
-    });
-    if (!attendance) {
-      throw new NotFoundException('attendance not found');
-    }
-    attendance.attendanceConfirmStatus = 'confirmed';
+    try {
+      const attendance = await this.attendanceRepository.findOne({
+        where: { attendanceId: id },
+        relations: ['assignment'],
+      });
+      if (!attendance) {
+        throw new NotFoundException('attendance not found');
+      }
+      attendance.attendanceConfirmStatus = 'confirmed';
 
-    return this.attendanceRepository.save(attendance);
+      return this.attendanceRepository.save(attendance);
+    } catch (error) {
+      console.log(error);
+    }
   }
   //rejectAttendance
   async rejectAttendance(id: number) {
