@@ -52,9 +52,6 @@ export class UsersService {
     const worksheet = workbook.Sheets[sheetName];
     const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
-    // Print out the keys of the first object to check field names
-    console.log('First row keys:', Object.keys(jsonData[0]));
-
     // Process the data to extract the fields
     const filteredData = jsonData.map((item) => {
       const idKey = Object.keys(item).find((key) =>
@@ -66,12 +63,21 @@ export class UsersService {
         /ชื่อ|ชื่อ-สกุล|ชื่อ-นามสกุล/.test(key),
       );
 
+      const majorKey = Object.keys(item).find((key) =>
+        /สาขา|สาขาที่เรียน/.test(key),
+      );
+
+      const yearKey = Object.keys(item).find((key) =>
+        /รหัสประจำตัว|รหัสนิสิต/.test(key),
+      );
+
       return {
-        รหัสประจำตัว: item[idKey],
-        ชื่อ: item[nameKey],
+        id: item[idKey],
+        name: item[nameKey],
+        major: item[majorKey],
+        year: item[yearKey].toString().substring(0, 2),
       };
     });
-
     console.log('Processed data:', filteredData);
     return filteredData;
   };
