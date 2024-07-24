@@ -1,11 +1,17 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Equal, Like, Repository } from 'typeorm';
 import { Course } from 'src/courses/entities/course.entity';
+import * as XLSX from 'xlsx';
+import mammoth from 'mammoth';
 
 @Injectable()
 export class UsersService {
@@ -39,6 +45,36 @@ export class UsersService {
       throw new Error('Error creating user');
     }
   }
+
+  processFile = (file) => {
+    const workbook = XLSX.read(file.buffer, { type: 'buffer' });
+    const sheetName = workbook.SheetNames[0];
+    const worksheet = workbook.Sheets[sheetName];
+    const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+    // Print out the keys of the first object to check field names
+    console.log('First row keys:', Object.keys(jsonData[0]));
+
+    // Process the data to extract the fields
+    const filteredData = jsonData.map((item) => {
+      const idKey = Object.keys(item).find((key) =>
+        /รหัสประจำตัว|รหัสนิสิต/.test(key),
+      );
+
+      // Use a regular expression to match either "ชื่อ" or "ชื่อ-สกุล"
+      const nameKey = Object.keys(item).find((key) =>
+        /ชื่อ|ชื่อ-สกุล|ชื่อ-นามสกุล/.test(key),
+      );
+
+      return {
+        รหัสประจำตัว: item[idKey],
+        ชื่อ: item[nameKey],
+      };
+    });
+
+    console.log('Processed data:', filteredData);
+    return filteredData;
+  };
 
   findAll() {
     return this.userRepository.find();
