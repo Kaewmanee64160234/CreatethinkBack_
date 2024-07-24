@@ -50,7 +50,7 @@ import { Room } from './rooms/entities/room.entity';
       host: 'localhost',
       port: 3306,
       username: 'root',
-      password: 'yourpassword',
+      // password: 'yourpassword',
       database: 'creativethinking',
       entities: [User, Room, Course, Enrollment, Attendance, Assignment],
       synchronize: true,
