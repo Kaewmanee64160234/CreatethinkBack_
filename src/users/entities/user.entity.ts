@@ -37,8 +37,41 @@ export class User {
   @Column()
   teacherId: string;
 
+  @Column({ nullable: true })
+  year: string;
+
+  @Column({ nullable: true })
+  major: string;
+
   @Column({ type: 'text', nullable: true })
   image1: string;
+
+  @Column({ type: 'text', nullable: true })
+  image2: string;
+
+  @Column({ type: 'text', nullable: true })
+  image3: string;
+
+  @Column({ type: 'text', nullable: true })
+  image4: string;
+
+  @Column({ type: 'text', nullable: true })
+  image5: string;
+
+  @Column({ type: 'text', nullable: true })
+  faceDescriptor1: string;
+
+  @Column({ type: 'text', nullable: true })
+  faceDescriptor2: string;
+
+  @Column({ type: 'text', nullable: true })
+  faceDescriptor3: string;
+
+  @Column({ type: 'text', nullable: true })
+  faceDescriptor4: string;
+
+  @Column({ type: 'text', nullable: true })
+  faceDescriptor5: string;
 
   @Column({ type: 'text', nullable: true })
   profileImage: string;
