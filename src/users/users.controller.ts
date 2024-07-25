@@ -12,12 +12,12 @@ import {
   Res,
   UseGuards,
   Query,
+  UploadedFile,
   // UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { FilesInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { Response } from 'express';
@@ -27,6 +27,7 @@ import { RolesGuard } from 'src/authorize/roles.guard';
 import { User } from './entities/user.entity';
 import { Role } from 'src/types/role.enum';
 import { Roles } from 'src/authorize/roles.decorator';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 
 @Controller('users')
 export class UsersController {
@@ -35,6 +36,19 @@ export class UsersController {
   @Get('search')
   async searchUsers(@Query('search') search: string): Promise<User[]> {
     return this.usersService.searchUsers(search);
+  }
+
+  @Post('upload')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: { fileSize: 10 * 1024 * 1024 }, // Limit file size to 10MB
+    }),
+  )
+  async uploadFile(@UploadedFile() file: Express.Multer.File) {
+    if (!file) {
+      throw new BadRequestException('File not found');
+    }
+    return this.usersService.processFile(file);
   }
 
   @Post()
@@ -78,7 +92,7 @@ export class UsersController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Get()
-  @Roles(Role.Teacher)
+  @Roles(Role.Teacher, Role.Admin)
   findAll() {
     return this.usersService.findAll();
   }

@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -50,7 +50,7 @@ import { Room } from './rooms/entities/room.entity';
       host: 'localhost',
       port: 3306,
       username: 'root',
-      password: 'yourpassword',
+      // password: 'yourpassword',
       database: 'creativethinking',
       entities: [User, Room, Course, Enrollment, Attendance, Assignment],
       synchronize: true,
