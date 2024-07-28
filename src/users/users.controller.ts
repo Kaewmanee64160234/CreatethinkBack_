@@ -53,8 +53,7 @@ export class UsersController {
 
   @Post()
   @UseInterceptors(
-    FilesInterceptor('files', 1, {
-      // Now expecting 5 files
+    FilesInterceptor('files', 5, {
       storage: diskStorage({
         destination: './user_images',
         filename: (req, file, cb) => {
@@ -68,15 +67,15 @@ export class UsersController {
     @Body() createUserDto: CreateUserDto,
     @UploadedFiles() files: Array<Express.Multer.File>,
   ) {
-    if (files.length !== 1) {
-      throw new BadRequestException('Exactly 1 image are required.');
+    if (!files || files.length === 0 || files.length > 5) {
+      throw new BadRequestException('Between 1 and 5 images are required.');
     }
+
     console.log('Received data:', createUserDto);
     console.log('Received files:', files);
+
     files.forEach((file, index) => {
       createUserDto[`image${index + 1}`] = file.filename;
-      // createUserDto[`faceDescription${index + 1}`] =
-      //   createUserDto[`faceDescription${index + 1}`];
     });
 
     try {

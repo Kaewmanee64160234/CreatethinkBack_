@@ -32,11 +32,16 @@ export class UsersService {
       newUser.status = createUserDto.status;
       newUser.studentId = createUserDto.studentId;
       newUser.teacherId = createUserDto.teacherId;
+      newUser.faceDescriptor1 = createUserDto.faceDescription1;
+      newUser.faceDescriptor2 = createUserDto.faceDescription2;
+      newUser.faceDescriptor3 = createUserDto.faceDescription3;
+      newUser.faceDescriptor4 = createUserDto.faceDescription4;
+      newUser.faceDescriptor5 = createUserDto.faceDescription5;
       newUser.image1 = createUserDto.image1;
-      // newUser.image2 = createUserDto.image2;
-      // newUser.image3 = createUserDto.image3;
-      // newUser.image4 = createUserDto.image4;
-      // newUser.image5 = createUserDto.image5;
+      newUser.image2 = createUserDto.image2;
+      newUser.image3 = createUserDto.image3;
+      newUser.image4 = createUserDto.image4;
+      newUser.image5 = createUserDto.image5;
 
       const user = await this.userRepository.create(newUser);
       return await this.userRepository.save(user);
