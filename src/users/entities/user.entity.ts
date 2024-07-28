@@ -59,19 +59,19 @@ export class User {
   image5: string;
 
   @Column({ type: 'text', nullable: true })
-  faceDescriptor1: string;
+  faceDescriptor1: string; // JSON string
 
   @Column({ type: 'text', nullable: true })
-  faceDescriptor2: string;
+  faceDescriptor2: string; // JSON string
 
   @Column({ type: 'text', nullable: true })
-  faceDescriptor3: string;
+  faceDescriptor3: string; // JSON string
 
   @Column({ type: 'text', nullable: true })
-  faceDescriptor4: string;
+  faceDescriptor4: string; // JSON string
 
   @Column({ type: 'text', nullable: true })
-  faceDescriptor5: string;
+  faceDescriptor5: string; // JSON string
 
   @Column({ type: 'text', nullable: true })
   profileImage: string;

@@ -32,23 +32,55 @@ export class UsersService {
       newUser.status = createUserDto.status;
       newUser.studentId = createUserDto.studentId;
       newUser.teacherId = createUserDto.teacherId;
-      newUser.faceDescriptor1 = createUserDto.faceDescription1;
-      newUser.faceDescriptor2 = createUserDto.faceDescription2;
-      newUser.faceDescriptor3 = createUserDto.faceDescription3;
-      newUser.faceDescriptor4 = createUserDto.faceDescription4;
-      newUser.faceDescriptor5 = createUserDto.faceDescription5;
+
+      newUser.faceDescriptor1 = createUserDto.faceDescription1
+        ? this.float32ArrayToJsonString(createUserDto.faceDescription1)
+        : null;
+      newUser.faceDescriptor2 = createUserDto.faceDescription2
+        ? this.float32ArrayToJsonString(createUserDto.faceDescription2)
+        : null;
+      newUser.faceDescriptor3 = createUserDto.faceDescription3
+        ? this.float32ArrayToJsonString(createUserDto.faceDescription3)
+        : null;
+      newUser.faceDescriptor4 = createUserDto.faceDescription4
+        ? this.float32ArrayToJsonString(createUserDto.faceDescription4)
+        : null;
+      newUser.faceDescriptor5 = createUserDto.faceDescription5
+        ? this.float32ArrayToJsonString(createUserDto.faceDescription5)
+        : null;
+
       newUser.image1 = createUserDto.image1;
       newUser.image2 = createUserDto.image2;
       newUser.image3 = createUserDto.image3;
       newUser.image4 = createUserDto.image4;
       newUser.image5 = createUserDto.image5;
 
-      const user = await this.userRepository.create(newUser);
-      return await this.userRepository.save(user);
+      const user = await this.userRepository.save(newUser);
+      console.log(user);
+
+      return user;
     } catch (error) {
       console.log(error);
       throw new Error('Error creating user');
     }
+  }
+
+  private float32ArrayToJsonString(array: string): string {
+    const floatArray = this.base64ToFloat32Array(array);
+    return JSON.stringify(Array.from(floatArray));
+  }
+
+  private base64ToFloat32Array(base64: string): Float32Array {
+    if (!base64) {
+      throw new TypeError('The first argument must be of type string.');
+    }
+    const binaryString = Buffer.from(base64, 'base64').toString('binary');
+    const len = binaryString.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+    return new Float32Array(bytes.buffer);
   }
 
   processFile = (file) => {
