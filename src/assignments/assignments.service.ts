@@ -24,7 +24,7 @@ export class AssignmentsService {
   async create(createAssignmentDto: CreateAssignmentDto): Promise<Assignment> {
     try {
       const course = await this.courseRepository.findOne({
-        where: { coursesId: createAssignmentDto.course.coursesId },
+        where: { coursesId: createAssignmentDto.coursesId },
       });
 
       if (!course) {
