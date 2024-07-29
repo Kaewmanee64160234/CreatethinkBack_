@@ -9,6 +9,7 @@ import {
   UseInterceptors,
   UploadedFiles,
   BadRequestException,
+  Res,
 } from '@nestjs/common';
 import { AssignmentsService } from './assignments.service';
 import { CreateAssignmentDto } from './dto/create-assignment.dto';
@@ -18,6 +19,7 @@ import { diskStorage } from 'multer';
 import { extname } from 'path';
 // impoet uuid from
 import { v4 as uuid4 } from 'uuid';
+import { Response } from 'express';
 
 @Controller('assignments')
 export class AssignmentsController {
@@ -58,6 +60,11 @@ export class AssignmentsController {
         'Failed to create assignment due to invalid input',
       );
     }
+  }
+
+  @Get('image/filename/:filename')
+  async serveImage(@Param('filename') filename: string, @Res() res: Response) {
+    res.status(200).sendFile(filename, { root: './assignment_images' });
   }
 
   @Get()
