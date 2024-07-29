@@ -95,7 +95,11 @@ export class AssignmentsService {
   async getAssignmentByCourseId(courseId: string) {
     try {
       return this.assignmentRepository.find({
-        where: { course: { coursesId: courseId } },
+        where: {
+          course: { coursesId: courseId },
+          statusAssignment: 'completed',
+        },
+
         relations: ['course', 'course.user'],
         order: { createdDate: 'desc' },
       });

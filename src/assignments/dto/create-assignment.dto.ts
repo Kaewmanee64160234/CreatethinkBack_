@@ -13,4 +13,6 @@ export class CreateAssignmentDto {
 
   roomId: number;
   course: Course;
+
+  statusAssignment: string;
 }

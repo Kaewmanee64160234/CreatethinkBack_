@@ -20,6 +20,10 @@ export class Assignment {
   @Column()
   nameAssignment: string;
 
+  // assignment status
+  @Column()
+  statusAssignment: string;
+
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   assignMentTime: Date;
 
