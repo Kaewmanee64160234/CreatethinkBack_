@@ -1,4 +1,4 @@
-import { IsNotEmpty } from 'class-validator';
+import { IsArray, IsNotEmpty, IsString } from 'class-validator';
 import { Course } from 'src/courses/entities/course.entity';
 
 export class CreateAssignmentDto {
@@ -15,4 +15,7 @@ export class CreateAssignmentDto {
   course: Course;
 
   statusAssignment: string;
+  @IsArray()
+  @IsString({ each: true })
+  assignmentImages: string[];
 }
