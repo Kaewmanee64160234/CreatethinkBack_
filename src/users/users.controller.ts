@@ -68,9 +68,9 @@ export class UsersController {
     @Body() createUserDto: CreateUserDto,
     @UploadedFiles() files: Array<Express.Multer.File>,
   ) {
-    if (files.length !== 1) {
-      throw new BadRequestException('Exactly 1 image are required.');
-    }
+    // if (files.length !== 1) {
+    //   throw new BadRequestException('Exactly 1 image are required.');
+    // }
     console.log('Received data:', createUserDto);
     console.log('Received files:', files);
     files.forEach((file, index) => {

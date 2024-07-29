@@ -30,13 +30,20 @@ export class UsersService {
       newUser.email = createUserDto.email;
       newUser.role = createUserDto.role;
       newUser.status = createUserDto.status;
+      newUser.year = createUserDto.year;
+      newUser.major = createUserDto.major;
       newUser.studentId = createUserDto.studentId;
       newUser.teacherId = createUserDto.teacherId;
       newUser.image1 = createUserDto.image1;
-      // newUser.image2 = createUserDto.image2;
-      // newUser.image3 = createUserDto.image3;
-      // newUser.image4 = createUserDto.image4;
-      // newUser.image5 = createUserDto.image5;
+      newUser.image2 = createUserDto.image2;
+      newUser.image3 = createUserDto.image3;
+      newUser.image4 = createUserDto.image4;
+      newUser.image5 = createUserDto.image5;
+      newUser.faceDescriptor1 = createUserDto.faceDescription1;
+      newUser.faceDescriptor2 = createUserDto.faceDescription2;
+      newUser.faceDescriptor3 = createUserDto.faceDescription3;
+      newUser.faceDescriptor4 = createUserDto.faceDescription4;
+      newUser.faceDescriptor5 = createUserDto.faceDescription5;
 
       const user = await this.userRepository.create(newUser);
       return await this.userRepository.save(user);
@@ -73,7 +80,7 @@ export class UsersService {
 
       return {
         id: item[idKey],
-        name: item[nameKey],
+        name: item[nameKey].replace(/นาย|นางสาว|นาง/g, '').trim(),
         major: item[majorKey],
         year: item[yearKey].toString().substring(0, 2),
       };
@@ -133,13 +140,20 @@ export class UsersService {
       newUser.email = updateUserDto.email;
       newUser.role = updateUserDto.role;
       newUser.status = updateUserDto.status;
+      newUser.year = updateUserDto.year;
+      newUser.major = updateUserDto.major;
       newUser.studentId = updateUserDto.studentId;
       newUser.teacherId = updateUserDto.teacherId;
       newUser.image1 = updateUserDto.image1;
-      // newUser.image2 = updateUserDto.image2;
-      // newUser.image3 = updateUserDto.image3;
-      // newUser.image4 = updateUserDto.image4;
-      // newUser.image5 = updateUserDto.image5;
+      newUser.image2 = updateUserDto.image2;
+      newUser.image3 = updateUserDto.image3;
+      newUser.image4 = updateUserDto.image4;
+      newUser.image5 = updateUserDto.image5;
+      newUser.faceDescriptor1 = updateUserDto.faceDescription1;
+      newUser.faceDescriptor2 = updateUserDto.faceDescription2;
+      newUser.faceDescriptor3 = updateUserDto.faceDescription3;
+      newUser.faceDescriptor4 = updateUserDto.faceDescription4;
+      newUser.faceDescriptor5 = updateUserDto.faceDescription5;
       const user = await this.userRepository.findOneBy({ userId: id });
       return await this.userRepository.save({ ...user, ...newUser });
     } catch (error) {}
