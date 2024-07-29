@@ -24,15 +24,15 @@ export class CreateUserDto {
 
   major: string;
 
-  faceDescription1: string;
+  faceDescription1?: string;
 
-  faceDescription2: string;
+  faceDescription2?: string;
 
-  faceDescription3: string;
+  faceDescription3?: string;
 
-  faceDescription4: string;
+  faceDescription4?: string;
 
-  faceDescription5: string;
+  faceDescription5?: string;
 
   image1: string;
 

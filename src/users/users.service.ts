@@ -34,23 +34,63 @@ export class UsersService {
       newUser.major = createUserDto.major;
       newUser.studentId = createUserDto.studentId;
       newUser.teacherId = createUserDto.teacherId;
+      newUser.faceDescriptor1 = createUserDto.faceDescription1
+        ? this.float32ArrayToJsonString(createUserDto.faceDescription1)
+        : null;
+      newUser.faceDescriptor2 = createUserDto.faceDescription2
+        ? this.float32ArrayToJsonString(createUserDto.faceDescription2)
+        : null;
+      newUser.faceDescriptor3 = createUserDto.faceDescription3
+        ? this.float32ArrayToJsonString(createUserDto.faceDescription3)
+        : null;
+      newUser.faceDescriptor4 = createUserDto.faceDescription4
+        ? this.float32ArrayToJsonString(createUserDto.faceDescription4)
+        : null;
+      newUser.faceDescriptor5 = createUserDto.faceDescription5
+        ? this.float32ArrayToJsonString(createUserDto.faceDescription5)
+        : null;
+
       newUser.image1 = createUserDto.image1;
       newUser.image2 = createUserDto.image2;
       newUser.image3 = createUserDto.image3;
       newUser.image4 = createUserDto.image4;
       newUser.image5 = createUserDto.image5;
-      newUser.faceDescriptor1 = createUserDto.faceDescription1;
-      newUser.faceDescriptor2 = createUserDto.faceDescription2;
-      newUser.faceDescriptor3 = createUserDto.faceDescription3;
-      newUser.faceDescriptor4 = createUserDto.faceDescription4;
-      newUser.faceDescriptor5 = createUserDto.faceDescription5;
 
-      const user = await this.userRepository.create(newUser);
-      return await this.userRepository.save(user);
+      const user = await this.userRepository.save(newUser);
+      console.log(user);
+
+      return user;
     } catch (error) {
       console.log(error);
       throw new Error('Error creating user');
     }
+  }
+
+  private float32ArrayToJsonString(array: string): string {
+    const floatArray = this.base64ToFloat32Array(array);
+    return JSON.stringify(Array.from(floatArray));
+  }
+
+  private base64ToFloat32Array(base64: string): Float32Array {
+    if (!base64) {
+      throw new TypeError('The first argument must be of type string.');
+    }
+    const binaryString = Buffer.from(base64, 'base64').toString('binary');
+    const len = binaryString.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+    return new Float32Array(bytes.buffer);
+  }
+
+  private float32ArrayToBase64(float32Array: Float32Array): string {
+    const uint8Array = new Uint8Array(float32Array.buffer);
+    let binary = '';
+    for (let i = 0; i < uint8Array.byteLength; i++) {
+      binary += String.fromCharCode(uint8Array[i]);
+    }
+    return Buffer.from(binary, 'binary').toString('base64');
   }
 
   processFile = (file) => {
@@ -89,8 +129,36 @@ export class UsersService {
     return filteredData;
   };
 
-  findAll() {
-    return this.userRepository.find();
+  async findAll() {
+    const users = await this.userRepository.find();
+    return users.map((user) => {
+      user.faceDescriptor1 = user.faceDescriptor1
+        ? this.float32ArrayToBase64(
+            new Float32Array(JSON.parse(user.faceDescriptor1)),
+          )
+        : null;
+      user.faceDescriptor2 = user.faceDescriptor2
+        ? this.float32ArrayToBase64(
+            new Float32Array(JSON.parse(user.faceDescriptor2)),
+          )
+        : null;
+      user.faceDescriptor3 = user.faceDescriptor3
+        ? this.float32ArrayToBase64(
+            new Float32Array(JSON.parse(user.faceDescriptor3)),
+          )
+        : null;
+      user.faceDescriptor4 = user.faceDescriptor4
+        ? this.float32ArrayToBase64(
+            new Float32Array(JSON.parse(user.faceDescriptor4)),
+          )
+        : null;
+      user.faceDescriptor5 = user.faceDescriptor5
+        ? this.float32ArrayToBase64(
+            new Float32Array(JSON.parse(user.faceDescriptor5)),
+          )
+        : null;
+      return user;
+    });
   }
 
   async findOne(id: number) {
@@ -98,6 +166,32 @@ export class UsersService {
     if (!user) {
       throw new NotFoundException('user not found');
     } else {
+      user.faceDescriptor1 = user.faceDescriptor1
+        ? this.float32ArrayToBase64(
+            new Float32Array(JSON.parse(user.faceDescriptor1)),
+          )
+        : null;
+      user.faceDescriptor2 = user.faceDescriptor2
+        ? this.float32ArrayToBase64(
+            new Float32Array(JSON.parse(user.faceDescriptor2)),
+          )
+        : null;
+      user.faceDescriptor3 = user.faceDescriptor3
+        ? this.float32ArrayToBase64(
+            new Float32Array(JSON.parse(user.faceDescriptor3)),
+          )
+        : null;
+      user.faceDescriptor4 = user.faceDescriptor4
+        ? this.float32ArrayToBase64(
+            new Float32Array(JSON.parse(user.faceDescriptor4)),
+          )
+        : null;
+      user.faceDescriptor5 = user.faceDescriptor5
+        ? this.float32ArrayToBase64(
+            new Float32Array(JSON.parse(user.faceDescriptor5)),
+          )
+        : null;
+      return user;
       return user;
     }
   }
@@ -134,6 +228,8 @@ export class UsersService {
 
   async update(id: number, updateUserDto: UpdateUserDto) {
     try {
+      console.log(updateUserDto);
+
       const newUser = new User();
       newUser.firstName = updateUserDto.firstName;
       newUser.lastName = updateUserDto.lastName;
@@ -149,14 +245,36 @@ export class UsersService {
       newUser.image3 = updateUserDto.image3;
       newUser.image4 = updateUserDto.image4;
       newUser.image5 = updateUserDto.image5;
-      newUser.faceDescriptor1 = updateUserDto.faceDescription1;
-      newUser.faceDescriptor2 = updateUserDto.faceDescription2;
-      newUser.faceDescriptor3 = updateUserDto.faceDescription3;
-      newUser.faceDescriptor4 = updateUserDto.faceDescription4;
-      newUser.faceDescriptor5 = updateUserDto.faceDescription5;
+      newUser.faceDescriptor1 = updateUserDto.faceDescription1
+        ? this.float32ArrayToJsonString(updateUserDto.faceDescription1)
+        : null;
+
+      newUser.faceDescriptor2 = updateUserDto.faceDescription2
+        ? this.float32ArrayToJsonString(updateUserDto.faceDescription2)
+        : null;
+
+      newUser.faceDescriptor3 = updateUserDto.faceDescription3
+        ? this.float32ArrayToJsonString(updateUserDto.faceDescription3)
+        : null;
+
+      newUser.faceDescriptor4 = updateUserDto.faceDescription4
+        ? this.float32ArrayToJsonString(updateUserDto.faceDescription4)
+        : null;
+
+      newUser.faceDescriptor5 = updateUserDto.faceDescription5
+        ? this.float32ArrayToJsonString(updateUserDto.faceDescription5)
+        : null;
       const user = await this.userRepository.findOneBy({ userId: id });
-      return await this.userRepository.save({ ...user, ...newUser });
-    } catch (error) {}
+      const updatedUser = await this.userRepository.save({
+        ...user,
+        ...newUser,
+      });
+      console.log('Updated user:', updatedUser);
+      return updatedUser;
+    } catch (error) {
+      console.log(error);
+      throw new Error('Error updating user');
+    }
   }
 
   async remove(id: number) {
@@ -192,6 +310,34 @@ export class UsersService {
       if (!user) {
         throw new NotFoundException('Course not found');
       } else {
+        // map facedesciption
+        user.map((user) => {
+          user.faceDescriptor1 = user.faceDescriptor1
+            ? this.float32ArrayToBase64(
+                new Float32Array(JSON.parse(user.faceDescriptor1)),
+              )
+            : null;
+          user.faceDescriptor2 = user.faceDescriptor2
+            ? this.float32ArrayToBase64(
+                new Float32Array(JSON.parse(user.faceDescriptor2)),
+              )
+            : null;
+          user.faceDescriptor3 = user.faceDescriptor3
+            ? this.float32ArrayToBase64(
+                new Float32Array(JSON.parse(user.faceDescriptor3)),
+              )
+            : null;
+          user.faceDescriptor4 = user.faceDescriptor4
+            ? this.float32ArrayToBase64(
+                new Float32Array(JSON.parse(user.faceDescriptor4)),
+              )
+            : null;
+          user.faceDescriptor5 = user.faceDescriptor5
+            ? this.float32ArrayToBase64(
+                new Float32Array(JSON.parse(user.faceDescriptor5)),
+              )
+            : null;
+        });
         return user;
       }
     } catch (error) {
