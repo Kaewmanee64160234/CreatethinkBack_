@@ -4,7 +4,7 @@ import { Course } from 'src/courses/entities/course.entity';
 export class CreateAssignmentDto {
   @IsNotEmpty()
   nameAssignment: string;
-
+  coursesId: string;
   // @IsNotEmpty()
   date: Date;
 
@@ -13,4 +13,7 @@ export class CreateAssignmentDto {
 
   roomId: number;
   course: Course;
+
+  statusAssignment: string;
+  assignmentImages: string[];
 }

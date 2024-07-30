@@ -20,6 +20,14 @@ export class Assignment {
   @Column()
   nameAssignment: string;
 
+  // assignment status
+  @Column()
+  statusAssignment: string;
+
+  // assigment attay string assigment Imagse
+  @Column('simple-array')
+  assignmentImages: string[];
+
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   assignMentTime: Date;
 

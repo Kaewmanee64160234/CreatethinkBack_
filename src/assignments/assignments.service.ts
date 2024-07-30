@@ -21,23 +21,26 @@ export class AssignmentsService {
     @InjectRepository(Attendance)
     private attendanceRepository: Repository<Attendance>,
   ) {}
-  async create(createAssignmentDto: CreateAssignmentDto) {
+  async create(createAssignmentDto: CreateAssignmentDto): Promise<Assignment> {
     try {
-      //find room and course by id
-
       const course = await this.courseRepository.findOne({
-        where: { coursesId: createAssignmentDto.course.coursesId },
+        where: { coursesId: createAssignmentDto.coursesId },
       });
 
-      //create new assignment
+      if (!course) {
+        throw new Error('Course not found');
+      }
+
       const newAssignment = new Assignment();
       newAssignment.nameAssignment = createAssignmentDto.nameAssignment;
+      newAssignment.statusAssignment = createAssignmentDto.statusAssignment;
       newAssignment.course = course;
       newAssignment.assignMentTime = new Date();
-      //save new assignment
+      newAssignment.assignmentImages = createAssignmentDto.assignmentImages;
+
       return this.assignmentRepository.save(newAssignment);
     } catch (error) {
-      throw new Error('Error creating assignment');
+      throw new Error('Error creating assignment: ' + error.message);
     }
   }
   findAll() {
@@ -95,7 +98,11 @@ export class AssignmentsService {
   async getAssignmentByCourseId(courseId: string) {
     try {
       return this.assignmentRepository.find({
-        where: { course: { coursesId: courseId } },
+        where: {
+          course: { coursesId: courseId },
+          statusAssignment: 'completed',
+        },
+
         relations: ['course', 'course.user'],
         order: { createdDate: 'desc' },
       });
