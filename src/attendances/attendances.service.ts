@@ -321,4 +321,23 @@ export class AttendancesService {
     console.log('All student attendance checked');
     return 'All student attendance checked';
   }
+  //get attendance by course and studentId
+  async getAttendanceByCourseAndStudentId(courseId: number, studentId: number) {
+    try {
+      const attendances = await this.attendanceRepository.find({
+        where: {
+          assignment: { course: { coursesId: String(courseId) } },
+          user: { studentId: String(studentId) },
+        },
+        relations: ['user', 'assignment'],
+      });
+      if (!attendances) {
+        throw new NotFoundException('attendances not found');
+      } else {
+        return attendances;
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
 }

@@ -118,4 +118,16 @@ export class AttendancesController {
   checkAllAttendance(@Param('assigmentId') assigmentId: string) {
     return this.attendancesService.checkAllAttendance(+assigmentId);
   }
+
+  // get attendance by course and studentId
+  @Get('/courses/:courseId/students/:studentId')
+  getAttendanceByCourseAndStudentId(
+    @Param('courseId') courseId: string,
+    @Param('studentId') studentId: string,
+  ) {
+    return this.attendancesService.getAttendanceByCourseAndStudentId(
+      +courseId,
+      +studentId,
+    );
+  }
 }
