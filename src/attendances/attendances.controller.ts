@@ -55,10 +55,24 @@ export class AttendancesController {
   }
 
   @Patch(':id')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: './attendance_image',
+        filename: (req, file, cb) => {
+          const tempFilename = uuidv4() + extname(file.originalname);
+          cb(null, tempFilename);
+        },
+      }),
+    }),
+  )
   async update(
     @Param('id') id: string,
     @Body() updateAttendanceDto: UpdateAttendanceDto,
+    @UploadedFile() file: Express.Multer.File,
   ) {
+    // set the attributes image
+    updateAttendanceDto.attendanceImage = file ? file.filename : 'noimage.jpg';
     return this.attendancesService.update(+id, updateAttendanceDto);
   }
   // updateByTeacher

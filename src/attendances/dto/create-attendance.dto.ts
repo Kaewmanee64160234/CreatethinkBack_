@@ -11,9 +11,10 @@ export class CreateAttendanceDto {
 
   userId: number;
 
-  studentId: number;
+  studentId: string;
   @IsNotEmpty()
   assignmentId: number;
+  assignMentTime: string;
 
   @IsNotEmpty()
   attendanceConfirmStatus: string;

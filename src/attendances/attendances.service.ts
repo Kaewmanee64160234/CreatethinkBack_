@@ -52,9 +52,7 @@ export class AttendancesService {
 
       const currentDate = new Date();
       const assignmentDate = new Date(assignment.assignMentTime);
-      const diff = Math.abs(currentDate.getTime() - assignmentDate.getTime());
-      newAttendance.attendanceStatus =
-        Math.ceil(diff / (1000 * 60)) > 15 ? 'late' : 'present';
+      newAttendance.attendanceStatus = createAttendanceDto.attendanceStatus;
       newAttendance.assignment = assignment;
 
       return this.attendanceRepository.save(newAttendance);
@@ -112,23 +110,21 @@ export class AttendancesService {
   //update
   async update(id: number, updateAttendanceDto: UpdateAttendanceDto) {
     try {
-      console.log(updateAttendanceDto.assignment);
+      console.log(id);
 
       const user = await this.userRepository.findOne({
-        where: { userId: updateAttendanceDto.user.userId },
+        where: { studentId: updateAttendanceDto.studentId },
       });
       const attendance = await this.attendanceRepository.findOne({
         where: {
-          user: { studentId: user.studentId },
-          assignment: {
-            assignmentId: updateAttendanceDto.assignment.assignmentId,
-          },
+          attendanceId: id,
         },
       });
       if (
         attendance != null &&
         (attendance.attendanceStatus !== 'present' ||
-          attendance.attendanceConfirmStatus == 'recheck')
+          attendance.attendanceConfirmStatus == 'recheck') &&
+        attendance.attendanceStatus !== 'absent'
       ) {
         // send nopermition exeption 403
 
@@ -138,8 +134,9 @@ export class AttendancesService {
 
         const attendance_ = await this.attendanceRepository.findOne({
           where: {
-            assignment: { assignmentId: updateAttendanceDto.assignmentId },
-            user: { studentId: updateAttendanceDto.user.studentId },
+            attendanceId: id,
+            assignment: { assignmentId: +updateAttendanceDto.assignmentId },
+            user: { studentId: updateAttendanceDto.studentId },
           },
         });
         console.log('attendance_', attendance_);
@@ -147,12 +144,11 @@ export class AttendancesService {
         attendance_.attendanceConfirmStatus =
           updateAttendanceDto.attendanceConfirmStatus;
         attendance_.attendanceStatus = updateAttendanceDto.attendanceStatus;
+        attendance_.attendanceImage = updateAttendanceDto.attendanceImage;
         attendance_.user = user;
         //'if in time' 15 min late set attendanceStatus to 'late'
         const currentDate = new Date();
-        const assignmentDate = new Date(
-          updateAttendanceDto.assignment.assignMentTime,
-        );
+        const assignmentDate = new Date(updateAttendanceDto.assignMentTime);
         const diff = Math.abs(currentDate.getTime() - assignmentDate.getTime());
         attendance_.attendanceStatus =
           Math.ceil(diff / (1000 * 60)) > 2 ? 'late' : 'present';
@@ -235,6 +231,7 @@ export class AttendancesService {
         throw new NotFoundException('attendance not found');
       }
       attendance.attendanceConfirmStatus = 'confirmed';
+      attendance.attendanceStatus = 'present';
 
       return this.attendanceRepository.save(attendance);
     } catch (error) {
@@ -251,7 +248,8 @@ export class AttendancesService {
       throw new NotFoundException('attendance not found');
     }
     attendance.attendanceConfirmStatus = 'confirmed';
-    attendance.user = null;
+    attendance.attendanceStatus = 'absent';
+    attendance.attendanceImage = 'noimage.jpg';
     console.log(attendance);
     return this.attendanceRepository.save(attendance);
   }
@@ -341,6 +339,8 @@ export class AttendancesService {
         },
         relations: ['user', 'assignment'],
       });
+      console.log('Attendance:', attendance);
+
       if (!attendance) {
         throw new NotFoundException('attendance not found');
       } else {
