@@ -1,4 +1,4 @@
-import { IsNotEmpty } from 'class-validator';
+import { IsNotEmpty, IsOptional } from 'class-validator';
 import { Assignment } from 'src/assignments/entities/assignment.entity';
 import { User } from 'src/users/entities/user.entity';
 
@@ -21,5 +21,6 @@ export class CreateAttendanceDto {
   user: User;
   assignment: Assignment;
   attendanceId: number;
-  attendanceImage: string;
+  @IsOptional()
+  attendanceImage?: string;
 }

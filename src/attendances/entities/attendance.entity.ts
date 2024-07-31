@@ -24,7 +24,7 @@ export class Attendance {
   @Column()
   attendanceStatus: string;
 
-  @Column()
+  @Column({ default: 'noimage.jpg' })
   attendanceImage: string;
 
   @Column()

@@ -26,7 +26,7 @@ export class AttendancesService {
     private enrollmentRepository: Repository<Enrollment>,
   ) {}
 
-  async create(createAttendanceDto: CreateAttendanceDto) {
+  async create(createAttendanceDto: CreateAttendanceDto): Promise<Attendance> {
     try {
       console.log('Received DTO:', createAttendanceDto);
       const assignment = await this.assignmentRepository.findOne({
@@ -45,10 +45,10 @@ export class AttendancesService {
               where: { studentId: createAttendanceDto.studentId + '' },
             });
       newAttendance.attendanceDate = new Date();
-      newAttendance.attendanceImage = createAttendanceDto.attendanceImage;
+      newAttendance.attendanceImage =
+        createAttendanceDto.attendanceImage || 'default-image.jpg';
       newAttendance.attendanceConfirmStatus =
         createAttendanceDto.attendanceConfirmStatus;
-      newAttendance.attendanceImage = createAttendanceDto.attendanceImage;
 
       const currentDate = new Date();
       const assignmentDate = new Date(assignment.assignMentTime);
@@ -134,12 +134,16 @@ export class AttendancesService {
 
         throw new HttpErrorByCode[403]('You do not have permission to update');
       } else {
+        console.log('attendanceUpdate', updateAttendanceDto);
+
         const attendance_ = await this.attendanceRepository.findOne({
           where: {
             assignment: { assignmentId: updateAttendanceDto.assignmentId },
-            attendanceId: id,
+            user: { studentId: updateAttendanceDto.user.studentId },
           },
         });
+        console.log('attendance_', attendance_);
+
         attendance_.attendanceConfirmStatus =
           updateAttendanceDto.attendanceConfirmStatus;
         attendance_.attendanceStatus = updateAttendanceDto.attendanceStatus;
@@ -153,7 +157,9 @@ export class AttendancesService {
         attendance_.attendanceStatus =
           Math.ceil(diff / (1000 * 60)) > 2 ? 'late' : 'present';
 
-        return this.attendanceRepository.save(attendance_);
+        const attSave = await this.attendanceRepository.save(attendance_);
+        console.log('attSave', attSave);
+        return attSave;
       }
     } catch (error) {
       console.log('--------------');
@@ -320,5 +326,28 @@ export class AttendancesService {
 
     console.log('All student attendance checked');
     return 'All student attendance checked';
+  }
+
+  // get attdent by assigment and student enrollment
+  async getAttendanceByAssignmentAndStudent(
+    assignmentId: number,
+    studentId: string,
+  ) {
+    try {
+      const attendance = await this.attendanceRepository.findOne({
+        where: {
+          assignment: { assignmentId: assignmentId },
+          user: { studentId: studentId },
+        },
+        relations: ['user', 'assignment'],
+      });
+      if (!attendance) {
+        throw new NotFoundException('attendance not found');
+      } else {
+        return attendance;
+      }
+    } catch (error) {
+      console.log(error);
+    }
   }
 }

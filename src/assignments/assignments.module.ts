@@ -6,9 +6,12 @@ import { Assignment } from './entities/assignment.entity';
 import { Course } from 'src/courses/entities/course.entity';
 import { Room } from 'src/rooms/entities/room.entity';
 import { Attendance } from 'src/attendances/entities/attendance.entity';
+import { User } from 'src/users/entities/user.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Assignment, Room, Course, Attendance])],
+  imports: [
+    TypeOrmModule.forFeature([Assignment, Room, Course, Attendance, User]),
+  ],
   controllers: [AssignmentsController],
   providers: [AssignmentsService],
   exports: [AssignmentsService],

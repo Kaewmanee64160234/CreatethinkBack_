@@ -30,21 +30,20 @@ export class AttendancesController {
       storage: diskStorage({
         destination: './attendance_image',
         filename: (req, file, cb) => {
-          // Temp filename just to save the file initially
           const tempFilename = uuidv4() + extname(file.originalname);
           cb(null, tempFilename);
         },
       }),
     }),
   )
-  create(
+  async create(
     @UploadedFile() file: Express.Multer.File,
     @Body() createAttendanceDto: CreateAttendanceDto,
   ) {
-    createAttendanceDto.attendanceImage = file.filename;
-    // Proceed with your service logic
+    createAttendanceDto.attendanceImage = file ? file.filename : 'noimage.jpg';
     return this.attendancesService.create(createAttendanceDto);
   }
+
   @Get()
   findAll() {
     return this.attendancesService.findAll();
@@ -117,5 +116,17 @@ export class AttendancesController {
   @Get('/checkAllAttendance/:assigmentId')
   checkAllAttendance(@Param('assigmentId') assigmentId: string) {
     return this.attendancesService.checkAllAttendance(+assigmentId);
+  }
+
+  // getAttendanceByAssignmentAndStudent
+  @Get('/assignment/:assignmentId/student/:studentId')
+  getAttendanceByAssignmentAndStudent(
+    @Param('assignmentId') assignmentId: string,
+    @Param('studentId') studentId: string,
+  ) {
+    return this.attendancesService.getAttendanceByAssignmentAndStudent(
+      +assignmentId,
+      studentId,
+    );
   }
 }
