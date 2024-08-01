@@ -103,7 +103,7 @@ export class UsersController {
 
   @Patch(':id')
   @UseInterceptors(
-    FilesInterceptor('files', 1, {
+    FilesInterceptor('files', 5, {
       storage: diskStorage({
         destination: './user_images',
         filename: (req, file, cb) => {
@@ -118,6 +118,9 @@ export class UsersController {
     @Body() updateUserDto: UpdateUserDto,
     @UploadedFiles() files: Array<Express.Multer.File>,
   ) {
+    if (!files || files.length === 0 || files.length > 5) {
+      throw new BadRequestException('Between 1 and 5 images are required.');
+    }
     console.log('Received data:', updateUserDto);
     console.log('Received files:', files);
     files.forEach((file, index) => {
@@ -125,7 +128,6 @@ export class UsersController {
       // updateUserDto[`faceDescription${index + 1}`] =
       //   updateUserDto[`faceDescription${index + 1}`];
     });
-
     try {
       const result = await this.usersService.update(+id, updateUserDto);
       return result;
