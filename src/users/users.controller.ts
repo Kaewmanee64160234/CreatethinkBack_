@@ -67,10 +67,9 @@ export class UsersController {
     @Body() createUserDto: CreateUserDto,
     @UploadedFiles() files: Array<Express.Multer.File>,
   ) {
-    if (!files || files.length === 0 || files.length > 5) {
-      throw new BadRequestException('Between 1 and 5 images are required.');
-    }
-
+    // if (!files || files.length === 0 || files.length > 5) {
+    //   throw new BadRequestException('Between 1 and 5 images are required.');
+    // }
     console.log('Received data:', createUserDto);
     console.log('Received files:', files);
 

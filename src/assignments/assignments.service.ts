@@ -8,6 +8,7 @@ import { Repository } from 'typeorm';
 import { Course } from 'src/courses/entities/course.entity';
 import { Room } from 'src/rooms/entities/room.entity';
 import { Attendance } from 'src/attendances/entities/attendance.entity';
+import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class AssignmentsService {
@@ -17,6 +18,8 @@ export class AssignmentsService {
     private assignmentRepository: Repository<Assignment>,
     @InjectRepository(Course)
     private courseRepository: Repository<Course>,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
 
     @InjectRepository(Attendance)
     private attendanceRepository: Repository<Attendance>,
@@ -37,7 +40,6 @@ export class AssignmentsService {
       newAssignment.course = course;
       newAssignment.assignMentTime = new Date();
       newAssignment.assignmentImages = createAssignmentDto.assignmentImages;
-
       return this.assignmentRepository.save(newAssignment);
     } catch (error) {
       throw new Error('Error creating assignment: ' + error.message);

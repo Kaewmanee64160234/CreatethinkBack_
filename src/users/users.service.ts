@@ -30,9 +30,10 @@ export class UsersService {
       newUser.email = createUserDto.email;
       newUser.role = createUserDto.role;
       newUser.status = createUserDto.status;
+      newUser.year = createUserDto.year;
+      newUser.major = createUserDto.major;
       newUser.studentId = createUserDto.studentId;
       newUser.teacherId = createUserDto.teacherId;
-
       newUser.faceDescriptor1 = createUserDto.faceDescription1
         ? this.float32ArrayToJsonString(createUserDto.faceDescription1)
         : null;
@@ -119,7 +120,7 @@ export class UsersService {
 
       return {
         id: item[idKey],
-        name: item[nameKey],
+        name: item[nameKey].replace(/นาย|นางสาว|นาง/g, '').trim(),
         major: item[majorKey],
         year: item[yearKey].toString().substring(0, 2),
       };
@@ -235,6 +236,8 @@ export class UsersService {
       newUser.email = updateUserDto.email;
       newUser.role = updateUserDto.role;
       newUser.status = updateUserDto.status;
+      newUser.year = updateUserDto.year;
+      newUser.major = updateUserDto.major;
       newUser.studentId = updateUserDto.studentId;
       newUser.teacherId = updateUserDto.teacherId;
       newUser.image1 = updateUserDto.image1;
@@ -242,7 +245,6 @@ export class UsersService {
       newUser.image3 = updateUserDto.image3;
       newUser.image4 = updateUserDto.image4;
       newUser.image5 = updateUserDto.image5;
-
       newUser.faceDescriptor1 = updateUserDto.faceDescription1
         ? this.float32ArrayToJsonString(updateUserDto.faceDescription1)
         : null;
@@ -262,7 +264,6 @@ export class UsersService {
       newUser.faceDescriptor5 = updateUserDto.faceDescription5
         ? this.float32ArrayToJsonString(updateUserDto.faceDescription5)
         : null;
-
       const user = await this.userRepository.findOneBy({ userId: id });
       const updatedUser = await this.userRepository.save({
         ...user,

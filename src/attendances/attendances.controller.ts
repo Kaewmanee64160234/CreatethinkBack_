@@ -30,21 +30,20 @@ export class AttendancesController {
       storage: diskStorage({
         destination: './attendance_image',
         filename: (req, file, cb) => {
-          // Temp filename just to save the file initially
           const tempFilename = uuidv4() + extname(file.originalname);
           cb(null, tempFilename);
         },
       }),
     }),
   )
-  create(
+  async create(
     @UploadedFile() file: Express.Multer.File,
     @Body() createAttendanceDto: CreateAttendanceDto,
   ) {
-    createAttendanceDto.attendanceImage = file.filename;
-    // Proceed with your service logic
+    createAttendanceDto.attendanceImage = file ? file.filename : 'noimage.jpg';
     return this.attendancesService.create(createAttendanceDto);
   }
+
   @Get()
   findAll() {
     return this.attendancesService.findAll();
@@ -56,10 +55,24 @@ export class AttendancesController {
   }
 
   @Patch(':id')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: './attendance_image',
+        filename: (req, file, cb) => {
+          const tempFilename = uuidv4() + extname(file.originalname);
+          cb(null, tempFilename);
+        },
+      }),
+    }),
+  )
   async update(
     @Param('id') id: string,
     @Body() updateAttendanceDto: UpdateAttendanceDto,
+    @UploadedFile() file: Express.Multer.File,
   ) {
+    // set the attributes image
+    updateAttendanceDto.attendanceImage = file ? file.filename : 'noimage.jpg';
     return this.attendancesService.update(+id, updateAttendanceDto);
   }
   // updateByTeacher
@@ -119,15 +132,15 @@ export class AttendancesController {
     return this.attendancesService.checkAllAttendance(+assigmentId);
   }
 
-  // get attendance by course and studentId
-  @Get('/courses/:courseId/students/:studentId')
-  getAttendanceByCourseAndStudentId(
-    @Param('courseId') courseId: string,
+  // getAttendanceByAssignmentAndStudent
+  @Get('/assignment/:assignmentId/student/:studentId')
+  getAttendanceByAssignmentAndStudent(
+    @Param('assignmentId') assignmentId: string,
     @Param('studentId') studentId: string,
   ) {
-    return this.attendancesService.getAttendanceByCourseAndStudentId(
-      +courseId,
-      +studentId,
+    return this.attendancesService.getAttendanceByAssignmentAndStudent(
+      +assignmentId,
+      studentId,
     );
   }
 }
