@@ -12,6 +12,7 @@ import { Equal, Like, Repository } from 'typeorm';
 import { Course } from 'src/courses/entities/course.entity';
 import * as XLSX from 'xlsx';
 import mammoth from 'mammoth';
+import { QrService } from './qr.service';
 
 @Injectable()
 export class UsersService {
@@ -21,6 +22,7 @@ export class UsersService {
     //inject course
     @InjectRepository(Course)
     private courseRepository: Repository<Course>,
+    private qrService: QrService,
   ) {}
   async create(createUserDto: CreateUserDto) {
     try {
@@ -342,6 +344,15 @@ export class UsersService {
       }
     } catch (error) {
       throw new Error('Error fetching user');
+    }
+  }
+
+  async generateQrCodeForOrder(link: string): Promise<string> {
+    try {
+      return await this.qrService.generateQr(link);
+    } catch (error) {
+      console.error('Failed to generate QR code for order:', error);
+      throw new Error('Failed to generate QR code for order');
     }
   }
 
