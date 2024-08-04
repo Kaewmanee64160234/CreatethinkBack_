@@ -13,6 +13,8 @@ import { Course } from 'src/courses/entities/course.entity';
 import * as XLSX from 'xlsx';
 import mammoth from 'mammoth';
 import { QrService } from './qr.service';
+import { join } from 'path';
+import { promises as fsPromises } from 'fs';
 
 @Injectable()
 export class UsersService {
@@ -24,6 +26,7 @@ export class UsersService {
     private courseRepository: Repository<Course>,
     private qrService: QrService,
   ) {}
+
   async create(createUserDto: CreateUserDto) {
     try {
       const newUser = new User();
@@ -231,8 +234,8 @@ export class UsersService {
 
   async update(id: number, updateUserDto: UpdateUserDto) {
     try {
-      console.log(updateUserDto);
-
+      console.log('Updating user with ID:', id);
+      console.log('Update DTO:', updateUserDto);
       const newUser = new User();
       newUser.firstName = updateUserDto.firstName;
       newUser.lastName = updateUserDto.lastName;
@@ -268,16 +271,100 @@ export class UsersService {
       newUser.faceDescriptor5 = updateUserDto.faceDescription5
         ? this.float32ArrayToJsonString(updateUserDto.faceDescription5)
         : null;
+      // Find the existing user by ID
       const user = await this.userRepository.findOneBy({ userId: id });
-      const updatedUser = await this.userRepository.save({
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+
+      // Define the directory for user images
+      const userImagesDir = join('./', 'user_images');
+
+      // Determine which old images need to be deleted if they are being replaced
+      const imagesToDelete: string[] = [];
+      const oldImages = [
+        user.image1,
+        user.image2,
+        user.image3,
+        user.image4,
+        user.image5,
+      ];
+      const newImages = [
+        updateUserDto.image1,
+        updateUserDto.image2,
+        updateUserDto.image3,
+        updateUserDto.image4,
+        updateUserDto.image5,
+      ];
+
+      for (let i = 0; i < oldImages.length; i++) {
+        if (oldImages[i] && oldImages[i] !== newImages[i]) {
+          imagesToDelete.push(oldImages[i]);
+        }
+      }
+
+      // Remove the old images from the user_images directory
+      for (const imageFileName of imagesToDelete) {
+        try {
+          await this.removeImageFile(join(userImagesDir, imageFileName));
+        } catch (fileError) {
+          console.error(
+            `Failed to remove image file: ${imageFileName}`,
+            fileError,
+          );
+        }
+      }
+
+      // Update the user with new data
+      const updatedUserData = {
         ...user,
-        ...newUser,
-      });
+        firstName: updateUserDto.firstName,
+        lastName: updateUserDto.lastName,
+        email: updateUserDto.email,
+        role: updateUserDto.role,
+        status: updateUserDto.status,
+        year: updateUserDto.year,
+        major: updateUserDto.major,
+        studentId: updateUserDto.studentId,
+        teacherId: updateUserDto.teacherId,
+        image1: updateUserDto.image1,
+        image2: updateUserDto.image2,
+        image3: updateUserDto.image3,
+        image4: updateUserDto.image4,
+        image5: updateUserDto.image5,
+        faceDescriptor1: updateUserDto.faceDescription1
+          ? this.float32ArrayToJsonString(updateUserDto.faceDescription1)
+          : null,
+        faceDescriptor2: updateUserDto.faceDescription2
+          ? this.float32ArrayToJsonString(updateUserDto.faceDescription2)
+          : null,
+        faceDescriptor3: updateUserDto.faceDescription3
+          ? this.float32ArrayToJsonString(updateUserDto.faceDescription3)
+          : null,
+        faceDescriptor4: updateUserDto.faceDescription4
+          ? this.float32ArrayToJsonString(updateUserDto.faceDescription4)
+          : null,
+        faceDescriptor5: updateUserDto.faceDescription5
+          ? this.float32ArrayToJsonString(updateUserDto.faceDescription5)
+          : null,
+      };
+
+      const updatedUser = await this.userRepository.save(updatedUserData);
       console.log('Updated user:', updatedUser);
       return updatedUser;
     } catch (error) {
-      console.log(error);
+      console.error('Error updating user:', error);
       throw new Error('Error updating user');
+    }
+  }
+
+  private async removeImageFile(filePath: string): Promise<void> {
+    try {
+      await fsPromises.unlink(filePath);
+      console.log(`Removed file: ${filePath}`);
+    } catch (error) {
+      console.error(`Failed to remove file at path: ${filePath}`, error);
+      throw new Error(`Failed to remove file: ${filePath}`);
     }
   }
 
