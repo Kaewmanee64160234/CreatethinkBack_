@@ -10,8 +10,8 @@ import { User } from './entities/user.entity';
 import { Equal, Repository } from 'typeorm';
 import { Course } from 'src/courses/entities/course.entity';
 import * as XLSX from 'xlsx';
-import { isEqual } from 'lodash';
-import mammoth from 'mammoth';
+// import { isEqual } from 'lodash';
+// import mammoth from 'mammoth';
 import { QrService } from './qr.service';
 
 @Injectable()

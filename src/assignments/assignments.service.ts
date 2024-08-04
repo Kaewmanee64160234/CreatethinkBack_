@@ -79,23 +79,33 @@ export class AssignmentsService {
   }
 
   async remove(id: number) {
-    //check if assignment exists
-    const assignment = this.assignmentRepository.findOne({
+    // Check if the assignment exists
+    const assignment = await this.assignmentRepository.findOne({
       where: { assignmentId: id },
     });
+
     if (!assignment) {
-      throw new Error('Assignment not found');
+      throw new NotFoundException('Assignment not found');
     }
-    //delete attendance by loop
+
+    // Fetch and delete related attendance records
     const attendances = await this.attendanceRepository.find({
       where: { assignment: { assignmentId: id } },
     });
-    for (let i = 0; i < attendances.length; i++) {
-      this.attendanceRepository.delete(attendances[i].attendanceId);
+
+    if (attendances.length > 0) {
+      // Delete all related attendances
+      for (const attendance of attendances) {
+        await this.attendanceRepository.delete(attendance.attendanceId);
+      }
     }
-    //delete assignment
-    return this.assignmentRepository.delete(id);
+
+    // Now delete the assignment itself
+    await this.assignmentRepository.delete(id);
+
+    return { message: 'Assignment deleted successfully' };
   }
+
   //get Assginment by course id
   async getAssignmentByCourseId(courseId: string) {
     try {
