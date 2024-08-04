@@ -13,7 +13,6 @@ import {
   UseGuards,
   Query,
   UploadedFile,
-  // UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -67,9 +66,10 @@ export class UsersController {
     @Body() createUserDto: CreateUserDto,
     @UploadedFiles() files: Array<Express.Multer.File>,
   ) {
-    // if (!files || files.length === 0 || files.length > 5) {
-    //   throw new BadRequestException('Between 1 and 5 images are required.');
-    // }
+    if (!files || files.length === 0 || files.length > 5) {
+      throw new BadRequestException('Between 1 and 5 images are required.');
+    }
+
     console.log('Received data:', createUserDto);
     console.log('Received files:', files);
 
@@ -122,12 +122,12 @@ export class UsersController {
     }
     console.log('Received data:', updateUserDto);
     console.log('Received files:', files);
-    files.forEach((file, index) => {
-      updateUserDto[`image${index + 1}`] = file.filename;
-      // updateUserDto[`faceDescription${index + 1}`] =
-      //   updateUserDto[`faceDescription${index + 1}`];
-    });
+
+    // Add logic to check and update face descriptors
     try {
+      files.forEach((file, index) => {
+        updateUserDto[`image${index + 1}`] = file.filename;
+      });
       const result = await this.usersService.update(+id, updateUserDto);
       return result;
     } catch (error) {
@@ -142,7 +142,8 @@ export class UsersController {
   remove(@Param('id') id: number) {
     return this.usersService.remove(id);
   }
-  //login controller
+
+  // Login controller
   @Post('login')
   login(@Body() createUserDto: CreateUserDto) {
     return this.usersService.login(createUserDto);
@@ -153,8 +154,6 @@ export class UsersController {
   getUserByCourseId(@Param('courseId') courseId: string) {
     return this.usersService.getUserByCourseId(courseId);
   }
-
-  //getusersBystudentId
 
   @Get(':id/image')
   async getImage(@Param('id') id: string, @Res() res: Response) {
