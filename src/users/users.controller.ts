@@ -167,8 +167,8 @@ export class UsersController {
     res.status(200).sendFile(filename, { root: './user_images' });
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.Teacher, Role.Admin)
+  // @UseGuards(JwtAuthGuard, RolesGuard)
+  // @Roles(Role.Teacher, Role.Admin)
   @Get(':stdId/qr')
   async generateQrCode(@Param('stdId') stdId: string): Promise<string> {
     const link = `http://127.0.0.1:5173/confirmRegister/${stdId}`;

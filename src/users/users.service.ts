@@ -34,6 +34,7 @@ export class UsersService {
       newUser.status = createUserDto.status;
       newUser.year = createUserDto.year;
       newUser.major = createUserDto.major;
+      newUser.registerStatus = createUserDto.registerStatus;
       newUser.studentId = createUserDto.studentId;
       newUser.teacherId = createUserDto.teacherId;
       newUser.faceDescriptor1 = createUserDto.faceDescription1
@@ -240,6 +241,7 @@ export class UsersService {
       newUser.status = updateUserDto.status;
       newUser.year = updateUserDto.year;
       newUser.major = updateUserDto.major;
+      newUser.registerStatus = updateUserDto.registerStatus;
       newUser.studentId = updateUserDto.studentId;
       newUser.teacherId = updateUserDto.teacherId;
       newUser.image1 = updateUserDto.image1;
