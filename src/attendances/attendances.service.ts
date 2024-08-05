@@ -87,6 +87,11 @@ export class AttendancesService {
     if (!attendance) {
       throw new NotFoundException('attendance not found');
     }
+    // remove image
+    const imagePath = join('./', 'attendance_image');
+    const image = attendance.attendanceImage;
+    const imageFullPath = join(imagePath, image);
+    await fsPromises.unlink(imageFullPath);
     return this.attendanceRepository.softRemove(attendance);
   }
 
