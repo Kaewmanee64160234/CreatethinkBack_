@@ -30,6 +30,10 @@ export class Attendance {
   @Column()
   attendanceConfirmStatus: string;
 
+  // attdendance score
+  @Column({ nullable: true })
+  attendanceScore: number;
+
   @ManyToOne(() => User, (user) => user.attendance, { nullable: true })
   user: User | null;
 

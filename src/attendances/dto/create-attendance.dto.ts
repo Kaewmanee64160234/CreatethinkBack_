@@ -24,4 +24,5 @@ export class CreateAttendanceDto {
   attendanceId: number;
   @IsOptional()
   attendanceImage?: string;
+  attendanceScore: number;
 }

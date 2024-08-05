@@ -49,6 +49,7 @@ export class AttendancesService {
         createAttendanceDto.attendanceImage || 'default-image.jpg';
       newAttendance.attendanceConfirmStatus =
         createAttendanceDto.attendanceConfirmStatus;
+      newAttendance.attendanceScore = createAttendanceDto.attendanceScore;
 
       const currentDate = new Date();
       const assignmentDate = new Date(assignment.assignMentTime);
@@ -145,6 +146,7 @@ export class AttendancesService {
           updateAttendanceDto.attendanceConfirmStatus;
         attendance_.attendanceStatus = updateAttendanceDto.attendanceStatus;
         attendance_.attendanceImage = updateAttendanceDto.attendanceImage;
+        attendance_.attendanceScore = updateAttendanceDto.attendanceScore;
         attendance_.user = user;
         //'if in time' 15 min late set attendanceStatus to 'late'
         const currentDate = new Date();
@@ -190,6 +192,7 @@ export class AttendancesService {
         updateAttendanceDto.attendanceConfirmStatus;
       attendance_.attendanceStatus = updateAttendanceDto.attendanceStatus;
       attendance_.user = user;
+      attendance_.attendanceScore = updateAttendanceDto.attendanceScore;
       //'if in time' 15 min late set attendanceStatus to 'late'
 
       return this.attendanceRepository.save(attendance_);
