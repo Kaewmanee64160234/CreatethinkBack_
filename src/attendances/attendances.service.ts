@@ -81,8 +81,9 @@ export class AttendancesService {
   }
 
   async remove(id: number) {
-    const attendance = await this.attendanceRepository.findOneBy({
-      attendanceId: id,
+    const attendance = await this.attendanceRepository.findOne({
+      where: { attendanceId: id },
+      relations: ['user', 'assignment'],
     });
     if (!attendance) {
       throw new NotFoundException('attendance not found');
@@ -92,7 +93,33 @@ export class AttendancesService {
     const image = attendance.attendanceImage;
     const imageFullPath = join(imagePath, image);
     await fsPromises.unlink(imageFullPath);
-    return this.attendanceRepository.softRemove(attendance);
+    const userDelete = await this.attendanceRepository.softRemove(attendance);
+
+    // find user not have attendance in assignment
+    const user = await this.userRepository.findOne({
+      where: { studentId: attendance.user.studentId },
+      relations: ['attendance', 'attendance.assignment'],
+    });
+    user.attendance = user.attendance.filter(
+      (att) =>
+        att.assignment.assignmentId !== attendance.assignment.assignmentId,
+    );
+    console.log('user', user);
+
+    // if not have create new attdent statsu absent
+    if (user.attendance.length > 0) {
+      const newAttendance = new Attendance();
+      newAttendance.user = user;
+      newAttendance.assignment = attendance.assignment;
+      newAttendance.attendanceDate = new Date();
+      newAttendance.attendanceStatus = 'absent';
+      newAttendance.attendanceConfirmStatus = 'notconfirm';
+      newAttendance.attendanceImage = 'noimage.jpg';
+      const userCreated = await this.attendanceRepository.save(newAttendance);
+      console.log('userCreated', userCreated);
+    }
+
+    return userDelete;
   }
 
   //getAttendanceBy AssignmentId
