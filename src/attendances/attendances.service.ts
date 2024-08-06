@@ -204,8 +204,11 @@ export class AttendancesService {
         attendance_.attendanceConfirmStatus =
           updateAttendanceDto.attendanceConfirmStatus;
         attendance_.attendanceStatus = updateAttendanceDto.attendanceStatus;
-        attendance_.attendanceImage = updateAttendanceDto.attendanceImage;
+        if (attendance_.attendanceImage === 'noimage.jpg') {
+          attendance_.attendanceImage = updateAttendanceDto.attendanceImage;
+        }
         attendance_.attendanceScore = updateAttendanceDto.attendanceScore;
+
         attendance_.user = user;
         //'if in time' 15 min late set attendanceStatus to 'late'
         const currentDate = new Date();
