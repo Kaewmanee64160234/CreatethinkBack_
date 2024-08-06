@@ -83,31 +83,58 @@ export class AttendancesService {
   async remove(id: number) {
     const attendance = await this.attendanceRepository.findOne({
       where: { attendanceId: id },
-      relations: ['user', 'assignment'],
+      relations: ['user', 'assignment', 'assignment.course'],
     });
+
     if (!attendance) {
-      throw new NotFoundException('attendance not found');
+      throw new NotFoundException('Attendance not found');
     }
-    // remove image
+
+    // Remove image
     const imagePath = join('./', 'attendance_image');
     const image = attendance.attendanceImage;
     const imageFullPath = join(imagePath, image);
-    await fsPromises.unlink(imageFullPath);
+
+    try {
+      await fsPromises.unlink(imageFullPath);
+    } catch (error) {
+      console.error('Error removing image:', error);
+    }
+
     const userDelete = await this.attendanceRepository.softRemove(attendance);
 
-    // find user not have attendance in assignment
-    const user = await this.userRepository.findOne({
-      where: { studentId: attendance.user.studentId },
-      relations: ['attendance', 'attendance.assignment'],
+    // Get all users who have attendance for this assignment
+    const usersInAttendance = await this.attendanceRepository.find({
+      where: {
+        assignment: { assignmentId: attendance.assignment.assignmentId },
+      },
+      relations: ['user'],
     });
-    user.attendance = user.attendance.filter(
-      (att) =>
-        att.assignment.assignmentId !== attendance.assignment.assignmentId,
-    );
-    console.log('user', user);
+    console.log(usersInAttendance);
 
-    // if not have create new attdent statsu absent
-    if (user.attendance.length > 0) {
+    // Extract user IDs from the attendance records
+    const usersInAttendanceIds = new Set(
+      usersInAttendance.map((a) => a.user.userId),
+    );
+
+    // Get all users enrolled in the course
+    const usersInCourse = await this.enrollmentRepository.find({
+      where: { course: { coursesId: attendance.assignment.course.coursesId } },
+      relations: ['user'],
+    });
+
+    // Extract user objects from the enrollment records
+    const usersInCourseList = usersInCourse.map(
+      (enrollment) => enrollment.user,
+    );
+
+    // Find users who are in the course but not in the attendance records
+    const usersToCreateAttendance = usersInCourseList.filter(
+      (user) => !usersInAttendanceIds.has(user.userId),
+    );
+
+    // Create attendance records for users without existing records
+    for (const user of usersToCreateAttendance) {
       const newAttendance = new Attendance();
       newAttendance.user = user;
       newAttendance.assignment = attendance.assignment;
@@ -115,8 +142,8 @@ export class AttendancesService {
       newAttendance.attendanceStatus = 'absent';
       newAttendance.attendanceConfirmStatus = 'notconfirm';
       newAttendance.attendanceImage = 'noimage.jpg';
-      const userCreated = await this.attendanceRepository.save(newAttendance);
-      console.log('userCreated', userCreated);
+
+      await this.attendanceRepository.save(newAttendance);
     }
 
     return userDelete;
@@ -374,7 +401,6 @@ export class AttendancesService {
         },
         relations: ['user', 'assignment'],
       });
-      console.log('Attendance:', attendance);
 
       if (!attendance) {
         throw new NotFoundException('attendance not found');
