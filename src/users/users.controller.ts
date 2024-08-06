@@ -100,6 +100,11 @@ export class UsersController {
     return this.usersService.findOne(+id);
   }
 
+  @Get('std/:id')
+  findByStd(@Param('id') id: string) {
+    return this.usersService.findOneByStudentId(id);
+  }
+
   @Patch(':id')
   @UseInterceptors(
     FilesInterceptor('files', 5, {
@@ -117,16 +122,18 @@ export class UsersController {
     @Body() updateUserDto: UpdateUserDto,
     @UploadedFiles() files: Array<Express.Multer.File>,
   ) {
-    if (!files || files.length === 0 || files.length > 5) {
-      throw new BadRequestException('Between 1 and 5 images are required.');
-    }
+    // if (!files || files.length === 0 || files.length > 5) {
+    //   throw new BadRequestException('Between 1 and 5 images are required.');
+    // }
     console.log('Received data:', updateUserDto);
     console.log('Received files:', files);
-    files.forEach((file, index) => {
-      updateUserDto[`image${index + 1}`] = file.filename;
-      // updateUserDto[`faceDescription${index + 1}`] =
-      //   updateUserDto[`faceDescription${index + 1}`];
-    });
+    if (files && files.length > 0 && files.length <= 5) {
+      files.forEach((file, index) => {
+        updateUserDto[`image${index + 1}`] = file.filename;
+        // updateUserDto[`faceDescription${index + 1}`] =
+        //   updateUserDto[`faceDescription${index + 1}`];
+      });
+    }
     try {
       const result = await this.usersService.update(+id, updateUserDto);
       return result;
@@ -134,6 +141,24 @@ export class UsersController {
       console.error('Error during user update:', error);
       throw new BadRequestException(
         'Failed to update user due to invalid input',
+      );
+    }
+  }
+  @Patch(':id/register-status')
+  async updateRegisterStatus(
+    @Param('id') id: string,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
+    try {
+      const result = await this.usersService.updateRegisterStatus(
+        +id,
+        updateUserDto,
+      );
+      return result;
+    } catch (error) {
+      console.error('Error during registerStatus update:', error);
+      throw new BadRequestException(
+        'Failed to update registerStatus due to invalid input',
       );
     }
   }
@@ -153,8 +178,6 @@ export class UsersController {
   getUserByCourseId(@Param('courseId') courseId: string) {
     return this.usersService.getUserByCourseId(courseId);
   }
-
-  //getusersBystudentId
 
   @Get(':id/image')
   async getImage(@Param('id') id: string, @Res() res: Response) {
