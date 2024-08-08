@@ -34,6 +34,9 @@ export class UsersService {
       newUser.email = createUserDto.email;
       newUser.role = createUserDto.role;
       newUser.status = createUserDto.status;
+      newUser.year = createUserDto.year;
+      newUser.major = createUserDto.major;
+      newUser.registerStatus = createUserDto.registerStatus;
       newUser.studentId = createUserDto.studentId;
       newUser.teacherId = createUserDto.teacherId;
 
@@ -187,6 +190,41 @@ export class UsersService {
     });
   }
 
+  async findOneByStudentId(id: string) {
+    const user = await this.userRepository.findOneBy({ studentId: id });
+    if (!user) {
+      throw new NotFoundException('user not found');
+    } else {
+      user.faceDescriptor1 = user.faceDescriptor1
+        ? this.float32ArrayToBase64(
+            new Float32Array(JSON.parse(user.faceDescriptor1)),
+          )
+        : null;
+      user.faceDescriptor2 = user.faceDescriptor2
+        ? this.float32ArrayToBase64(
+            new Float32Array(JSON.parse(user.faceDescriptor2)),
+          )
+        : null;
+      user.faceDescriptor3 = user.faceDescriptor3
+        ? this.float32ArrayToBase64(
+            new Float32Array(JSON.parse(user.faceDescriptor3)),
+          )
+        : null;
+      user.faceDescriptor4 = user.faceDescriptor4
+        ? this.float32ArrayToBase64(
+            new Float32Array(JSON.parse(user.faceDescriptor4)),
+          )
+        : null;
+      user.faceDescriptor5 = user.faceDescriptor5
+        ? this.float32ArrayToBase64(
+            new Float32Array(JSON.parse(user.faceDescriptor5)),
+          )
+        : null;
+      return user;
+      return user;
+    }
+  }
+
   async findOne(id: number) {
     const user = await this.userRepository.findOneBy({ userId: id });
     if (!user) {
@@ -256,7 +294,41 @@ export class UsersService {
     try {
       console.log('Updating user with ID:', id);
       console.log('Update DTO:', updateUserDto);
+      // const newUser = new User();
+      // newUser.firstName = updateUserDto.firstName;
+      // newUser.lastName = updateUserDto.lastName;
+      // newUser.email = updateUserDto.email;
+      // newUser.role = updateUserDto.role;
+      // newUser.status = updateUserDto.status;
+      // newUser.year = updateUserDto.year;
+      // newUser.major = updateUserDto.major;
+      // newUser.registerStatus = updateUserDto.registerStatus;
+      // newUser.studentId = updateUserDto.studentId;
+      // newUser.teacherId = updateUserDto.teacherId;
+      // newUser.image1 = updateUserDto.image1;
+      // newUser.image2 = updateUserDto.image2;
+      // newUser.image3 = updateUserDto.image3;
+      // newUser.image4 = updateUserDto.image4;
+      // newUser.image5 = updateUserDto.image5;
+      // newUser.faceDescriptor1 = updateUserDto.faceDescription1
+      //   ? this.float32ArrayToJsonString(updateUserDto.faceDescription1)
+      //   : null;
 
+      // newUser.faceDescriptor2 = updateUserDto.faceDescription2
+      //   ? this.float32ArrayToJsonString(updateUserDto.faceDescription2)
+      //   : null;
+
+      // newUser.faceDescriptor3 = updateUserDto.faceDescription3
+      //   ? this.float32ArrayToJsonString(updateUserDto.faceDescription3)
+      //   : null;
+
+      // newUser.faceDescriptor4 = updateUserDto.faceDescription4
+      //   ? this.float32ArrayToJsonString(updateUserDto.faceDescription4)
+      //   : null;
+
+      // newUser.faceDescriptor5 = updateUserDto.faceDescription5
+      //   ? this.float32ArrayToJsonString(updateUserDto.faceDescription5)
+      //   : null;
       // Find the existing user by ID
       const user = await this.userRepository.findOneBy({ userId: id });
       if (!user) {
@@ -304,35 +376,36 @@ export class UsersService {
       // Update the user with new data
       const updatedUserData = {
         ...user,
-        firstName: updateUserDto.firstName,
-        lastName: updateUserDto.lastName,
-        email: updateUserDto.email,
-        role: updateUserDto.role,
-        status: updateUserDto.status,
-        year: updateUserDto.year,
-        major: updateUserDto.major,
-        studentId: updateUserDto.studentId,
-        teacherId: updateUserDto.teacherId,
-        image1: updateUserDto.image1,
-        image2: updateUserDto.image2,
-        image3: updateUserDto.image3,
-        image4: updateUserDto.image4,
-        image5: updateUserDto.image5,
+        firstName: updateUserDto.firstName ?? user.firstName,
+        lastName: updateUserDto.lastName ?? user.lastName,
+        email: updateUserDto.email ?? user.email,
+        role: updateUserDto.role ?? user.role,
+        status: updateUserDto.status ?? user.status,
+        year: updateUserDto.year ?? user.year,
+        major: updateUserDto.major ?? user.major,
+        studentId: updateUserDto.studentId ?? user.studentId,
+        teacherId: updateUserDto.teacherId ?? user.teacherId,
+        registerStatus: updateUserDto.registerStatus ?? user.registerStatus,
+        image1: updateUserDto.image1 ?? user.image1,
+        image2: updateUserDto.image2 ?? user.image2,
+        image3: updateUserDto.image3 ?? user.image3,
+        image4: updateUserDto.image4 ?? user.image4,
+        image5: updateUserDto.image5 ?? user.image5,
         faceDescriptor1: updateUserDto.faceDescription1
           ? this.float32ArrayToJsonString(updateUserDto.faceDescription1)
-          : null,
+          : user.faceDescriptor1,
         faceDescriptor2: updateUserDto.faceDescription2
           ? this.float32ArrayToJsonString(updateUserDto.faceDescription2)
-          : null,
+          : user.faceDescriptor2,
         faceDescriptor3: updateUserDto.faceDescription3
           ? this.float32ArrayToJsonString(updateUserDto.faceDescription3)
-          : null,
+          : user.faceDescriptor3,
         faceDescriptor4: updateUserDto.faceDescription4
           ? this.float32ArrayToJsonString(updateUserDto.faceDescription4)
-          : null,
+          : user.faceDescriptor4,
         faceDescriptor5: updateUserDto.faceDescription5
           ? this.float32ArrayToJsonString(updateUserDto.faceDescription5)
-          : null,
+          : user.faceDescriptor5,
       };
 
       const updatedUser = await this.userRepository.save(updatedUserData);
@@ -341,6 +414,28 @@ export class UsersService {
     } catch (error) {
       console.error('Error updating user:', error);
       throw new Error('Error updating user');
+    }
+  }
+
+  async updateRegisterStatus(id: number, updateUserDto: UpdateUserDto) {
+    try {
+      console.log('Updating user registerStatus with ID:', id);
+      console.log('UpdateUserDto:', updateUserDto);
+
+      // Find the existing user by ID
+      const user = await this.userRepository.findOneBy({ userId: id });
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+      user.registerStatus = updateUserDto.registerStatus;
+
+      // Save the updated user
+      const updatedUser = await this.userRepository.save(user);
+      console.log('Updated user registerStatus:', updatedUser);
+      return updatedUser;
+    } catch (error) {
+      console.error('Error updating user registerStatus:', error);
+      throw new Error('Error updating user registerStatus');
     }
   }
 

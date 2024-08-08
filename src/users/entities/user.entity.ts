@@ -37,6 +37,9 @@ export class User {
   @Column()
   teacherId: string;
 
+  @Column()
+  registerStatus: string;
+
   @Column({ nullable: true })
   year: string;
 

@@ -24,6 +24,8 @@ export class CreateUserDto {
 
   major: string;
 
+  registerStatus: string;
+
   faceDescription1?: string;
 
   faceDescription2?: string;
