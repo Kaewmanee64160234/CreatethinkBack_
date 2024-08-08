@@ -79,11 +79,11 @@ export class AssignmentsController {
   }
 
   @Patch(':id')
-  update(
-    @Param('id') id: string,
+  async update(
+    @Param('id') id: number,
     @Body() updateAssignmentDto: UpdateAssignmentDto,
   ) {
-    return this.assignmentsService.update(+id, updateAssignmentDto);
+    return this.assignmentsService.update(id, updateAssignmentDto);
   }
 
   @Delete(':id')

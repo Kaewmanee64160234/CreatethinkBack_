@@ -9,6 +9,8 @@ import { Course } from 'src/courses/entities/course.entity';
 import { Room } from 'src/rooms/entities/room.entity';
 import { Attendance } from 'src/attendances/entities/attendance.entity';
 import { User } from 'src/users/entities/user.entity';
+import { promises as fsPromises } from 'fs';
+import { join } from 'path';
 
 @Injectable()
 export class AssignmentsService {
@@ -67,15 +69,34 @@ export class AssignmentsService {
   }
 
   async update(id: number, updateAssignmentDto: UpdateAssignmentDto) {
-    //check if assignment exists
-    const assignment = await this.assignmentRepository.findOne({
-      where: { assignmentId: id },
-    });
-    if (!assignment) {
-      throw new Error('Assignment not found');
+    try {
+      // Check if assignment exists
+      const assignment = await this.assignmentRepository.findOne({
+        where: { assignmentId: id },
+      });
+
+      if (!assignment) {
+        throw new NotFoundException('Assignment not found');
+      }
+
+      console.log('Updating assignment:', assignment);
+
+      // Update assignment
+      const result = await this.assignmentRepository.update(
+        id,
+        updateAssignmentDto,
+      );
+      console.log('Update result:', result);
+
+      if (result.affected === 0) {
+        throw new Error('Assignment update failed');
+      }
+
+      return { message: 'Assignment updated successfully' };
+    } catch (error) {
+      console.error('Error updating assignment:', error);
+      throw new Error('Internal server error: ' + error.message);
     }
-    //update assignment
-    return this.assignmentRepository.update(id, updateAssignmentDto);
   }
 
   async remove(id: number) {
@@ -87,7 +108,6 @@ export class AssignmentsService {
     if (!assignment) {
       throw new NotFoundException('Assignment not found');
     }
-
     // Fetch and delete related attendance records
     const attendances = await this.attendanceRepository.find({
       where: { assignment: { assignmentId: id } },
@@ -98,12 +118,49 @@ export class AssignmentsService {
       for (const attendance of attendances) {
         await this.attendanceRepository.delete(attendance.attendanceId);
       }
+      // Remove the old images from the assignment_images directory
+      const userImagesDir = join('./', 'attendance_image');
+      const imagesToDelete: string[] = [];
+      for (const imageFileName of imagesToDelete) {
+        try {
+          await this.removeImageFile(join(userImagesDir, imageFileName));
+        } catch (fileError) {
+          console.error(
+            `Failed to remove image file: ${imageFileName}`,
+            fileError,
+          );
+        }
+      }
+    }
+
+    // delete assigment image
+    const assignmentImages = assignment.assignmentImages;
+    const assignmentImagesDir = join('./', 'assignment_images');
+    const imagesToDelete: string[] = assignmentImages;
+    for (const imageFileName of imagesToDelete) {
+      try {
+        await this.removeImageFile(join(assignmentImagesDir, imageFileName));
+      } catch (fileError) {
+        console.error(
+          `Failed to remove image file: ${imageFileName}`,
+          fileError,
+        );
+      }
     }
 
     // Now delete the assignment itself
     await this.assignmentRepository.delete(id);
 
     return { message: 'Assignment deleted successfully' };
+  }
+  private async removeImageFile(filePath: string): Promise<void> {
+    try {
+      await fsPromises.unlink(filePath);
+      console.log(`Removed file: ${filePath}`);
+    } catch (error) {
+      console.error(`Failed to remove file at path: ${filePath}`, error);
+      throw new Error(`Failed to remove file: ${filePath}`);
+    }
   }
 
   //get Assginment by course id

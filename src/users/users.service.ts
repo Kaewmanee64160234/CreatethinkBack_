@@ -95,116 +95,6 @@ export class UsersService {
     }
     return Buffer.from(binary, 'binary').toString('base64');
   }
-  async update(id: number, updateUserDto: UpdateUserDto) {
-    try {
-      const user = await this.userRepository.findOneBy({ userId: id });
-      if (!user) {
-        throw new NotFoundException('User not found');
-      }
-
-      // Convert incoming face descriptions to Float32Arrays
-      const newDescriptors = [
-        updateUserDto.faceDescription1
-          ? this.base64ToFloat32Array(updateUserDto.faceDescription1)
-          : null,
-        updateUserDto.faceDescription2
-          ? this.base64ToFloat32Array(updateUserDto.faceDescription2)
-          : null,
-        updateUserDto.faceDescription3
-          ? this.base64ToFloat32Array(updateUserDto.faceDescription3)
-          : null,
-        updateUserDto.faceDescription4
-          ? this.base64ToFloat32Array(updateUserDto.faceDescription4)
-          : null,
-        updateUserDto.faceDescription5
-          ? this.base64ToFloat32Array(updateUserDto.faceDescription5)
-          : null,
-      ];
-
-      // Extract incoming images
-      const newImages = [
-        updateUserDto.image1 || null,
-        updateUserDto.image2 || null,
-        updateUserDto.image3 || null,
-        updateUserDto.image4 || null,
-        updateUserDto.image5 || null,
-      ];
-
-      // Convert existing face descriptions from JSON strings to Float32Arrays
-      const existingDescriptors = [
-        user.faceDescriptor1
-          ? new Float32Array(JSON.parse(user.faceDescriptor1))
-          : null,
-        user.faceDescriptor2
-          ? new Float32Array(JSON.parse(user.faceDescriptor2))
-          : null,
-        user.faceDescriptor3
-          ? new Float32Array(JSON.parse(user.faceDescriptor3))
-          : null,
-        user.faceDescriptor4
-          ? new Float32Array(JSON.parse(user.faceDescriptor4))
-          : null,
-        user.faceDescriptor5
-          ? new Float32Array(JSON.parse(user.faceDescriptor5))
-          : null,
-      ];
-
-      // Extract existing images
-      const existingImages = [
-        user.image1 || null,
-        user.image2 || null,
-        user.image3 || null,
-        user.image4 || null,
-        user.image5 || null,
-      ];
-
-      // Iterate over the new descriptors and update if not duplicate
-      newDescriptors.forEach((newDescriptor, index) => {
-        if (
-          newDescriptor &&
-          !this.isDuplicateDescriptor(newDescriptor, existingDescriptors)
-        ) {
-          // Update with new descriptor and image if not a duplicate
-          existingDescriptors[index] = newDescriptor;
-          existingImages[index] = newImages[index];
-          console.log(`Updated descriptor and image at index ${index}`);
-        } else {
-          console.log(`Duplicate descriptor found at index ${index}`);
-        }
-      });
-
-      // Convert updated descriptors back to JSON strings for storage
-      user.faceDescriptor1 = existingDescriptors[0]
-        ? JSON.stringify(Array.from(existingDescriptors[0]))
-        : null;
-      user.faceDescriptor2 = existingDescriptors[1]
-        ? JSON.stringify(Array.from(existingDescriptors[1]))
-        : null;
-      user.faceDescriptor3 = existingDescriptors[2]
-        ? JSON.stringify(Array.from(existingDescriptors[2]))
-        : null;
-      user.faceDescriptor4 = existingDescriptors[3]
-        ? JSON.stringify(Array.from(existingDescriptors[3]))
-        : null;
-      user.faceDescriptor5 = existingDescriptors[4]
-        ? JSON.stringify(Array.from(existingDescriptors[4]))
-        : null;
-
-      // Update user images
-      user.image1 = existingImages[0];
-      user.image2 = existingImages[1];
-      user.image3 = existingImages[2];
-      user.image4 = existingImages[3];
-      user.image5 = existingImages[4];
-
-      const updatedUser = await this.userRepository.save(user);
-      console.log('Updated user:', updatedUser);
-      return updatedUser;
-    } catch (error) {
-      console.log(error);
-      throw new Error('Error updating user');
-    }
-  }
 
   private isDuplicateDescriptor(
     newDescriptor: Float32Array,
@@ -362,8 +252,6 @@ export class UsersService {
     }
   }
 
-<<<<<<< HEAD
-=======
   async update(id: number, updateUserDto: UpdateUserDto) {
     try {
       console.log('Updating user with ID:', id);
@@ -465,8 +353,6 @@ export class UsersService {
       throw new Error(`Failed to remove file: ${filePath}`);
     }
   }
-
->>>>>>> 20661387569b8982e85d42d9905a6e2a1cda4e2f
   async remove(id: number) {
     console.log(id);
     const user = await this.userRepository.findOneBy({ userId: id });
