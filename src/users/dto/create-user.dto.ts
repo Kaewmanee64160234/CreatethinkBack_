@@ -20,9 +20,11 @@ export class CreateUserDto {
 
   teacherId: string;
 
-  year: string;
+  adminId: string;
 
-  major: string;
+  year?: string;
+
+  major?: string;
 
   registerStatus: string;
 

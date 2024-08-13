@@ -38,6 +38,9 @@ export class User {
   teacherId: string;
 
   @Column()
+  adminId: string;
+
+  @Column()
   registerStatus: string;
 
   @Column({ nullable: true })

@@ -39,6 +39,7 @@ export class UsersService {
       newUser.registerStatus = createUserDto.registerStatus;
       newUser.studentId = createUserDto.studentId;
       newUser.teacherId = createUserDto.teacherId;
+      newUser.adminId = createUserDto.adminId;
 
       newUser.faceDescriptor1 = createUserDto.faceDescription1
         ? this.float32ArrayToJsonString(createUserDto.faceDescription1)
@@ -271,10 +272,14 @@ export class UsersService {
       newUser.firstName = userDto.firstName;
       newUser.lastName = userDto.lastName;
 
-      // Split email to determine if the user is a teacher or student
+      // Split email to determine if the user is a teacher, student, administrator
       const strId = userDto.email.split('@')[0];
 
-      if (isNaN(Number(strId))) {
+      // Check if strId is 'admin' for administrators
+      if (strId.toLowerCase() === 'admin') {
+        newUser.role = 'administrator';
+        newUser.adminId = strId;
+      } else if (isNaN(Number(strId))) {
         newUser.role = 'teacher';
         newUser.teacherId = strId;
       } else {
@@ -385,6 +390,7 @@ export class UsersService {
         major: updateUserDto.major ?? user.major,
         studentId: updateUserDto.studentId ?? user.studentId,
         teacherId: updateUserDto.teacherId ?? user.teacherId,
+        // adminId: updateUserDto.adminId ?? user.adminId,
         registerStatus: updateUserDto.registerStatus ?? user.registerStatus,
         image1: updateUserDto.image1 ?? user.image1,
         image2: updateUserDto.image2 ?? user.image2,
@@ -529,6 +535,7 @@ export class UsersService {
     return this.userRepository
       .createQueryBuilder('user')
       .where('user.studentId LIKE :search', { search: `%${search}%` })
+      .orWhere('user.adminId LIKE :search', { search: `%${search}%` })
       .orWhere('user.teacherId LIKE :search', { search: `%${search}%` })
       .orWhere('user.firstName LIKE :search', { search: `%${search}%` })
       .orWhere('user.lastName LIKE :search', { search: `%${search}%` })
