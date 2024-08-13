@@ -16,13 +16,13 @@ export class CreateUserDto {
   @IsNotEmpty()
   status: string;
 
-  studentId: string;
+  studentId?: string;
 
-  teacherId: string;
+  teacherId?: string;
 
-  year: string;
+  year?: string;
 
-  major: string;
+  major?: string;
 
   registerStatus: string;
 
@@ -36,13 +36,9 @@ export class CreateUserDto {
 
   faceDescription5?: string;
 
-  image1: string;
-
-  image2: string;
-
-  image3: string;
-
-  image4: string;
-
-  image5: string;
+  image1?: string;
+  image2?: string;
+  image3?: string;
+  image4?: string;
+  image5?: string;
 }
