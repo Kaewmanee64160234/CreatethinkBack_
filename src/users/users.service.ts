@@ -154,8 +154,10 @@ export class UsersService {
         year: item[yearKey].toString().substring(0, 2),
       };
     });
-    console.log('Processed data:', filteredData);
-    return filteredData;
+    const sortedData = filteredData.sort((a, b) => a.id - b.id);
+
+    console.log('Processed data:', sortedData);
+    return sortedData;
   };
 
   async findAll() {
