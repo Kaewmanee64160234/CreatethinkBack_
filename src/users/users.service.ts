@@ -25,7 +25,6 @@ export class UsersService {
     private courseRepository: Repository<Course>,
     private qrService: QrService,
   ) {}
-
   async create(createUserDto: CreateUserDto) {
     try {
       const newUser = new User();
@@ -41,27 +40,29 @@ export class UsersService {
       newUser.teacherId = createUserDto.teacherId;
       newUser.adminId = createUserDto.adminId;
 
-      newUser.faceDescriptor1 = createUserDto.faceDescription1
-        ? this.float32ArrayToJsonString(createUserDto.faceDescription1)
-        : null;
-      newUser.faceDescriptor2 = createUserDto.faceDescription2
-        ? this.float32ArrayToJsonString(createUserDto.faceDescription2)
-        : null;
-      newUser.faceDescriptor3 = createUserDto.faceDescription3
-        ? this.float32ArrayToJsonString(createUserDto.faceDescription3)
-        : null;
-      newUser.faceDescriptor4 = createUserDto.faceDescription4
-        ? this.float32ArrayToJsonString(createUserDto.faceDescription4)
-        : null;
-      newUser.faceDescriptor5 = createUserDto.faceDescription5
-        ? this.float32ArrayToJsonString(createUserDto.faceDescription5)
-        : null;
+      if (createUserDto.role === 'นิสิต') {
+        newUser.faceDescriptor1 = createUserDto.faceDescription1
+          ? this.float32ArrayToJsonString(createUserDto.faceDescription1)
+          : null;
+        newUser.faceDescriptor2 = createUserDto.faceDescription2
+          ? this.float32ArrayToJsonString(createUserDto.faceDescription2)
+          : null;
+        newUser.faceDescriptor3 = createUserDto.faceDescription3
+          ? this.float32ArrayToJsonString(createUserDto.faceDescription3)
+          : null;
+        newUser.faceDescriptor4 = createUserDto.faceDescription4
+          ? this.float32ArrayToJsonString(createUserDto.faceDescription4)
+          : null;
+        newUser.faceDescriptor5 = createUserDto.faceDescription5
+          ? this.float32ArrayToJsonString(createUserDto.faceDescription5)
+          : null;
+      }
 
-      newUser.image1 = createUserDto.image1;
-      newUser.image2 = createUserDto.image2;
-      newUser.image3 = createUserDto.image3;
-      newUser.image4 = createUserDto.image4;
-      newUser.image5 = createUserDto.image5;
+      newUser.image1 = createUserDto.image1 || null;
+      newUser.image2 = createUserDto.image2 || null;
+      newUser.image3 = createUserDto.image3 || null;
+      newUser.image4 = createUserDto.image4 || null;
+      newUser.image5 = createUserDto.image5 || null;
 
       const user = await this.userRepository.save(newUser);
       console.log(user);
@@ -84,10 +85,19 @@ export class UsersService {
     }
     const binaryString = Buffer.from(base64, 'base64').toString('binary');
     const len = binaryString.length;
+
+    // Ensure that the length of the binary string is divisible by 4
+    if (len % 4 !== 0) {
+      throw new RangeError(
+        'Byte length of Float32Array should be a multiple of 4',
+      );
+    }
+
     const bytes = new Uint8Array(len);
     for (let i = 0; i < len; i++) {
       bytes[i] = binaryString.charCodeAt(i);
     }
+
     return new Float32Array(bytes.buffer);
   }
 
@@ -277,13 +287,13 @@ export class UsersService {
 
       // Check if strId is 'admin' for administrators
       if (strId.toLowerCase() === 'admin') {
-        newUser.role = 'administrator';
+        newUser.role = 'แอดมิน';
         newUser.adminId = strId;
       } else if (isNaN(Number(strId))) {
-        newUser.role = 'teacher';
+        newUser.role = 'อาจารย์';
         newUser.teacherId = strId;
       } else {
-        newUser.role = 'student';
+        newUser.role = 'นิสิต';
         newUser.studentId = strId;
       }
 
@@ -367,52 +377,83 @@ export class UsersService {
       }
 
       // Remove the old images from the user_images directory
-      for (const imageFileName of imagesToDelete) {
-        try {
-          await this.removeImageFile(join(userImagesDir, imageFileName));
-        } catch (fileError) {
-          console.error(
-            `Failed to remove image file: ${imageFileName}`,
-            fileError,
-          );
+      if (updateUserDto.image1 !== 'no-image') {
+        console.log('Images to delete:', imagesToDelete);
+
+        for (const imageFileName of imagesToDelete) {
+          try {
+            await this.removeImageFile(join(userImagesDir, imageFileName));
+          } catch (fileError) {
+            console.error(
+              `Failed to remove image file: ${imageFileName}`,
+              fileError,
+            );
+          }
         }
       }
 
-      // Update the user with new data
-      const updatedUserData = {
-        ...user,
-        firstName: updateUserDto.firstName ?? user.firstName,
-        lastName: updateUserDto.lastName ?? user.lastName,
-        email: updateUserDto.email ?? user.email,
-        role: updateUserDto.role ?? user.role,
-        status: updateUserDto.status ?? user.status,
-        year: updateUserDto.year ?? user.year,
-        major: updateUserDto.major ?? user.major,
-        studentId: updateUserDto.studentId ?? user.studentId,
-        teacherId: updateUserDto.teacherId ?? user.teacherId,
-        // adminId: updateUserDto.adminId ?? user.adminId,
-        registerStatus: updateUserDto.registerStatus ?? user.registerStatus,
-        image1: updateUserDto.image1 ?? user.image1,
-        image2: updateUserDto.image2 ?? user.image2,
-        image3: updateUserDto.image3 ?? user.image3,
-        image4: updateUserDto.image4 ?? user.image4,
-        image5: updateUserDto.image5 ?? user.image5,
-        faceDescriptor1: updateUserDto.faceDescription1
-          ? this.float32ArrayToJsonString(updateUserDto.faceDescription1)
-          : user.faceDescriptor1,
-        faceDescriptor2: updateUserDto.faceDescription2
-          ? this.float32ArrayToJsonString(updateUserDto.faceDescription2)
-          : user.faceDescriptor2,
-        faceDescriptor3: updateUserDto.faceDescription3
-          ? this.float32ArrayToJsonString(updateUserDto.faceDescription3)
-          : user.faceDescriptor3,
-        faceDescriptor4: updateUserDto.faceDescription4
-          ? this.float32ArrayToJsonString(updateUserDto.faceDescription4)
-          : user.faceDescriptor4,
-        faceDescriptor5: updateUserDto.faceDescription5
-          ? this.float32ArrayToJsonString(updateUserDto.faceDescription5)
-          : user.faceDescriptor5,
-      };
+      let updatedUserData;
+      if (updateUserDto.role === 'นิสิต') {
+        // Update the user with new data
+        updatedUserData = {
+          ...user,
+          firstName: updateUserDto.firstName ?? user.firstName,
+          lastName: updateUserDto.lastName ?? user.lastName,
+          email: updateUserDto.email ?? user.email,
+          role: updateUserDto.role ?? user.role,
+          status: updateUserDto.status ?? user.status,
+          year: updateUserDto.year ?? user.year,
+          major: updateUserDto.major ?? user.major,
+          studentId: updateUserDto.studentId ?? user.studentId,
+          teacherId: updateUserDto.teacherId ?? user.teacherId,
+          // adminId: updateUserDto.adminId ?? user.adminId,
+          registerStatus: updateUserDto.registerStatus ?? user.registerStatus,
+          image1: updateUserDto.image1 ?? user.image1,
+          image2: updateUserDto.image2 ?? user.image2,
+          image3: updateUserDto.image3 ?? user.image3,
+          image4: updateUserDto.image4 ?? user.image4,
+          image5: updateUserDto.image5 ?? user.image5,
+
+          faceDescriptor1: updateUserDto.faceDescription1
+            ? this.float32ArrayToJsonString(updateUserDto.faceDescription1)
+            : user.faceDescriptor1,
+          faceDescriptor2: updateUserDto.faceDescription2
+            ? this.float32ArrayToJsonString(updateUserDto.faceDescription2)
+            : user.faceDescriptor2,
+          faceDescriptor3: updateUserDto.faceDescription3
+            ? this.float32ArrayToJsonString(updateUserDto.faceDescription3)
+            : user.faceDescriptor3,
+          faceDescriptor4: updateUserDto.faceDescription4
+            ? this.float32ArrayToJsonString(updateUserDto.faceDescription4)
+            : user.faceDescriptor4,
+          faceDescriptor5: updateUserDto.faceDescription5
+            ? this.float32ArrayToJsonString(updateUserDto.faceDescription5)
+            : user.faceDescriptor5,
+        };
+      } else {
+        updatedUserData = {
+          ...user,
+          firstName: updateUserDto.firstName ?? user.firstName,
+          lastName: updateUserDto.lastName ?? user.lastName,
+          email: updateUserDto.email ?? user.email,
+          role: updateUserDto.role ?? user.role,
+          status: updateUserDto.status ?? user.status,
+          year: updateUserDto.year ?? user.year,
+          major: updateUserDto.major ?? user.major,
+          studentId: updateUserDto.studentId ?? user.studentId,
+          teacherId: updateUserDto.teacherId ?? user.teacherId,
+          adminId: updateUserDto.adminId ?? user.adminId,
+          registerStatus: updateUserDto.registerStatus ?? user.registerStatus,
+          image1:
+            updateUserDto.image1 == 'no-image'
+              ? user.image1
+              : updateUserDto.image1,
+          image2: updateUserDto.image2 ?? user.image2,
+          image3: updateUserDto.image3 ?? user.image3,
+          image4: updateUserDto.image4 ?? user.image4,
+          image5: updateUserDto.image5 ?? user.image5,
+        };
+      }
 
       const updatedUser = await this.userRepository.save(updatedUserData);
       console.log('Updated user:', updatedUser);

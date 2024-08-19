@@ -16,6 +16,8 @@ import { Enrollment } from './enrollments/entities/enrollment.entity';
 import { Attendance } from './attendances/entities/attendance.entity';
 import { Assignment } from './assignments/entities/assignment.entity';
 import { Room } from './rooms/entities/room.entity';
+import { NotiforupdateModule } from './notiforupdate/notiforupdate.module';
+import { Notiforupdate } from './notiforupdate/entities/notiforupdate.entity';
 
 @Module({
   // imports: [
@@ -52,7 +54,15 @@ import { Room } from './rooms/entities/room.entity';
       username: 'root',
       // password: 'yourpassword',
       database: 'creativethinking',
-      entities: [User, Room, Course, Enrollment, Attendance, Assignment],
+      entities: [
+        User,
+        Room,
+        Course,
+        Enrollment,
+        Attendance,
+        Assignment,
+        Notiforupdate,
+      ],
       synchronize: true,
       // logging: true,
     }),
@@ -63,6 +73,7 @@ import { Room } from './rooms/entities/room.entity';
     AttendancesModule,
     AssignmentsModule,
     AuthModule,
+    NotiforupdateModule,
   ],
   controllers: [AppController],
   providers: [AppService],
