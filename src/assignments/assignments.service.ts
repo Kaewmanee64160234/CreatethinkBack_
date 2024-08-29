@@ -42,6 +42,7 @@ export class AssignmentsService {
       newAssignment.course = course;
       newAssignment.assignMentTime = new Date();
       newAssignment.assignmentImages = createAssignmentDto.assignmentImages;
+      newAssignment.assignmentManual = createAssignmentDto.assignmentManual;
       return this.assignmentRepository.save(newAssignment);
     } catch (error) {
       throw new Error('Error creating assignment: ' + error.message);
@@ -173,6 +174,21 @@ export class AssignmentsService {
         },
 
         relations: ['course', 'course.user'],
+        order: { createdDate: 'desc' },
+      });
+    } catch (error) {
+      throw new Error('Error fetching assignment');
+    }
+  }
+
+  // get image files from assigment id status nodata last created
+  async getImageFiles(courseId: string) {
+    try {
+      return this.assignmentRepository.findOne({
+        where: {
+          course: { coursesId: courseId },
+          statusAssignment: 'nodata',
+        },
         order: { createdDate: 'desc' },
       });
     } catch (error) {

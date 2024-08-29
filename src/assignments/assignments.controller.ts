@@ -100,4 +100,10 @@ export class AssignmentsController {
   getAssignmentByCourseId(@Param('id') id: string) {
     return this.assignmentsService.getAssignmentByCourseId(id);
   }
+
+  // get image files getImageFiles by assigment id
+  @Get('images/course/:id')
+  getAssignmentImages(@Param('id') id: string) {
+    return this.assignmentsService.getImageFiles(id);
+  }
 }
