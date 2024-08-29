@@ -42,7 +42,6 @@ export class AssignmentsService {
       newAssignment.course = course;
       newAssignment.assignMentTime = new Date();
       newAssignment.assignmentImages = createAssignmentDto.assignmentImages;
-      newAssignment.assignmentManual = createAssignmentDto.assignmentManual;
       return this.assignmentRepository.save(newAssignment);
     } catch (error) {
       throw new Error('Error creating assignment: ' + error.message);

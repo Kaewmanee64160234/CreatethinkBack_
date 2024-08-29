@@ -31,9 +31,6 @@ export class Assignment {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   assignMentTime: Date;
 
-  @Column()
-  assignmentManual: boolean;
-
   @OneToMany(() => Attendance, (attendance) => attendance.assignment)
   attendances: Attendance[];
 

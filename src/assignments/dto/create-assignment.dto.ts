@@ -16,5 +16,4 @@ export class CreateAssignmentDto {
 
   statusAssignment: string;
   assignmentImages: string[];
-  assignmentManual: boolean;
 }
