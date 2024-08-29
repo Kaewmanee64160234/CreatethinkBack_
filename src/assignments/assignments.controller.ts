@@ -42,7 +42,7 @@ export class AssignmentsController {
     @Body() createAssignmentDto: CreateAssignmentDto,
     @UploadedFiles() files: Array<Express.Multer.File>,
   ) {
-    if (!files || files.length === 0 || files.length > 5) {
+    if (!files || files.length === 0 || files.length > 10) {
       throw new BadRequestException('Between 1 and 5 images are required.');
     }
 
