@@ -79,6 +79,9 @@ export class User {
   @Column({ type: 'text', nullable: true })
   profileImage: string;
 
+  @Column({ default: 0 })
+  countingRejection: number;
+
   @OneToMany(() => Course, (course) => course.user)
   courses: Course[];
 
