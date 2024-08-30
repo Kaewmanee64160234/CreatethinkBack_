@@ -192,7 +192,10 @@ export class AttendancesService {
       newAttendance.attendanceConfirmStatus = 'notconfirm';
       newAttendance.attendanceImage = 'noimage.jpg';
       user.countingRejection += 1;
-      if (user.countingRejection >= 3) {
+      const userCounting = await this.userRepository.save(user);
+      console.log('userCounting', userCounting);
+
+      if (userCounting.countingRejection >= 3) {
         await this.markAttendance(
           user,
           attendance.assignment.course.nameCourses,
@@ -200,8 +203,8 @@ export class AttendancesService {
           imageFullPath,
           attendance.assignment.assignmentId + '',
         );
-        user.countingRejection = 0;
-        await this.userRepository.save(user);
+        userCounting.countingRejection = 0;
+        await this.userRepository.save(userCounting);
       }
       await this.attendanceRepository.save(newAttendance);
     }
@@ -247,8 +250,7 @@ export class AttendancesService {
       });
       if (
         attendance != null &&
-        (attendance.attendanceStatus !== 'present' ||
-          attendance.attendanceConfirmStatus == 'recheck') &&
+        attendance.attendanceStatus !== 'present' &&
         attendance.attendanceStatus !== 'absent'
       ) {
         // send nopermition exeption 403
@@ -270,6 +272,12 @@ export class AttendancesService {
           updateAttendanceDto.attendanceConfirmStatus;
         attendance_.attendanceStatus = updateAttendanceDto.attendanceStatus;
         if (attendance_.attendanceImage === 'noimage.jpg') {
+          attendance_.attendanceImage = updateAttendanceDto.attendanceImage;
+        }
+        if (
+          attendance_.attendanceImage !== 'noimage.jpg' &&
+          updateAttendanceDto.attendanceImage !== attendance_.attendanceImage
+        ) {
           attendance_.attendanceImage = updateAttendanceDto.attendanceImage;
         }
         attendance_.attendanceScore = updateAttendanceDto.attendanceScore;
