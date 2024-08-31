@@ -10,15 +10,15 @@ export class EmailService {
       host: 'smtp.ethereal.email',
       port: 587,
       auth: {
-        user: 'nayeli.hettinger88@ethereal.email',
-        pass: '1CmQjGqBW2aFs41tSA',
+        user: process.env.USER_EMAIL,
+        pass: process.env.USER_PASS,
       },
     });
   }
 
   async sendEmail(to: string, subject: string, text: string) {
     const info = await this.transporter.sendMail({
-      from: 'nayeli.hettinger88@ethereal.email',
+      from: process.env.USER_EMAIL,
       to,
       html: `
       <p>${text}</p><br/>
@@ -35,7 +35,7 @@ export class EmailService {
     imagePath: string,
   ) {
     const info = await this.transporter.sendMail({
-      from: 'nayeli.hettinger88@ethereal.email',
+      from: process.env.USER_EMAIL,
       to,
       subject,
       html: `

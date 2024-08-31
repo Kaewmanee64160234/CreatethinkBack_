@@ -115,7 +115,7 @@ export class AttendancesService {
       }
 
       // Fetch user's email from the database based on userId
-      const email = `kai84143@gmail.com`; // Replace this with the actual fetching logic
+      const email = process.env.MY_EMAIL; // Replace this with the actual fetching logic
       console.log('email', email);
 
       const subject = 'ยืนยันการเข้าร่วมด้วยภาพถ่าย';
