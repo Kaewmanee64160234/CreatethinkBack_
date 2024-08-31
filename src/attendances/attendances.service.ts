@@ -145,7 +145,7 @@ export class AttendancesService {
       throw new NotFoundException('Attendance not found');
     }
 
-    const userDelete = await this.attendanceRepository.softRemove(attendance);
+    const attendDelete = await this.attendanceRepository.softRemove(attendance);
 
     // Get all users who have attendance for this assignment
     const usersInAttendance = await this.attendanceRepository.find({
@@ -180,9 +180,28 @@ export class AttendancesService {
     const imagePath = join('./', 'attendance_image');
     const image = attendance.attendanceImage;
     const imageFullPath = join(imagePath, image);
+    console.log('usersToCreateAttendance', usersToCreateAttendance);
+    console.log('attdent', attendDelete);
+
+    attendDelete.user.countingRejection += 1;
+    const userCounting = await this.userRepository.save(attendDelete.user);
+    console.log('userCounting', userCounting);
+
+    if (userCounting.countingRejection >= 3) {
+      await this.markAttendance(
+        attendDelete.user,
+        attendance.assignment.course.nameCourses,
+        attendance.assignment.nameAssignment,
+        imageFullPath,
+        attendance.assignment.assignmentId + '',
+      );
+      userCounting.countingRejection = 0;
+      await this.userRepository.save(userCounting);
+    }
+
     // Create attendance records for users without existing records
     for (const user of usersToCreateAttendance) {
-      console.log('id', id);
+      // console.log('id', id);
 
       const newAttendance = new Attendance();
       newAttendance.user = user;
@@ -191,21 +210,7 @@ export class AttendancesService {
       newAttendance.attendanceStatus = 'absent';
       newAttendance.attendanceConfirmStatus = 'notconfirm';
       newAttendance.attendanceImage = 'noimage.jpg';
-      user.countingRejection += 1;
-      const userCounting = await this.userRepository.save(user);
-      console.log('userCounting', userCounting);
 
-      if (userCounting.countingRejection >= 3) {
-        await this.markAttendance(
-          user,
-          attendance.assignment.course.nameCourses,
-          attendance.assignment.nameAssignment,
-          imageFullPath,
-          attendance.assignment.assignmentId + '',
-        );
-        userCounting.countingRejection = 0;
-        await this.userRepository.save(userCounting);
-      }
       await this.attendanceRepository.save(newAttendance);
     }
 
@@ -214,7 +219,7 @@ export class AttendancesService {
     } catch (error) {
       console.error('Error removing image:', error);
     }
-    return userDelete;
+    return attendDelete;
   }
 
   //getAttendanceBy AssignmentId
