@@ -11,7 +11,7 @@ import { Attendance } from 'src/attendances/entities/attendance.entity';
 import { User } from 'src/users/entities/user.entity';
 import { promises as fsPromises } from 'fs';
 import { join } from 'path';
-
+import { promises as fs } from 'fs';
 @Injectable()
 export class AssignmentsService {
   //create constructor to inject assignmentRepository and courseRepository and roomRepository
@@ -103,63 +103,71 @@ export class AssignmentsService {
     // Check if the assignment exists
     const assignment = await this.assignmentRepository.findOne({
       where: { assignmentId: id },
+      relations: ['attendances', 'course'], // Ensure that related attendances are loaded
     });
 
     if (!assignment) {
       throw new NotFoundException('Assignment not found');
     }
+
     // Fetch and delete related attendance records
     const attendances = await this.attendanceRepository.find({
       where: { assignment: { assignmentId: id } },
     });
+    console.log('Deleting assignment:', assignment);
+    console.log('Attendances:', attendances);
 
     if (attendances.length > 0) {
-      // Delete all related attendances
       for (const attendance of attendances) {
+        // Delete attendance record
         await this.attendanceRepository.delete(attendance.attendanceId);
-      }
-      // Remove the old images from the assignment_images directory
-      const userImagesDir = join('./', 'attendance_image');
-      const imagesToDelete: string[] = [];
-      for (const imageFileName of imagesToDelete) {
-        try {
-          await this.removeImageFile(join(userImagesDir, imageFileName));
-        } catch (fileError) {
-          console.error(
-            `Failed to remove image file: ${imageFileName}`,
-            fileError,
+
+        // Remove the old images from the attendance_images directory
+        if (attendance.attendanceImage) {
+          const imagePath = join(
+            './',
+            'attendance_image',
+            attendance.attendanceImage,
           );
+          try {
+            await this.removeImageFile(imagePath);
+          } catch (fileError) {
+            console.error(
+              `Failed to remove image file: ${imagePath}`,
+              fileError,
+            );
+          }
+        }
+      }
+    }
+    console.log('Deleting assignment:', assignment);
+
+    // // Delete assignment images if they exist
+    const assignmentImages = assignment.assignmentImages;
+    if (assignmentImages && assignmentImages.length > 0) {
+      const assignmentImagesDir = join('./', 'assignment_images');
+      for (const imageFileName of assignmentImages) {
+        const imagePath = join(assignmentImagesDir, imageFileName);
+        try {
+          await this.removeImageFile(imagePath);
+        } catch (fileError) {
+          console.error(`Failed to remove image file: ${imagePath}`, fileError);
         }
       }
     }
 
-    // delete assigment image
-    const assignmentImages = assignment.assignmentImages;
-    const assignmentImagesDir = join('./', 'assignment_images');
-    const imagesToDelete: string[] = assignmentImages;
-    for (const imageFileName of imagesToDelete) {
-      try {
-        await this.removeImageFile(join(assignmentImagesDir, imageFileName));
-      } catch (fileError) {
-        console.error(
-          `Failed to remove image file: ${imageFileName}`,
-          fileError,
-        );
-      }
-    }
-
     // Now delete the assignment itself
-    await this.assignmentRepository.delete(id);
+    const assDelete = await this.assignmentRepository.remove(assignment);
 
-    return { message: 'Assignment deleted successfully' };
+    return assDelete;
   }
-  private async removeImageFile(filePath: string): Promise<void> {
+
+  async removeImageFile(filePath: string): Promise<void> {
     try {
-      await fsPromises.unlink(filePath);
-      console.log(`Removed file: ${filePath}`);
+      await fs.unlink(filePath); // Deletes the file
+      console.log(`File removed: ${filePath}`);
     } catch (error) {
-      console.error(`Failed to remove file at path: ${filePath}`, error);
-      throw new Error(`Failed to remove file: ${filePath}`);
+      console.error(`Error deleting file: ${filePath}`, error);
     }
   }
 

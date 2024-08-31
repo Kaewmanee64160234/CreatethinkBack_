@@ -10,7 +10,6 @@ import {
   UploadedFiles,
   BadRequestException,
   Res,
-  NotFoundException,
 } from '@nestjs/common';
 import { AssignmentsService } from './assignments.service';
 import { CreateAssignmentDto } from './dto/create-assignment.dto';
@@ -88,11 +87,7 @@ export class AssignmentsController {
 
   @Delete(':id')
   async deleteAssignment(@Param('id') id: number) {
-    const result = await this.assignmentsService.remove(id);
-    if (!result) {
-      throw new NotFoundException('Assignment not found');
-    }
-    return { message: 'Assignment deleted successfully' };
+    return await this.assignmentsService.remove(id);
   }
 
   //getAssignmentByCourseId

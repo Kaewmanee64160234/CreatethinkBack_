@@ -37,7 +37,9 @@ export class Attendance {
   @ManyToOne(() => User, (user) => user.attendance, { nullable: true })
   user: User | null;
 
-  @ManyToOne(() => Assignment, (assignment) => assignment.attendances)
+  @ManyToOne(() => Assignment, (assignment) => assignment.attendances, {
+    onDelete: 'CASCADE',
+  })
   assignment: Assignment;
 
   @CreateDateColumn()
