@@ -17,12 +17,16 @@ export class EmailService {
   }
 
   async sendEmail(to: string, subject: string, text: string) {
-    await this.transporter.sendMail({
-      from: process.env.USER_EMAIL,
+    const info = await this.transporter.sendMail({
+      from: 'nayeli.hettinger88@ethereal.email',
       to,
-      subject,
+      html: `
+      <p>${text}</p><br/>
+    `,
       text,
     });
+    // Check the email it really sends
+    console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
   }
   async sendEmailWithEmbeddedImage(
     to: string,
