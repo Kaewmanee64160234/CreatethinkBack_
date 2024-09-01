@@ -23,6 +23,7 @@ export class CreateUserDto {
   year?: string;
 
   major?: string;
+  countingRejection?: number;
 
   registerStatus: string;
 

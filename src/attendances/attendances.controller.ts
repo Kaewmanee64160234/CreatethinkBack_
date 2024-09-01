@@ -73,6 +73,10 @@ export class AttendancesController {
   ) {
     // set the attributes image
     updateAttendanceDto.attendanceImage = file ? file.filename : 'noimage.jpg';
+    console.log(updateAttendanceDto.attendanceImage);
+
+    console.log(file.filename);
+
     return this.attendancesService.update(+id, updateAttendanceDto);
   }
   // updateByTeacher

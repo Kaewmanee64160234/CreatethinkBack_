@@ -10,7 +10,6 @@ import {
   UploadedFiles,
   BadRequestException,
   Res,
-  NotFoundException,
 } from '@nestjs/common';
 import { AssignmentsService } from './assignments.service';
 import { CreateAssignmentDto } from './dto/create-assignment.dto';
@@ -42,7 +41,7 @@ export class AssignmentsController {
     @Body() createAssignmentDto: CreateAssignmentDto,
     @UploadedFiles() files: Array<Express.Multer.File>,
   ) {
-    if (!files || files.length === 0 || files.length > 5) {
+    if (!files || files.length === 0 || files.length > 10) {
       throw new BadRequestException('Between 1 and 5 images are required.');
     }
 
@@ -88,16 +87,18 @@ export class AssignmentsController {
 
   @Delete(':id')
   async deleteAssignment(@Param('id') id: number) {
-    const result = await this.assignmentsService.remove(id);
-    if (!result) {
-      throw new NotFoundException('Assignment not found');
-    }
-    return { message: 'Assignment deleted successfully' };
+    return await this.assignmentsService.remove(id);
   }
 
   //getAssignmentByCourseId
   @Get('course/:id')
   getAssignmentByCourseId(@Param('id') id: string) {
     return this.assignmentsService.getAssignmentByCourseId(id);
+  }
+
+  // get image files getImageFiles by assigment id
+  @Get('images/course/:id')
+  getAssignmentImages(@Param('id') id: string) {
+    return this.assignmentsService.getImageFiles(id);
   }
 }
