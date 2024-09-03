@@ -97,6 +97,8 @@ export class NotiforupdateService {
 
     // Send email to student to re-upload image
     await this.sendReUploadEmail(notification.userId);
+    notification.statusConfirmation = 'rejected';
+    await this.notiforupdateRepository.save(notification);
 
     return { message: 'Notification rejected and email sent' };
   }
