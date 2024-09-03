@@ -575,7 +575,7 @@ export class UsersService {
         throw new Error('User email is missing');
       }
 
-      const email = 'kai84143@gmail.com';
+      const email = updatedUser.email;
       let subject = '';
       let htmlContent = '';
 
