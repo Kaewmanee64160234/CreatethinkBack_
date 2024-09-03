@@ -55,7 +55,8 @@ export class CoursesService {
     const workbook = XLSX.read(file.buffer, { type: 'buffer' });
     const sheetName = workbook.SheetNames[0];
     const worksheet = workbook.Sheets[sheetName];
-    let jsonData = XLSX.utils.sheet_to_json(worksheet);
+    let jsonData: { id: number; name: string }[] =
+      XLSX.utils.sheet_to_json(worksheet);
 
     jsonData = jsonData.filter((entry) => {
       const id = entry['__EMPTY_1'];
@@ -72,9 +73,13 @@ export class CoursesService {
 
     // Optionally, rename keys
     jsonData = jsonData.map((entry) => ({
-      id: entry['__EMPTY_1'],
+      id: Number(entry['__EMPTY_1']),
       name: entry['__EMPTY_2'].replace(/นาย|นางสาว|นาง/g, '').trim(),
     }));
+
+    // Sort by id in ascending order
+    jsonData.sort((a, b) => a.id - b.id);
+
     console.log('Processed data:', jsonData);
     return jsonData;
   };

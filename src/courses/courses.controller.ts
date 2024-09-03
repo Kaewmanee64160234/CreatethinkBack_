@@ -9,16 +9,11 @@ import {
   BadRequestException,
   UploadedFile,
   UseInterceptors,
-  UseGuards,
 } from '@nestjs/common';
 import { CoursesService } from './courses.service';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { RolesGuard } from 'src/authorize/roles.guard';
-import { Roles } from 'src/authorize/roles.decorator';
-import { Role } from 'src/types/Role.enum';
 
 @Controller('courses')
 export class CoursesController {
@@ -42,8 +37,6 @@ export class CoursesController {
     return this.coursesService.processFile(file);
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.Teacher)
   @Get()
   findAll() {
     return this.coursesService.findAll();

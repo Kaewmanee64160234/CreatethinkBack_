@@ -10,7 +10,6 @@ import {
   UploadedFiles,
   BadRequestException,
   Res,
-  UseGuards,
   Query,
   UploadedFile,
 } from '@nestjs/common';
@@ -21,11 +20,7 @@ import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { RolesGuard } from 'src/authorize/roles.guard';
 import { User } from './entities/user.entity';
-import { Role } from 'src/types/role.enum';
-import { Roles } from 'src/authorize/roles.decorator';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 
 @Controller('users')
@@ -94,9 +89,13 @@ export class UsersController {
     }
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  // @UseGuards(JwtAuthGuard, RolesGuard)
   @Get()
+<<<<<<< HEAD
   @Roles(Role.Admin, Role.Teacher)
+=======
+  // @Roles(Role.Teacher, Role.Admin)
+>>>>>>> 5b8154e2396a4056bb93b873dd08d9320c917ef2
   findAll() {
     return this.usersService.findAll();
   }

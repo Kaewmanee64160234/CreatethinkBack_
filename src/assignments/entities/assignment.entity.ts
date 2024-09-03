@@ -31,7 +31,10 @@ export class Assignment {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   assignMentTime: Date;
 
-  @OneToMany(() => Attendance, (attendance) => attendance.assignment)
+  @OneToMany(() => Attendance, (attendance) => attendance.assignment, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
   attendances: Attendance[];
 
   @ManyToOne(() => Course, (course) => course.assignments)
