@@ -7,18 +7,21 @@ export class EmailService {
 
   constructor() {
     this.transporter = nodemailer.createTransport({
-      host: 'smtp.ethereal.email',
+      host: 'smtp.email.com',
+      service: 'gmail',
       port: 587,
+      secure: true,
       auth: {
-        user: process.env.USER_EMAIL,
-        pass: process.env.USER_PASS,
+        user: 'thanawuth.rod@gmail.com',
+        pass: 'bzlaqnkguabsorrc',
       },
     });
   }
 
   async sendEmail(to: string, subject: string, text: string) {
     const info = await this.transporter.sendMail({
-      from: process.env.USER_EMAIL,
+      from: 'thanawuth.rod@gmail.com',
+      subject: 'ระบบเช็คชื่อเถื่อน',
       to,
       html: `
       <p>${text}</p><br/>
@@ -34,6 +37,7 @@ export class EmailService {
     text: string,
     imagePath: string,
   ) {
+    subject = 'ระบบเช็คชื่อเข้าเรียนเถื่อน';
     const info = await this.transporter.sendMail({
       from: process.env.USER_EMAIL,
       to,

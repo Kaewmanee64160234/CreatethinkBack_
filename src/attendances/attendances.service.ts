@@ -60,6 +60,8 @@ export class AttendancesService {
       newAttendance.assignment = assignment;
       // if imageis default-image.jpg sen email
       if (newAttendance.attendanceImage === 'noimage.jpg') {
+        console.log(newAttendance.user.email);
+
         const email = newAttendance.user.email; // Replace this with the actual fetching logic
         const subject = 'แจ้งเตือนไม่มีรูปภาพของคุณ';
         const htmlContent = `
@@ -115,7 +117,7 @@ export class AttendancesService {
       }
 
       // Fetch user's email from the database based on userId
-      const email = process.env.MY_EMAIL; // Replace this with the actual fetching logic
+      const email = user.email;
       console.log('email', email);
 
       const subject = 'ยืนยันการเข้าร่วมด้วยภาพถ่าย';
