@@ -6,11 +6,16 @@ import { User } from './entities/user.entity';
 import { Course } from 'src/courses/entities/course.entity';
 import { QrService } from './qr.service';
 import { EmailModule } from 'src/emails/emails.module';
+import { Notiforupdate } from 'src/notiforupdate/entities/notiforupdate.entity';
+import { NotiforupdateService } from 'src/notiforupdate/notiforupdate.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Course]), EmailModule],
+  imports: [
+    TypeOrmModule.forFeature([User, Course, Notiforupdate]),
+    EmailModule,
+  ],
   controllers: [UsersController],
-  providers: [UsersService, QrService],
+  providers: [UsersService, QrService, NotiforupdateService],
   exports: [UsersService],
 })
 export class UsersModule {}

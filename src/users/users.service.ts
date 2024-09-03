@@ -15,6 +15,7 @@ import * as XLSX from 'xlsx';
 import { QrService } from './qr.service';
 import { join } from 'path';
 import { promises as fsPromises } from 'fs';
+import { Notiforupdate } from 'src/notiforupdate/entities/notiforupdate.entity';
 import { EmailService } from 'src/emails/emails.service';
 
 @Injectable()
@@ -22,12 +23,13 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    @InjectRepository(Notiforupdate)
+    private notiforupdateRepository: Repository<Notiforupdate>,
     @InjectRepository(Course)
     private courseRepository: Repository<Course>,
     private qrService: QrService,
     private emailService: EmailService,
   ) {}
-
   async create(createUserDto: CreateUserDto) {
     try {
       const newUser = new User();
@@ -41,28 +43,31 @@ export class UsersService {
       newUser.registerStatus = createUserDto.registerStatus;
       newUser.studentId = createUserDto.studentId;
       newUser.teacherId = createUserDto.teacherId;
+      newUser.adminId = createUserDto.adminId;
 
-      newUser.faceDescriptor1 = createUserDto.faceDescription1
-        ? this.float32ArrayToJsonString(createUserDto.faceDescription1)
-        : null;
-      newUser.faceDescriptor2 = createUserDto.faceDescription2
-        ? this.float32ArrayToJsonString(createUserDto.faceDescription2)
-        : null;
-      newUser.faceDescriptor3 = createUserDto.faceDescription3
-        ? this.float32ArrayToJsonString(createUserDto.faceDescription3)
-        : null;
-      newUser.faceDescriptor4 = createUserDto.faceDescription4
-        ? this.float32ArrayToJsonString(createUserDto.faceDescription4)
-        : null;
-      newUser.faceDescriptor5 = createUserDto.faceDescription5
-        ? this.float32ArrayToJsonString(createUserDto.faceDescription5)
-        : null;
+      if (createUserDto.role === 'นิสิต') {
+        newUser.faceDescriptor1 = createUserDto.faceDescription1
+          ? this.float32ArrayToJsonString(createUserDto.faceDescription1)
+          : null;
+        newUser.faceDescriptor2 = createUserDto.faceDescription2
+          ? this.float32ArrayToJsonString(createUserDto.faceDescription2)
+          : null;
+        newUser.faceDescriptor3 = createUserDto.faceDescription3
+          ? this.float32ArrayToJsonString(createUserDto.faceDescription3)
+          : null;
+        newUser.faceDescriptor4 = createUserDto.faceDescription4
+          ? this.float32ArrayToJsonString(createUserDto.faceDescription4)
+          : null;
+        newUser.faceDescriptor5 = createUserDto.faceDescription5
+          ? this.float32ArrayToJsonString(createUserDto.faceDescription5)
+          : null;
+      }
 
-      newUser.image1 = createUserDto.image1;
-      newUser.image2 = createUserDto.image2;
-      newUser.image3 = createUserDto.image3;
-      newUser.image4 = createUserDto.image4;
-      newUser.image5 = createUserDto.image5;
+      newUser.image1 = createUserDto.image1 || null;
+      newUser.image2 = createUserDto.image2 || null;
+      newUser.image3 = createUserDto.image3 || null;
+      newUser.image4 = createUserDto.image4 || null;
+      newUser.image5 = createUserDto.image5 || null;
 
       const user = await this.userRepository.save(newUser);
       console.log(user);
@@ -85,10 +90,19 @@ export class UsersService {
     }
     const binaryString = Buffer.from(base64, 'base64').toString('binary');
     const len = binaryString.length;
+
+    // Ensure that the length of the binary string is divisible by 4
+    if (len % 4 !== 0) {
+      throw new RangeError(
+        'Byte length of Float32Array should be a multiple of 4',
+      );
+    }
+
     const bytes = new Uint8Array(len);
     for (let i = 0; i < len; i++) {
       bytes[i] = binaryString.charCodeAt(i);
     }
+
     return new Float32Array(bytes.buffer);
   }
 
@@ -275,14 +289,18 @@ export class UsersService {
       newUser.firstName = userDto.firstName;
       newUser.lastName = userDto.lastName;
 
-      // Split email to determine if the user is a teacher or student
+      // Split email to determine if the user is a teacher, student, administrator
       const strId = userDto.email.split('@')[0];
 
-      if (isNaN(Number(strId))) {
-        newUser.role = 'teacher';
+      // Check if strId is 'admin' for administrators
+      if (strId.toLowerCase() === 'admin') {
+        newUser.role = 'แอดมิน';
+        newUser.adminId = strId;
+      } else if (isNaN(Number(strId))) {
+        newUser.role = 'อาจารย์';
         newUser.teacherId = strId;
       } else {
-        newUser.role = 'student';
+        newUser.role = 'นิสิต';
         newUser.studentId = strId;
       }
 
@@ -298,41 +316,6 @@ export class UsersService {
     try {
       console.log('Updating user with ID:', id);
       console.log('Update DTO:', updateUserDto);
-      // const newUser = new User();
-      // newUser.firstName = updateUserDto.firstName;
-      // newUser.lastName = updateUserDto.lastName;
-      // newUser.email = updateUserDto.email;
-      // newUser.role = updateUserDto.role;
-      // newUser.status = updateUserDto.status;
-      // newUser.year = updateUserDto.year;
-      // newUser.major = updateUserDto.major;
-      // newUser.registerStatus = updateUserDto.registerStatus;
-      // newUser.studentId = updateUserDto.studentId;
-      // newUser.teacherId = updateUserDto.teacherId;
-      // newUser.image1 = updateUserDto.image1;
-      // newUser.image2 = updateUserDto.image2;
-      // newUser.image3 = updateUserDto.image3;
-      // newUser.image4 = updateUserDto.image4;
-      // newUser.image5 = updateUserDto.image5;
-      // newUser.faceDescriptor1 = updateUserDto.faceDescription1
-      //   ? this.float32ArrayToJsonString(updateUserDto.faceDescription1)
-      //   : null;
-
-      // newUser.faceDescriptor2 = updateUserDto.faceDescription2
-      //   ? this.float32ArrayToJsonString(updateUserDto.faceDescription2)
-      //   : null;
-
-      // newUser.faceDescriptor3 = updateUserDto.faceDescription3
-      //   ? this.float32ArrayToJsonString(updateUserDto.faceDescription3)
-      //   : null;
-
-      // newUser.faceDescriptor4 = updateUserDto.faceDescription4
-      //   ? this.float32ArrayToJsonString(updateUserDto.faceDescription4)
-      //   : null;
-
-      // newUser.faceDescriptor5 = updateUserDto.faceDescription5
-      //   ? this.float32ArrayToJsonString(updateUserDto.faceDescription5)
-      //   : null;
       // Find the existing user by ID
       const user = await this.userRepository.findOneBy({ userId: id });
       if (!user) {
@@ -366,51 +349,83 @@ export class UsersService {
       }
 
       // Remove the old images from the user_images directory
-      for (const imageFileName of imagesToDelete) {
-        try {
-          await this.removeImageFile(join(userImagesDir, imageFileName));
-        } catch (fileError) {
-          console.error(
-            `Failed to remove image file: ${imageFileName}`,
-            fileError,
-          );
+      if (updateUserDto.image1 !== 'no-image') {
+        console.log('Images to delete:', imagesToDelete);
+
+        for (const imageFileName of imagesToDelete) {
+          try {
+            await this.removeImageFile(join(userImagesDir, imageFileName));
+          } catch (fileError) {
+            console.error(
+              `Failed to remove image file: ${imageFileName}`,
+              fileError,
+            );
+          }
         }
       }
 
-      // Update the user with new data
-      const updatedUserData = {
-        ...user,
-        firstName: updateUserDto.firstName ?? user.firstName,
-        lastName: updateUserDto.lastName ?? user.lastName,
-        email: updateUserDto.email ?? user.email,
-        role: updateUserDto.role ?? user.role,
-        status: updateUserDto.status ?? user.status,
-        year: updateUserDto.year ?? user.year,
-        major: updateUserDto.major ?? user.major,
-        studentId: updateUserDto.studentId ?? user.studentId,
-        teacherId: updateUserDto.teacherId ?? user.teacherId,
-        registerStatus: updateUserDto.registerStatus ?? user.registerStatus,
-        image1: updateUserDto.image1 ?? user.image1,
-        image2: updateUserDto.image2 ?? user.image2,
-        image3: updateUserDto.image3 ?? user.image3,
-        image4: updateUserDto.image4 ?? user.image4,
-        image5: updateUserDto.image5 ?? user.image5,
-        faceDescriptor1: updateUserDto.faceDescription1
-          ? this.float32ArrayToJsonString(updateUserDto.faceDescription1)
-          : user.faceDescriptor1,
-        faceDescriptor2: updateUserDto.faceDescription2
-          ? this.float32ArrayToJsonString(updateUserDto.faceDescription2)
-          : user.faceDescriptor2,
-        faceDescriptor3: updateUserDto.faceDescription3
-          ? this.float32ArrayToJsonString(updateUserDto.faceDescription3)
-          : user.faceDescriptor3,
-        faceDescriptor4: updateUserDto.faceDescription4
-          ? this.float32ArrayToJsonString(updateUserDto.faceDescription4)
-          : user.faceDescriptor4,
-        faceDescriptor5: updateUserDto.faceDescription5
-          ? this.float32ArrayToJsonString(updateUserDto.faceDescription5)
-          : user.faceDescriptor5,
-      };
+      let updatedUserData;
+      if (updateUserDto.role === 'นิสิต') {
+        // Update the user with new data
+        updatedUserData = {
+          ...user,
+          firstName: updateUserDto.firstName ?? user.firstName,
+          lastName: updateUserDto.lastName ?? user.lastName,
+          email: updateUserDto.email ?? user.email,
+          role: updateUserDto.role ?? user.role,
+          status: updateUserDto.status ?? user.status,
+          year: updateUserDto.year ?? user.year,
+          major: updateUserDto.major ?? user.major,
+          studentId: updateUserDto.studentId ?? user.studentId,
+          teacherId: updateUserDto.teacherId ?? user.teacherId,
+          // adminId: updateUserDto.adminId ?? user.adminId,
+          registerStatus: updateUserDto.registerStatus ?? user.registerStatus,
+          image1: updateUserDto.image1 ?? user.image1,
+          image2: updateUserDto.image2 ?? user.image2,
+          image3: updateUserDto.image3 ?? user.image3,
+          image4: updateUserDto.image4 ?? user.image4,
+          image5: updateUserDto.image5 ?? user.image5,
+
+          faceDescriptor1: updateUserDto.faceDescription1
+            ? this.float32ArrayToJsonString(updateUserDto.faceDescription1)
+            : user.faceDescriptor1,
+          faceDescriptor2: updateUserDto.faceDescription2
+            ? this.float32ArrayToJsonString(updateUserDto.faceDescription2)
+            : user.faceDescriptor2,
+          faceDescriptor3: updateUserDto.faceDescription3
+            ? this.float32ArrayToJsonString(updateUserDto.faceDescription3)
+            : user.faceDescriptor3,
+          faceDescriptor4: updateUserDto.faceDescription4
+            ? this.float32ArrayToJsonString(updateUserDto.faceDescription4)
+            : user.faceDescriptor4,
+          faceDescriptor5: updateUserDto.faceDescription5
+            ? this.float32ArrayToJsonString(updateUserDto.faceDescription5)
+            : user.faceDescriptor5,
+        };
+      } else {
+        updatedUserData = {
+          ...user,
+          firstName: updateUserDto.firstName ?? user.firstName,
+          lastName: updateUserDto.lastName ?? user.lastName,
+          email: updateUserDto.email ?? user.email,
+          role: updateUserDto.role ?? user.role,
+          status: updateUserDto.status ?? user.status,
+          year: updateUserDto.year ?? user.year,
+          major: updateUserDto.major ?? user.major,
+          studentId: updateUserDto.studentId ?? user.studentId,
+          teacherId: updateUserDto.teacherId ?? user.teacherId,
+          adminId: updateUserDto.adminId ?? user.adminId,
+          registerStatus: updateUserDto.registerStatus ?? user.registerStatus,
+          image1:
+            updateUserDto.image1 == 'no-image'
+              ? user.image1
+              : updateUserDto.image1,
+          image2: updateUserDto.image2 ?? user.image2,
+          image3: updateUserDto.image3 ?? user.image3,
+          image4: updateUserDto.image4 ?? user.image4,
+          image5: updateUserDto.image5 ?? user.image5,
+        };
+      }
 
       const updatedUser = await this.userRepository.save(updatedUserData);
       console.log('Updated user:', updatedUser);
@@ -419,6 +434,124 @@ export class UsersService {
       console.error('Error updating user:', error);
       throw new Error('Error updating user');
     }
+  }
+
+  async requestImageUpdate(id: number, updateUserDto: UpdateUserDto) {
+    try {
+      console.log('Requesting image update for user with ID:', id);
+      console.log('Update DTO:', updateUserDto);
+
+      // Find the existing user by ID
+      const user = await this.userRepository.findOneBy({ userId: id });
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+
+      if (updateUserDto.role === 'นิสิต') {
+        // Create a notification for the teacher
+        const notification = new Notiforupdate();
+        notification.userId = user.userId;
+        notification.teacherId = user.teacherId;
+        notification.image1 = updateUserDto.image1;
+        notification.image2 = updateUserDto.image2;
+        notification.image3 = updateUserDto.image3;
+        notification.image4 = updateUserDto.image4;
+        notification.image5 = updateUserDto.image5;
+        notification.statusConfirmation = 'pending';
+        await this.notiforupdateRepository.save(notification);
+
+        // Notify the teacher
+        await this.notifyTeacher(user.teacherId, user);
+      }
+
+      return { message: 'Image update request sent to teacher for approval' };
+    } catch (error) {
+      console.error('Error requesting image update:', error);
+      throw new Error('Error requesting image update');
+    }
+  }
+
+  private async notifyTeacher(teacherId: string, user: User) {
+    if (!teacherId) {
+      console.warn('No teacher assigned to the student');
+      return;
+    }
+
+    const teacher = await this.userRepository.findOneBy({ teacherId });
+    if (!teacher) {
+      console.warn('Teacher not found');
+      return;
+    }
+
+    const email = teacher.email;
+    const subject = 'นักเรียนได้ส่งคำขออัปเดตภาพโปรไฟล์';
+    const htmlContent = `
+        <p>เรียน อาจารย์ ${teacher.firstName} ${teacher.lastName},</p>
+        <p>นักเรียน ${user.firstName} ${user.lastName} ได้ส่งคำขออัปเดตภาพโปรไฟล์</p>
+        <p>กรุณาเข้าไปตรวจสอบที่: http://localhost:5173/notifications</p>
+        <p>ด้วยความเคารพ,</p>
+        <p><strong>ระบบการจัดการการเรียนการสอน</strong></p>
+    `;
+
+    await this.emailService.sendEmail(email, subject, htmlContent);
+  }
+
+  async approveImageUpdate(notificationId: number) {
+    const notification = await this.notiforupdateRepository.findOneBy({
+      notiforupdateId: notificationId,
+    });
+    if (!notification) throw new NotFoundException('Notification not found');
+
+    const user = await this.userRepository.findOneBy({
+      userId: notification.userId,
+    });
+    if (!user) throw new NotFoundException('User not found');
+
+    // Update user's images
+    user.image1 = notification.image1;
+    user.image2 = notification.image2;
+    user.image3 = notification.image3;
+    user.image4 = notification.image4;
+    user.image5 = notification.image5;
+
+    // Save the user with the new images
+    await this.userRepository.save(user);
+
+    // Update the notification status
+    notification.statusConfirmation = 'approved';
+    await this.notiforupdateRepository.save(notification);
+
+    return { message: 'Image update approved and user profile updated' };
+  }
+
+  async rejectImageUpdate(notificationId: number) {
+    const notification = await this.notiforupdateRepository.findOneBy({
+      notiforupdateId: notificationId,
+    });
+    if (!notification) throw new NotFoundException('Notification not found');
+
+    // Update the notification status
+    notification.statusConfirmation = 'rejected';
+    await this.notiforupdateRepository.save(notification);
+
+    // Notify the student that their request was rejected
+    const user = await this.userRepository.findOneBy({
+      userId: notification.userId,
+    });
+    if (!user) throw new NotFoundException('User not found');
+
+    const email = user.email;
+    const subject = 'คำขออัปเดตภาพของคุณถูกปฏิเสธ';
+    const htmlContent = `
+        <p>เรียน ${user.firstName} ${user.lastName},</p>
+        <p>คำขออัปเดตภาพโปรไฟล์ของคุณถูกปฏิเสธโดยอาจารย์ผู้สอน</p>
+        <p>กรุณาอัปโหลดภาพใหม่หรือติดต่ออาจารย์</p>
+        <p>ด้วยความเคารพ,</p>
+        <p><strong>ระบบการจัดการการเรียนการสอน</strong></p>
+    `;
+    await this.emailService.sendEmail(email, subject, htmlContent);
+
+    return { message: 'Image update rejected and student notified' };
   }
 
   async updateRegisterStatus(id: number, updateUserDto: UpdateUserDto) {
@@ -569,6 +702,7 @@ export class UsersService {
     return this.userRepository
       .createQueryBuilder('user')
       .where('user.studentId LIKE :search', { search: `%${search}%` })
+      .orWhere('user.adminId LIKE :search', { search: `%${search}%` })
       .orWhere('user.teacherId LIKE :search', { search: `%${search}%` })
       .orWhere('user.firstName LIKE :search', { search: `%${search}%` })
       .orWhere('user.lastName LIKE :search', { search: `%${search}%` })

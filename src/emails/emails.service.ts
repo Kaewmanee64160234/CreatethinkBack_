@@ -39,7 +39,7 @@ export class EmailService {
   ) {
     subject = 'ระบบเช็คชื่อเข้าเรียนเถื่อน';
     const info = await this.transporter.sendMail({
-      from: process.env.USER_EMAIL,
+      from: 'thanawuth.rod@gmail.com',
       to,
       subject,
       html: `

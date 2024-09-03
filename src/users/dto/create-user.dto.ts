@@ -20,6 +20,8 @@ export class CreateUserDto {
 
   teacherId?: string;
 
+  adminId: string;
+
   year?: string;
 
   major?: string;

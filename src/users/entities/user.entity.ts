@@ -1,6 +1,7 @@
 import { Attendance } from 'src/attendances/entities/attendance.entity';
 import { Course } from 'src/courses/entities/course.entity';
 import { Enrollment } from 'src/enrollments/entities/enrollment.entity';
+import { Notiforupdate } from 'src/notiforupdate/entities/notiforupdate.entity';
 import {
   Column,
   CreateDateColumn,
@@ -36,6 +37,9 @@ export class User {
 
   @Column()
   teacherId: string;
+
+  @Column()
+  adminId: string;
 
   @Column()
   registerStatus: string;
@@ -90,6 +94,9 @@ export class User {
 
   @OneToMany(() => Attendance, (attendance) => attendance.user)
   attendance: Attendance[];
+
+  @OneToMany(() => Notiforupdate, (notiforupdate) => notiforupdate.user)
+  notiforupdates: Notiforupdate[];
 
   @CreateDateColumn()
   createdDate: Date;

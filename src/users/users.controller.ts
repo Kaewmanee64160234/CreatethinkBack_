@@ -13,6 +13,7 @@ import {
   Query,
   UploadedFile,
 } from '@nestjs/common';
+import { Role } from '../types/role.enum';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -22,6 +23,7 @@ import { Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { User } from './entities/user.entity';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import { Roles } from 'src/authorize/roles.decorator';
 
 @Controller('users')
 export class UsersController {
@@ -52,6 +54,8 @@ export class UsersController {
         destination: './user_images',
         filename: (req, file, cb) => {
           const uniqueSuffix = `${Date.now()}-${uuidv4()}${extname(file.originalname)}`;
+          console.log('uniqueSuffix: ', file);
+
           cb(null, uniqueSuffix);
         },
       }),
@@ -67,9 +71,10 @@ export class UsersController {
     ) {
       throw new BadRequestException('Between 1 and 5 images are required.');
     }
+    console.log('files: ', files);
 
-    console.log('Received data:', createUserDto);
-    console.log('Received files:', files);
+    // console.log('Received data:', createUserDto);
+    // console.log('Received files:', files);
 
     files.forEach((file, index) => {
       createUserDto[`image${index + 1}`] = file.filename;
@@ -88,7 +93,7 @@ export class UsersController {
 
   // @UseGuards(JwtAuthGuard, RolesGuard)
   @Get()
-  // @Roles(Role.Teacher, Role.Admin)
+  @Roles(Role.Admin, Role.Teacher)
   findAll() {
     return this.usersService.findAll();
   }
@@ -120,26 +125,34 @@ export class UsersController {
     @Body() updateUserDto: UpdateUserDto,
     @UploadedFiles() files: Array<Express.Multer.File>,
   ) {
-    // if (!files || files.length === 0 || files.length > 5) {
-    //   throw new BadRequestException('Between 1 and 5 images are required.');
-    // }
     console.log('Received data:', updateUserDto);
     console.log('Received files:', files);
 
-    // Add logic to check and update face descriptors
-
-    if (files && files.length > 0 && files.length <= 5) {
-      files.forEach((file, index) => {
-        updateUserDto[`image${index + 1}`] = file.filename;
-        // updateUserDto[`faceDescription${index + 1}`] =
-        //   updateUserDto[`faceDescription${index + 1}`];
+    if (updateUserDto.role === 'แอดมิน' || updateUserDto.role === 'อาจารย์') {
+      if (!files || files.length === 0) {
+        updateUserDto.image1 = 'no-image';
+        console.log('updateUserDto: ', updateUserDto);
+      } else {
+        files.forEach((file, index) => {
+          updateUserDto[`image${index + 1}`] = file.filename;
+        });
+      }
+    } else if (
+      updateUserDto.role === 'นิสิต' &&
+      (!files || files.length === 0 || files.length > 5)
+    ) {
+      throw new BadRequestException(
+        'Between 1 and 5 images are required for students.',
+      );
+    } else {
+      files?.forEach((file, index) => {
+        updateUserDto[`image${index + 1}`] = file
+          ? file.filename
+          : updateUserDto[`image${index + 1}`];
       });
     }
 
     try {
-      files.forEach((file, index) => {
-        updateUserDto[`image${index + 1}`] = file.filename;
-      });
       const result = await this.usersService.update(+id, updateUserDto);
       return result;
     } catch (error) {
