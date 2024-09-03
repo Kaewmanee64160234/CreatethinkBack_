@@ -5,9 +5,20 @@ import * as nodemailer from 'nodemailer';
 export class EmailService {
   private transporter: nodemailer.Transporter;
 
+  // constructor() {
+  //   this.transporter = nodemailer.createTransport({
+  //     host: 'smtp.ethereal.email',
+  //     port: 587,
+  //     auth: {
+  //       user: process.env.USER_EMAIL,
+  //       pass: process.env.USER_PASS,
+  //     },
+  //   });
+  // }
+
   constructor() {
     this.transporter = nodemailer.createTransport({
-      host: 'smtp.ethereal.email',
+      host: 'smtp.gmail.com',
       port: 587,
       auth: {
         user: process.env.USER_EMAIL,
