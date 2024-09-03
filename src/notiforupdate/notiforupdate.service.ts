@@ -12,6 +12,7 @@ export class NotiforupdateService {
   constructor(
     @InjectRepository(Notiforupdate)
     private notiforupdateRepository: Repository<Notiforupdate>,
+    @InjectRepository(User)
     private userRepository: Repository<User>,
   ) {}
 
@@ -79,6 +80,11 @@ export class NotiforupdateService {
       ? this.float32ArrayToJsonString(notification.faceDescriptor5)
       : null;
     await this.userRepository.save(user);
+
+    // Save the status confirmation
+    notification.statusConfirmation = 'confirmed';
+    await this.notiforupdateRepository.save(notification);
+
     return { message: 'Notification confirmed and user updated' };
   }
 

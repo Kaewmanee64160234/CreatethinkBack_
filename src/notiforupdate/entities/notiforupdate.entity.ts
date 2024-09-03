@@ -1,8 +1,10 @@
+import { User } from 'src/users/entities/user.entity';
 import {
   Column,
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -42,6 +44,7 @@ export class Notiforupdate {
   @Column({ type: 'text', nullable: true })
   faceDescriptor5: string; // JSON string
 
+  @Column()
   statusConfirmation: string;
 
   userId: number;
@@ -56,4 +59,7 @@ export class Notiforupdate {
 
   @DeleteDateColumn()
   deletedDate: Date;
+
+  @ManyToOne(() => User, (user) => user.notiforupdates)
+  user: User;
 }
