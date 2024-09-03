@@ -13,6 +13,7 @@ import {
   Query,
   UploadedFile,
 } from '@nestjs/common';
+import { Role } from '../types/role.enum';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -22,6 +23,7 @@ import { Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { User } from './entities/user.entity';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import { Roles } from 'src/authorize/roles.decorator';
 
 @Controller('users')
 export class UsersController {
@@ -91,11 +93,7 @@ export class UsersController {
 
   // @UseGuards(JwtAuthGuard, RolesGuard)
   @Get()
-<<<<<<< HEAD
   @Roles(Role.Admin, Role.Teacher)
-=======
-  // @Roles(Role.Teacher, Role.Admin)
->>>>>>> 5b8154e2396a4056bb93b873dd08d9320c917ef2
   findAll() {
     return this.usersService.findAll();
   }

@@ -6,7 +6,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from 'src/users/entities/user.entity';
 import * as nodemailer from 'nodemailer';
-
+import { EmailService } from 'src/emails/emails.service';
 @Injectable()
 export class NotiforupdateService {
   constructor(
@@ -14,14 +14,56 @@ export class NotiforupdateService {
     private notiforupdateRepository: Repository<Notiforupdate>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    private emailService: EmailService,
   ) {}
 
   // Create a notification fromData
   async create(createNotiforupdateDto: CreateNotiforupdateDto) {
-    const newNotiforupdate = this.notiforupdateRepository.create(
-      createNotiforupdateDto,
-    );
-    return await this.notiforupdateRepository.save(newNotiforupdate);
+    const newNotiforupdate = this.notiforupdateRepository.create({
+      userId: createNotiforupdateDto.userId,
+      teacherId: createNotiforupdateDto.teacherId,
+      image1: createNotiforupdateDto.image1[0],
+      image2: createNotiforupdateDto.image2[1],
+      image3: createNotiforupdateDto.image3[2],
+      image4: createNotiforupdateDto.image4[3],
+      image5: createNotiforupdateDto.image5[4],
+      faceDescriptor1: createNotiforupdateDto.faceDescriptor1[0],
+      faceDescriptor2: createNotiforupdateDto.faceDescriptor2[1],
+      faceDescriptor3: createNotiforupdateDto.faceDescriptor3[2],
+      faceDescriptor4: createNotiforupdateDto.faceDescriptor4[3],
+      faceDescriptor5: createNotiforupdateDto.faceDescriptor5[4],
+      statusConfirmation: 'Pending', // Set initial status to 'Pending'
+    });
+    await this.notiforupdateRepository.save(newNotiforupdate);
+
+    // Send email to the teacher for approval
+    await this.sendEmailToTeacher(Number(createNotiforupdateDto.teacherId));
+
+    return { message: 'Notification created and email sent to teacher' };
+  }
+
+  async sendEmailToTeacher(teacherId: number) {
+    const teacherEmail = await this.getTeacherEmail(teacherId); // You need to implement this method to fetch the teacher's email
+    const subject = 'New Image Update Request';
+    const htmlContent = `
+      <p>A student has requested to update their profile image.</p>
+      <p>Please log in to review and approve or reject the request.</p>
+    `;
+
+    await this.emailService.sendEmail(teacherEmail, subject, htmlContent);
+  }
+
+  // Implement this method to fetch the teacher's email address
+  private async getTeacherEmail(teacherId: number): Promise<string> {
+    // Implement logic to get the teacher's email based on the teacherId
+    // For example, you might fetch it from the Users table
+    const teacher = await this.userRepository.findOne({
+      where: { userId: teacherId },
+    });
+    if (!teacher) {
+      throw new NotFoundException('Teacher not found');
+    }
+    return teacher.email;
   }
 
   private base64ToFloat32Array(base64: string): Float32Array {

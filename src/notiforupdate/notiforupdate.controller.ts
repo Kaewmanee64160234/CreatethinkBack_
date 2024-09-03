@@ -20,6 +20,21 @@ export class NotiforupdateController {
     return this.notiforupdateService.create(createNotiforupdateDto);
   }
 
+  // @Post('notiforupdate')
+  // async requestImageUpdate(@Body() notificationData: CreateNotiforupdateDto) {
+  //   // This function would:
+  //   // - Save the image and face descriptors to a temporary storage (not the user's profile yet)
+  //   // - Create a notification entry in the database for the teacher to approve
+  //   // - Trigger an email to the teacher informing them of the pending approval request
+
+  //   await this.notiforupdateService.create(notificationData);
+
+  //   // Notify the teacher
+  //   await this.emailService.sendEmailToTeacher(notificationData.userId);
+
+  //   return { message: 'Notification created and email sent to teacher' };
+  // }
+
   @Patch(':id/confirm')
   confirm(@Param('id') id: string) {
     return this.notiforupdateService.confirmNotification(+id);

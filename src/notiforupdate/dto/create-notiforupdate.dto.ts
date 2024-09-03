@@ -11,6 +11,7 @@ export class CreateNotiforupdateDto {
   faceDescriptor5?: string;
   statusConfirmation: string;
   userId: number;
+  teacherId: string;
   userRecieve: string;
   createdDate: Date;
   updatedDate: Date;

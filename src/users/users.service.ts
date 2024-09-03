@@ -15,15 +15,20 @@ import * as XLSX from 'xlsx';
 import { QrService } from './qr.service';
 import { join } from 'path';
 import { promises as fsPromises } from 'fs';
+import { Notiforupdate } from 'src/notiforupdate/entities/notiforupdate.entity';
+import { EmailService } from 'src/emails/emails.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    @InjectRepository(Notiforupdate)
+    private notiforupdateRepository: Repository<Notiforupdate>,
     @InjectRepository(Course)
     private courseRepository: Repository<Course>,
     private qrService: QrService,
+    private emailService: EmailService,
   ) {}
   async create(createUserDto: CreateUserDto) {
     try {
@@ -311,41 +316,6 @@ export class UsersService {
     try {
       console.log('Updating user with ID:', id);
       console.log('Update DTO:', updateUserDto);
-      // const newUser = new User();
-      // newUser.firstName = updateUserDto.firstName;
-      // newUser.lastName = updateUserDto.lastName;
-      // newUser.email = updateUserDto.email;
-      // newUser.role = updateUserDto.role;
-      // newUser.status = updateUserDto.status;
-      // newUser.year = updateUserDto.year;
-      // newUser.major = updateUserDto.major;
-      // newUser.registerStatus = updateUserDto.registerStatus;
-      // newUser.studentId = updateUserDto.studentId;
-      // newUser.teacherId = updateUserDto.teacherId;
-      // newUser.image1 = updateUserDto.image1;
-      // newUser.image2 = updateUserDto.image2;
-      // newUser.image3 = updateUserDto.image3;
-      // newUser.image4 = updateUserDto.image4;
-      // newUser.image5 = updateUserDto.image5;
-      // newUser.faceDescriptor1 = updateUserDto.faceDescription1
-      //   ? this.float32ArrayToJsonString(updateUserDto.faceDescription1)
-      //   : null;
-
-      // newUser.faceDescriptor2 = updateUserDto.faceDescription2
-      //   ? this.float32ArrayToJsonString(updateUserDto.faceDescription2)
-      //   : null;
-
-      // newUser.faceDescriptor3 = updateUserDto.faceDescription3
-      //   ? this.float32ArrayToJsonString(updateUserDto.faceDescription3)
-      //   : null;
-
-      // newUser.faceDescriptor4 = updateUserDto.faceDescription4
-      //   ? this.float32ArrayToJsonString(updateUserDto.faceDescription4)
-      //   : null;
-
-      // newUser.faceDescriptor5 = updateUserDto.faceDescription5
-      //   ? this.float32ArrayToJsonString(updateUserDto.faceDescription5)
-      //   : null;
       // Find the existing user by ID
       const user = await this.userRepository.findOneBy({ userId: id });
       if (!user) {
@@ -464,6 +434,124 @@ export class UsersService {
       console.error('Error updating user:', error);
       throw new Error('Error updating user');
     }
+  }
+
+  async requestImageUpdate(id: number, updateUserDto: UpdateUserDto) {
+    try {
+      console.log('Requesting image update for user with ID:', id);
+      console.log('Update DTO:', updateUserDto);
+
+      // Find the existing user by ID
+      const user = await this.userRepository.findOneBy({ userId: id });
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+
+      if (updateUserDto.role === 'นิสิต') {
+        // Create a notification for the teacher
+        const notification = new Notiforupdate();
+        notification.userId = user.userId;
+        notification.teacherId = user.teacherId;
+        notification.image1 = updateUserDto.image1;
+        notification.image2 = updateUserDto.image2;
+        notification.image3 = updateUserDto.image3;
+        notification.image4 = updateUserDto.image4;
+        notification.image5 = updateUserDto.image5;
+        notification.statusConfirmation = 'pending';
+        await this.notiforupdateRepository.save(notification);
+
+        // Notify the teacher
+        await this.notifyTeacher(user.teacherId, user);
+      }
+
+      return { message: 'Image update request sent to teacher for approval' };
+    } catch (error) {
+      console.error('Error requesting image update:', error);
+      throw new Error('Error requesting image update');
+    }
+  }
+
+  private async notifyTeacher(teacherId: string, user: User) {
+    if (!teacherId) {
+      console.warn('No teacher assigned to the student');
+      return;
+    }
+
+    const teacher = await this.userRepository.findOneBy({ teacherId });
+    if (!teacher) {
+      console.warn('Teacher not found');
+      return;
+    }
+
+    const email = teacher.email;
+    const subject = 'นักเรียนได้ส่งคำขออัปเดตภาพโปรไฟล์';
+    const htmlContent = `
+        <p>เรียน อาจารย์ ${teacher.firstName} ${teacher.lastName},</p>
+        <p>นักเรียน ${user.firstName} ${user.lastName} ได้ส่งคำขออัปเดตภาพโปรไฟล์</p>
+        <p>กรุณาเข้าไปตรวจสอบที่: http://localhost:5173/notifications</p>
+        <p>ด้วยความเคารพ,</p>
+        <p><strong>ระบบการจัดการการเรียนการสอน</strong></p>
+    `;
+
+    await this.emailService.sendEmail(email, subject, htmlContent);
+  }
+
+  async approveImageUpdate(notificationId: number) {
+    const notification = await this.notiforupdateRepository.findOneBy({
+      notiforupdateId: notificationId,
+    });
+    if (!notification) throw new NotFoundException('Notification not found');
+
+    const user = await this.userRepository.findOneBy({
+      userId: notification.userId,
+    });
+    if (!user) throw new NotFoundException('User not found');
+
+    // Update user's images
+    user.image1 = notification.image1;
+    user.image2 = notification.image2;
+    user.image3 = notification.image3;
+    user.image4 = notification.image4;
+    user.image5 = notification.image5;
+
+    // Save the user with the new images
+    await this.userRepository.save(user);
+
+    // Update the notification status
+    notification.statusConfirmation = 'approved';
+    await this.notiforupdateRepository.save(notification);
+
+    return { message: 'Image update approved and user profile updated' };
+  }
+
+  async rejectImageUpdate(notificationId: number) {
+    const notification = await this.notiforupdateRepository.findOneBy({
+      notiforupdateId: notificationId,
+    });
+    if (!notification) throw new NotFoundException('Notification not found');
+
+    // Update the notification status
+    notification.statusConfirmation = 'rejected';
+    await this.notiforupdateRepository.save(notification);
+
+    // Notify the student that their request was rejected
+    const user = await this.userRepository.findOneBy({
+      userId: notification.userId,
+    });
+    if (!user) throw new NotFoundException('User not found');
+
+    const email = user.email;
+    const subject = 'คำขออัปเดตภาพของคุณถูกปฏิเสธ';
+    const htmlContent = `
+        <p>เรียน ${user.firstName} ${user.lastName},</p>
+        <p>คำขออัปเดตภาพโปรไฟล์ของคุณถูกปฏิเสธโดยอาจารย์ผู้สอน</p>
+        <p>กรุณาอัปโหลดภาพใหม่หรือติดต่ออาจารย์</p>
+        <p>ด้วยความเคารพ,</p>
+        <p><strong>ระบบการจัดการการเรียนการสอน</strong></p>
+    `;
+    await this.emailService.sendEmail(email, subject, htmlContent);
+
+    return { message: 'Image update rejected and student notified' };
   }
 
   async updateRegisterStatus(id: number, updateUserDto: UpdateUserDto) {

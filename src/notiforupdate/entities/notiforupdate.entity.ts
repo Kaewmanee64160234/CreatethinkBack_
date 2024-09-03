@@ -49,6 +49,8 @@ export class Notiforupdate {
 
   userId: number;
 
+  teacherId: string;
+
   userRecieve: string;
 
   @CreateDateColumn()
