@@ -5,9 +5,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Course } from 'src/courses/entities/course.entity';
 import { QrService } from './qr.service';
+import { EmailModule } from 'src/emails/emails.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Course])],
+  imports: [TypeOrmModule.forFeature([User, Course]), EmailModule],
   controllers: [UsersController],
   providers: [UsersService, QrService],
   exports: [UsersService],
