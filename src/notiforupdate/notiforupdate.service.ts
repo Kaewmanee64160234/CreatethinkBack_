@@ -18,7 +18,6 @@ export class NotiforupdateService {
   ) {}
 
   // Create a notification fromData
-  // Create a notification fromData
   async create(createNotiforupdateDto: CreateNotiforupdateDto) {
     const newNotiforupdate = this.notiforupdateRepository.create({
       userId: createNotiforupdateDto.userId,
