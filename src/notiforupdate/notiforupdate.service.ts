@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateNotiforupdateDto } from './dto/create-notiforupdate.dto';
 import { UpdateNotiforupdateDto } from './dto/update-notiforupdate.dto';
 import { Notiforupdate } from './entities/notiforupdate.entity';
@@ -40,22 +44,58 @@ export class NotiforupdateService {
     });
 
     await this.notiforupdateRepository.save(newNotiforupdate);
+    try {
+      console.log('Data received in service:', createNotiforupdateDto.userId);
 
-    // Send email to the teacher for approval
-    await this.sendEmailToTeacher(Number(createNotiforupdateDto.teacherId));
+      const user = await this.userRepository.findOne({
+        where: { userId: +createNotiforupdateDto.userId },
+      });
+      const userReceive = await this.userRepository.findOne({
+        where: { userId: 1 },
+      });
 
-    return { message: 'Notification created and email sent to teacher' };
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+
+      const newNotiforupdate = new Notiforupdate();
+      newNotiforupdate.image1 = createNotiforupdateDto.image1;
+      newNotiforupdate.image2 = createNotiforupdateDto.image2;
+      newNotiforupdate.image3 = createNotiforupdateDto.image3;
+      newNotiforupdate.image4 = createNotiforupdateDto.image4;
+      newNotiforupdate.image5 = createNotiforupdateDto.image5;
+      newNotiforupdate.faceDescriptor1 = createNotiforupdateDto.faceDescriptor1;
+      newNotiforupdate.faceDescriptor2 = createNotiforupdateDto.faceDescriptor2;
+      newNotiforupdate.faceDescriptor3 = createNotiforupdateDto.faceDescriptor3;
+      newNotiforupdate.faceDescriptor4 = createNotiforupdateDto.faceDescriptor4;
+      newNotiforupdate.faceDescriptor5 = createNotiforupdateDto.faceDescriptor5;
+      newNotiforupdate.statusConfirmation = 'pending';
+
+      newNotiforupdate.userSender = user;
+      newNotiforupdate.userReceive = userReceive;
+      await this.sendEmailToTeacher(Number(userReceive.userId));
+
+      return await this.notiforupdateRepository.save(newNotiforupdate);
+    } catch (error) {
+      console.error('Error during notification creation:', error);
+      throw new BadRequestException('Invalid data provided');
+    }
   }
 
   async sendEmailToTeacher(teacherId: number) {
-    const teacherEmail = await this.getTeacherEmail(teacherId); // You need to implement this method to fetch the teacher's email
+    const teacherUser = await this.userRepository.findOne({
+      where: { userId: teacherId },
+    });
+    if (!teacherUser) {
+      throw new NotFoundException('Teacher not found');
+    }
     const subject = 'New Image Update Request';
     const htmlContent = `
       <p>A student has requested to update their profile image.</p>
       <p>Please log in to review and approve or reject the request.</p>
     `;
 
-    await this.emailService.sendEmail(teacherEmail, subject, htmlContent);
+    await this.emailService.sendEmail(teacherUser.email, subject, htmlContent);
   }
 
   private async getTeacherEmail(teacherId: number): Promise<string> {
@@ -140,13 +180,15 @@ export class NotiforupdateService {
   }
 
   async rejectNotification(id: number) {
+    const user = await this.userRepository.findOneBy({ userId: id });
     const notification = await this.notiforupdateRepository.findOneBy({
       notiforupdateId: id,
+      userSender: user,
     });
     if (!notification) throw new NotFoundException('Notification not found');
 
     // Send email to student to re-upload image
-    await this.sendReUploadEmail(notification.userId);
+    await this.sendReUploadEmail(notification.userReceive.userId);
     notification.statusConfirmation = 'rejected';
     await this.notiforupdateRepository.save(notification);
 

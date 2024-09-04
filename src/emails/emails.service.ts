@@ -13,7 +13,7 @@ export class EmailService {
       secure: true,
       auth: {
         user: 'thanawuth.rod@gmail.com',
-        pass: 'bzlaqnkguabsorrc',
+        pass: 'zfvxkkhzzbnzxmvg',
       },
     });
   }

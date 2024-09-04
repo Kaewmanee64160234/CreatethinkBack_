@@ -39,9 +39,6 @@ export class User {
   teacherId: string;
 
   @Column()
-  adminId: string;
-
-  @Column()
   registerStatus: string;
 
   @Column({ nullable: true })
@@ -95,7 +92,7 @@ export class User {
   @OneToMany(() => Attendance, (attendance) => attendance.user)
   attendance: Attendance[];
 
-  @OneToMany(() => Notiforupdate, (notiforupdate) => notiforupdate.user)
+  @OneToMany(() => Notiforupdate, (notiforupdate) => notiforupdate.userReceive)
   notiforupdates: Notiforupdate[];
 
   @CreateDateColumn()
