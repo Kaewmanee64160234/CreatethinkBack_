@@ -43,7 +43,10 @@ export class UsersService {
       newUser.registerStatus = createUserDto.registerStatus;
       newUser.studentId = createUserDto.studentId;
       newUser.teacherId = createUserDto.teacherId;
+<<<<<<< HEAD
       // newUser.adminId = createUserDto.adminId;
+=======
+>>>>>>> 07c2d1fa759a8616ff34174dbe5f640b73121ebc
 
       if (createUserDto.role === 'นิสิต') {
         newUser.faceDescriptor1 = createUserDto.faceDescription1
@@ -295,7 +298,10 @@ export class UsersService {
       // Check if strId is 'admin' for administrators
       if (strId.toLowerCase() === 'admin') {
         newUser.role = 'แอดมิน';
+<<<<<<< HEAD
         // newUser.adminId = strId;
+=======
+>>>>>>> 07c2d1fa759a8616ff34174dbe5f640b73121ebc
       } else if (isNaN(Number(strId))) {
         newUser.role = 'อาจารย์';
         newUser.teacherId = strId;
@@ -414,7 +420,10 @@ export class UsersService {
           major: updateUserDto.major ?? user.major,
           studentId: updateUserDto.studentId ?? user.studentId,
           teacherId: updateUserDto.teacherId ?? user.teacherId,
+<<<<<<< HEAD
           // adminId: updateUserDto.adminId ?? user.adminId,
+=======
+>>>>>>> 07c2d1fa759a8616ff34174dbe5f640b73121ebc
           registerStatus: updateUserDto.registerStatus ?? user.registerStatus,
           image1:
             updateUserDto.image1 == 'no-image'
