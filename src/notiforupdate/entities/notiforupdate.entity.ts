@@ -47,6 +47,12 @@ export class Notiforupdate {
   @Column()
   statusConfirmation: string;
 
+  @Column({ nullable: true }) // Add title field
+  title: string;
+
+  @Column({ nullable: true }) // Add subtitle field
+  subtitle: string;
+
   userId: number;
 
   teacherId: string;

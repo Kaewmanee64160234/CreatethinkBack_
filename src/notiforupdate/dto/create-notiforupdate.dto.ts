@@ -10,6 +10,8 @@ export class CreateNotiforupdateDto {
   faceDescriptor4?: string;
   faceDescriptor5?: string;
   statusConfirmation: string;
+  titles?: string;
+  subtitle?: string;
   userId: number;
   teacherId: string;
   userRecieve: string;
