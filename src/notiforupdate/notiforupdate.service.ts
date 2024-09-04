@@ -23,25 +23,6 @@ export class NotiforupdateService {
 
   // Create a notification fromData
   async create(createNotiforupdateDto: CreateNotiforupdateDto) {
-    const newNotiforupdate = this.notiforupdateRepository.create({
-      image1: createNotiforupdateDto.image1,
-      image2: createNotiforupdateDto.image2,
-      image3: createNotiforupdateDto.image3,
-      image4: createNotiforupdateDto.image4,
-      image5: createNotiforupdateDto.image5,
-      faceDescriptor1: createNotiforupdateDto.faceDescriptor1,
-      faceDescriptor2: createNotiforupdateDto.faceDescriptor2,
-      faceDescriptor3: createNotiforupdateDto.faceDescriptor3,
-      faceDescriptor4: createNotiforupdateDto.faceDescriptor4,
-      faceDescriptor5: createNotiforupdateDto.faceDescriptor5,
-      statusConfirmation: 'Pending', // Set initial status to 'Pending'
-
-      // Add title and subtitle here
-      title: 'New Image Update Request',
-      subtitle: `Student with ID ${createNotiforupdateDto.userId} has requested to update their images.`, // or any other dynamic message
-    });
-
-    await this.notiforupdateRepository.save(newNotiforupdate);
     try {
       console.log('Data received in service:', createNotiforupdateDto.userId);
 
@@ -96,7 +77,10 @@ export class NotiforupdateService {
     await this.emailService.sendEmail(teacherUser.email, subject, htmlContent);
   }
 
+  // Implement this method to fetch the teacher's email address
   private async getTeacherEmail(teacherId: number): Promise<string> {
+    // Implement logic to get the teacher's email based on the teacherId
+    // For example, you might fetch it from the Users table
     const teacher = await this.userRepository.findOne({
       where: { userId: teacherId },
     });
@@ -139,19 +123,13 @@ export class NotiforupdateService {
     });
     if (!notification) throw new NotFoundException('Notification not found');
 
-    // Find the user by the notification's userId
-    const user = await this.userRepository.findOneBy({
-      userId: notification.userId,
-    });
-    if (!user) throw new NotFoundException('User not found');
-
     // Update user profile with new images
+    const user = await this.userRepository.findOneBy({ userId: id });
     user.image1 = notification.image1;
     user.image2 = notification.image2;
     user.image3 = notification.image3;
     user.image4 = notification.image4;
     user.image5 = notification.image5;
-
     user.faceDescriptor1 = notification.faceDescriptor1
       ? this.float32ArrayToJsonString(notification.faceDescriptor1)
       : null;
@@ -167,7 +145,6 @@ export class NotiforupdateService {
     user.faceDescriptor5 = notification.faceDescriptor5
       ? this.float32ArrayToJsonString(notification.faceDescriptor5)
       : null;
-
     await this.userRepository.save(user);
 
     // Save the status confirmation
@@ -194,30 +171,34 @@ export class NotiforupdateService {
   }
 
   async sendReUploadEmail(userId: number) {
+    // Fetch user details by userId
     const user = await this.userRepository.findOneBy({ userId });
 
     if (!user) {
       throw new NotFoundException(`User with ID ${userId} not found`);
     }
 
-    // Replace with actual email config from env variables
+    // Create a transporter object using the default SMTP transport
     const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: Number(process.env.SMTP_PORT),
-      secure: false, // Set to true if using SSL
+      host: 'smtp.example.com', // Your SMTP server
+      port: 587, // Port (587 for TLS, 465 for SSL)
+      secure: false, // true for 465, false for other ports
       auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
+        user: 'your-email@example.com', // Your email address
+        pass: 'your-email-password', // Your email password
       },
     });
 
+    // Set up email data
     const mailOptions = {
-      from: `"Your Name" <${process.env.SMTP_USER}>`,
-      to: user.email,
-      subject: 'Re-upload Required',
-      html: `<p>Hello ${user.firstName},</p><p>Your recent upload did not meet the required standards. Please re-upload the necessary images.</p>`,
+      from: '"Your Name" <your-email@example.com>', // Sender address
+      to: user.email, // Recipient address
+      subject: 'Re-upload Required', // Subject line
+      text: `Hello ${user.firstName},\n\nYour recent upload did not meet the required standards. Please re-upload the necessary images.\n\nThank you.\n\nBest regards,\nYour Team`, // Plain text body
+      html: `<p>Hello ${user.firstName},</p><p>Your recent upload did not meet the required standards. Please re-upload the necessary images.</p><p>Thank you.</p><p>Best regards,<br>Your Team</p>`, // HTML body
     };
 
+    // Send the email
     try {
       const info = await transporter.sendMail(mailOptions);
       console.log('Message sent: %s', info.messageId);
