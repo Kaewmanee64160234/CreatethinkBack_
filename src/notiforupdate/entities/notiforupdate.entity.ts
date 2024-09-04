@@ -47,12 +47,10 @@ export class Notiforupdate {
   @Column()
   statusConfirmation: string;
 
-  userId: number;
-
-  teacherId: string;
-
-  userRecieve: string;
-
+  @ManyToOne(() => User, (user) => user.notiforupdates)
+  userReceive: User;
+  @ManyToOne(() => User, (user) => user.notiforupdates)
+  userSender: User;
   @CreateDateColumn()
   createdDate: Date;
 
@@ -61,7 +59,4 @@ export class Notiforupdate {
 
   @DeleteDateColumn()
   deletedDate: Date;
-
-  @ManyToOne(() => User, (user) => user.notiforupdates)
-  user: User;
 }

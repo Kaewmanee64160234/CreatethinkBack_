@@ -6,13 +6,13 @@ import { Notiforupdate } from './entities/notiforupdate.entity';
 import { User } from 'src/users/entities/user.entity';
 import { EmailModule } from 'src/emails/emails.module';
 
-Module({
+@Module({
   imports: [
     TypeOrmModule.forFeature([Notiforupdate, User]),
-    EmailModule, // Add the EmailModule here
+    EmailModule, // Import the EmailModule here
   ],
   providers: [NotiforupdateService],
   controllers: [NotiforupdateController],
   exports: [NotiforupdateService],
-});
+})
 export class NotiforupdateModule {}

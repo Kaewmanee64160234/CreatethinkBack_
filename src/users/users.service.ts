@@ -450,8 +450,8 @@ export class UsersService {
       if (updateUserDto.role === 'นิสิต') {
         // Create a notification for the teacher
         const notification = new Notiforupdate();
-        notification.userId = user.userId;
-        notification.teacherId = user.teacherId;
+        notification.userSender.userId = user.userId;
+        notification.userReceive.userId = +user.teacherId;
         notification.image1 = updateUserDto.image1;
         notification.image2 = updateUserDto.image2;
         notification.image3 = updateUserDto.image3;
@@ -503,7 +503,7 @@ export class UsersService {
     if (!notification) throw new NotFoundException('Notification not found');
 
     const user = await this.userRepository.findOneBy({
-      userId: notification.userId,
+      userId: notification.userSender.userId,
     });
     if (!user) throw new NotFoundException('User not found');
 
@@ -536,7 +536,7 @@ export class UsersService {
 
     // Notify the student that their request was rejected
     const user = await this.userRepository.findOneBy({
-      userId: notification.userId,
+      userId: notification.userReceive.userId,
     });
     if (!user) throw new NotFoundException('User not found');
 
