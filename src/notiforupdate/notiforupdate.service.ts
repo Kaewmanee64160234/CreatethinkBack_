@@ -52,7 +52,7 @@ export class NotiforupdateService {
 
       newNotiforupdate.userSender = user;
       newNotiforupdate.userReceive = userReceive;
-      await this.sendEmailToTeacher(Number(userReceive.userId));
+      await this.sendEmailToTeacher(Number(userReceive.userId), user);
 
       return await this.notiforupdateRepository.save(newNotiforupdate);
     } catch (error) {
@@ -61,17 +61,17 @@ export class NotiforupdateService {
     }
   }
 
-  async sendEmailToTeacher(teacherId: number) {
+  async sendEmailToTeacher(teacherId: number, userSender: User) {
     const teacherUser = await this.userRepository.findOne({
       where: { userId: teacherId },
     });
     if (!teacherUser) {
       throw new NotFoundException('Teacher not found');
     }
-    const subject = 'New Image Update Request';
+    const subject = 'คำขอยืนยันการอัปเดตภาพใหม่';
     const htmlContent = `
-      <p>A student has requested to update their profile image.</p>
-      <p>Please log in to review and approve or reject the request.</p>
+      <p>มีคำขอยืนยันการอัปเดตภาพจากนิสิตชื่อ ${userSender.firstName}.</p>
+      <p>กรุณาเข้าสู่ระบบเพื่อตรวจสอบและอนุมัติหรือปฏิเสธคำขอนี้.</p>
     `;
 
     await this.emailService.sendEmail(teacherUser.email, subject, htmlContent);
