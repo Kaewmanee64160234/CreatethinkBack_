@@ -594,6 +594,7 @@ export class UsersService {
         <p>ด้วยความเคารพ,</p>
         <p><strong>ระบบการเช็คชื่อเถื่อน</strong></p>
       `;
+        await this.emailService.sendEmail(email, subject, htmlContent);
       }
       if (updatedUser.registerStatus === 'notConfirmed') {
         console.log('Sending email notConfirmed');

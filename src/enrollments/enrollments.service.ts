@@ -96,9 +96,9 @@ export class EnrollmentsService {
       where: { user: { userId: user.userId } },
       relations: ['course', 'course.user'],
     });
-    if (!enrollment || enrollment.length === 0) {
-      throw new NotFoundException('enrollment not found for this studentId');
-    }
+    // if (!enrollment || enrollment.length === 0) {
+    //   throw new NotFoundException('enrollment not found for this studentId');
+    // }
     return enrollment;
   }
 
