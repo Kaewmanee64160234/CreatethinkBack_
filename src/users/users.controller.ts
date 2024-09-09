@@ -128,33 +128,36 @@ export class UsersController {
     console.log('Received data:', updateUserDto);
     console.log('Received files:', files);
 
-    if (updateUserDto.role === 'แอดมิน' || updateUserDto.role === 'อาจารย์') {
-      if (!files || files.length === 0) {
-        updateUserDto.image1 = 'no-image';
-        console.log('updateUserDto: ', updateUserDto);
-      } else {
-        files.forEach((file, index) => {
-          updateUserDto[`image${index + 1}`] = file.filename;
-        });
-      }
-    } else if (
-      updateUserDto.role === 'นิสิต' &&
-      (!files || files.length === 0 || files.length > 5)
-    ) {
-      throw new BadRequestException(
-        'Between 1 and 5 images are required for students.',
-      );
-    } else {
-      files?.forEach((file, index) => {
-        updateUserDto[`image${index + 1}`] = file
-          ? file.filename
-          : updateUserDto[`image${index + 1}`];
-      });
-    }
+    // if (updateUserDto.role === 'แอดมิน' || updateUserDto.role === 'อาจารย์') {
+    //   if (!files || files.length === 0) {
+    //     updateUserDto.image1 = 'no-image';
+    //     console.log('updateUserDto: ', updateUserDto);
+    //   } else {
+    //     files.forEach((file, index) => {
+    //       updateUserDto[`image${index + 1}`] = file.filename;
+    //     });
+    //     console.log('updateUserDto: ', updateUserDto.image1);
+    //   }
+    // } else if (
+    //   updateUserDto.role === 'นิสิต' &&
+    //   (!files || files.length === 0 || files.length > 5)
+    // ) {
+    //   throw new BadRequestException(
+    //     'Between 1 and 5 images are required for students.',
+    //   );
+    // } else {
+    //   files?.forEach((file, index) => {
+    //     updateUserDto[`image${index + 1}`] = file
+    //       ? file.filename
+    //       : updateUserDto[`image${index + 1}`];
+    //   });
+    //   console.log('updateUserDto: ', updateUserDto.image1);
+    // }
 
     try {
       const result = await this.usersService.update(+id, updateUserDto);
       return result;
+      // return 'Hello';
     } catch (error) {
       console.error('Error during user update:', error);
       throw new BadRequestException(

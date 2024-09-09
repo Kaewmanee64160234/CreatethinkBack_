@@ -238,4 +238,19 @@ export class NotiforupdateService {
   remove(id: number) {
     return this.notiforupdateRepository.delete(id);
   }
+
+  //getNotificationByUserReceive
+  // getNotificationByUserReceive
+  async getNotificationByUserReceive(userId: number) {
+    const notifications = await this.notiforupdateRepository.find({
+      where: { userReceive: { userId: userId } }, // Directly matching userId
+      relations: ['userSender'], // Load userSender relations
+    });
+
+    if (!notifications || notifications.length === 0) {
+      throw new NotFoundException('Notifications not found');
+    }
+
+    return notifications;
+  }
 }

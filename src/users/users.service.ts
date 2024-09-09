@@ -312,8 +312,8 @@ export class UsersService {
 
   async update(id: number, updateUserDto: UpdateUserDto) {
     try {
-      console.log('Updating user with ID:', id);
-      console.log('Update DTO:', updateUserDto);
+      // console.log('Updating user with ID:', id);
+      // console.log('Update DTO:', updateUserDto);
       // Find the existing user by ID
       const user = await this.userRepository.findOneBy({ userId: id });
       if (!user) {
@@ -322,42 +322,50 @@ export class UsersService {
 
       // Define the directory for user images
       const userImagesDir = join('./', 'user_images');
+      if (
+        updateUserDto.image1 &&
+        updateUserDto.image2 &&
+        updateUserDto.image3 &&
+        updateUserDto.image4 &&
+        updateUserDto.image5
+      ) {
+        // Determine which old images need to be deleted if they are being replaced
+        const imagesToDelete: string[] = [];
+        const oldImages = [
+          user.image1,
+          user.image2,
+          user.image3,
+          user.image4,
+          user.image5,
+        ];
+        const newImages = [
+          updateUserDto.image1,
+          updateUserDto.image2,
+          updateUserDto.image3,
+          updateUserDto.image4,
+          updateUserDto.image5,
+        ];
 
-      // Determine which old images need to be deleted if they are being replaced
-      const imagesToDelete: string[] = [];
-      const oldImages = [
-        user.image1,
-        user.image2,
-        user.image3,
-        user.image4,
-        user.image5,
-      ];
-      const newImages = [
-        updateUserDto.image1,
-        updateUserDto.image2,
-        updateUserDto.image3,
-        updateUserDto.image4,
-        updateUserDto.image5,
-      ];
-
-      for (let i = 0; i < oldImages.length; i++) {
-        if (oldImages[i] && oldImages[i] !== newImages[i]) {
-          imagesToDelete.push(oldImages[i]);
+        for (let i = 0; i < oldImages.length; i++) {
+          if (oldImages[i] && oldImages[i] !== newImages[i]) {
+            imagesToDelete.push(oldImages[i]);
+          }
         }
-      }
 
-      // Remove the old images from the user_images directory
-      if (updateUserDto.image1 !== 'no-image') {
-        console.log('Images to delete:', imagesToDelete);
+        // Remove the old images from the user_images directory
+        if (updateUserDto.image1 !== 'no-image') {
+          console.log('Images to delete:', imagesToDelete);
 
-        for (const imageFileName of imagesToDelete) {
-          try {
-            await this.removeImageFile(join(userImagesDir, imageFileName));
-          } catch (fileError) {
-            console.error(
-              `Failed to remove image file: ${imageFileName}`,
-              fileError,
-            );
+          for (const imageFileName of imagesToDelete) {
+            try {
+              await this.removeImageFile(join(userImagesDir, imageFileName));
+              console.log('Removed image file:', imageFileName);
+            } catch (fileError) {
+              console.error(
+                `Failed to remove image file: ${imageFileName}`,
+                fileError,
+              );
+            }
           }
         }
       }
@@ -425,7 +433,7 @@ export class UsersService {
       }
 
       const updatedUser = await this.userRepository.save(updatedUserData);
-      console.log('Updated user:', updatedUser);
+      // console.log('Updated user:', updatedUser);
       return updatedUser;
     } catch (error) {
       console.error('Error updating user:', error);
@@ -435,8 +443,8 @@ export class UsersService {
 
   async requestImageUpdate(id: number, updateUserDto: UpdateUserDto) {
     try {
-      console.log('Requesting image update for user with ID:', id);
-      console.log('Update DTO:', updateUserDto);
+      // console.log('Requesting image update for user with ID:', id);
+      // console.log('Update DTO:', updateUserDto);
 
       // Find the existing user by ID
       const user = await this.userRepository.findOneBy({ userId: id });
@@ -696,13 +704,15 @@ export class UsersService {
 
   //getUserByStudentId
   async searchUsers(search: string): Promise<User[]> {
-    return this.userRepository
-      .createQueryBuilder('user')
-      .where('user.studentId LIKE :search', { search: `%${search}%` })
-      .orWhere('user.adminId LIKE :search', { search: `%${search}%` })
-      .orWhere('user.teacherId LIKE :search', { search: `%${search}%` })
-      .orWhere('user.firstName LIKE :search', { search: `%${search}%` })
-      .orWhere('user.lastName LIKE :search', { search: `%${search}%` })
-      .getMany();
+    return (
+      this.userRepository
+        .createQueryBuilder('user')
+        .where('user.studentId LIKE :search', { search: `%${search}%` })
+        // .orWhere('user.adminId LIKE :search', { search: `%${search}%` })
+        .orWhere('user.teacherId LIKE :search', { search: `%${search}%` })
+        .orWhere('user.firstName LIKE :search', { search: `%${search}%` })
+        .orWhere('user.lastName LIKE :search', { search: `%${search}%` })
+        .getMany()
+    );
   }
 }

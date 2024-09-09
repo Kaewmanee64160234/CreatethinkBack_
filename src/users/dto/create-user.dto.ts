@@ -10,21 +10,20 @@ export class CreateUserDto {
   @IsNotEmpty()
   email: string;
 
-  @IsNotEmpty()
   role: string;
 
-  @IsNotEmpty()
   status: string;
 
   studentId?: string;
 
   teacherId?: string;
 
-  adminId: string;
+  // adminId: string;
 
   year?: string;
 
   major?: string;
+
   countingRejection?: number;
 
   registerStatus: string;

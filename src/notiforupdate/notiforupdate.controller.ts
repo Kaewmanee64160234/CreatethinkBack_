@@ -87,6 +87,11 @@ export class NotiforupdateController {
   ) {
     return this.notiforupdateService.update(+id, updateNotiforupdateDto);
   }
+  //getNotificationByUserReceive
+  @Get('userReceive/:id')
+  getNotificationByUserReceive(@Param('id') id: string) {
+    return this.notiforupdateService.getNotificationByUserReceive(+id);
+  }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
