@@ -153,6 +153,9 @@ export class UsersController {
     //   });
     //   console.log('updateUserDto: ', updateUserDto.image1);
     // }
+    files.forEach((file, index) => {
+      updateUserDto[`image${index + 1}`] = file.filename;
+    });
 
     try {
       const result = await this.usersService.update(+id, updateUserDto);
