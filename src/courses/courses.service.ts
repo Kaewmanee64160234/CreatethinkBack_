@@ -38,6 +38,8 @@ export class CoursesService {
     course.credit = createCourseDto.credit;
     course.session = createCourseDto.session;
     course.stdAmount = createCourseDto.stdAmount;
+    course.dayInLab = createCourseDto.dayInLab;
+    course.dayInLec = createCourseDto.dayInLec;
     course.timeInLab = createCourseDto.timeInLab;
     course.timeOutLab = createCourseDto.timeOutLab;
     course.timeInLec = createCourseDto.timeInLec;

@@ -580,36 +580,36 @@ export class UsersService {
         throw new Error('User email is missing');
       }
 
-      // const email = updatedUser.email;
-      // let subject = '';
-      // let htmlContent = '';
+      const email = updatedUser.email;
+      let subject = '';
+      let htmlContent = '';
 
-      // if (updatedUser.registerStatus === 'confirmed') {
-      //   console.log('Sending email confirmed');
-      //   subject = 'สถานะการลงทะเบียน: ยืนยันแล้ว';
-      //   htmlContent = `
-      //   <p>เรียนคุณ ${updatedUser.firstName} ${updatedUser.lastName},</p>
-      //   <p>สถานะการลงทะเบียนของคุณได้รับการยืนยันเรียบร้อยแล้ว</p>
-      //   <p>สามารถตรวจสอบการลงทะเบียนของคุณได้ที่ http://localhost:5173/userProfile </p>
-      //   <p>ด้วยความเคารพ,</p>
-      //   <p><strong>ระบบการเช็คชื่อเถื่อน</strong></p>
-      // `;
-      //   await this.emailService.sendEmail(email, subject, htmlContent);
-      // }
-      // if (updatedUser.registerStatus === 'reConfirmed') {
-      //   console.log('Sending email notConfirmed');
-      //   subject = 'สถานะการลงทะเบียน: ถูกปฎิเสธ';
-      //   htmlContent = `
-      //   <p>เรียนคุณ ${updatedUser.firstName} ${updatedUser.lastName},</p>
-      //   <p>สถานะการลงทะเบียนของคุณยังไม่ได้รับการยืนยัน</p>
-      //   <p>กรุณาตรวจสอบและยืนยันข้อมูลของคุณอีกครั้งโดยเร็วที่สุดได้ที่ http://localhost:5173/userProfile</p>
-      //   <p>ด้วยความเคารพ,</p>
-      //   <p><strong>ระบบการเช็คชื่อเถื่อน</strong></p>
-      // `;
-      //   await this.emailService.sendEmail(email, subject, htmlContent);
-      // } else {
-      //   throw new Error('Unknown register status');
-      // }
+      if (updatedUser.registerStatus === 'confirmed') {
+        console.log('Sending email confirmed');
+        subject = 'สถานะการลงทะเบียน: ยืนยันแล้ว';
+        htmlContent = `
+        <p>เรียนคุณ ${updatedUser.firstName} ${updatedUser.lastName},</p>
+        <p>สถานะการลงทะเบียนของคุณได้รับการยืนยันเรียบร้อยแล้ว</p>
+        <p>สามารถตรวจสอบการลงทะเบียนของคุณได้ที่ http://localhost:5173/userProfile </p>
+        <p>ด้วยความเคารพ,</p>
+        <p><strong>ระบบการเช็คชื่อเถื่อน</strong></p>
+      `;
+        await this.emailService.sendEmail(email, subject, htmlContent);
+      }
+      if (updatedUser.registerStatus === 'reConfirmed') {
+        console.log('Sending email notConfirmed');
+        subject = 'สถานะการลงทะเบียน: ถูกปฎิเสธ';
+        htmlContent = `
+        <p>เรียนคุณ ${updatedUser.firstName} ${updatedUser.lastName},</p>
+        <p>สถานะการลงทะเบียนของคุณยังไม่ได้รับการยืนยัน</p>
+        <p>กรุณาตรวจสอบและยืนยันข้อมูลของคุณอีกครั้งโดยเร็วที่สุดได้ที่ http://localhost:5173/userProfile</p>
+        <p>ด้วยความเคารพ,</p>
+        <p><strong>ระบบการเช็คชื่อเถื่อน</strong></p>
+      `;
+        await this.emailService.sendEmail(email, subject, htmlContent);
+      } else {
+        throw new Error('Unknown register status');
+      }
 
       return updatedUser;
     } catch (error) {

@@ -59,21 +59,21 @@ export class AttendancesService {
       newAttendance.attendanceStatus = createAttendanceDto.attendanceStatus;
       newAttendance.assignment = assignment;
       // if imageis default-image.jpg sen email
-      if (newAttendance.attendanceImage === 'noimage.jpg') {
-        console.log(newAttendance.user.email);
+      // if (newAttendance.attendanceImage === 'noimage.jpg') {
+      //   console.log(newAttendance.user.email);
 
-        const email = newAttendance.user.email; // Replace this with the actual fetching logic
-        const subject = 'แจ้งเตือนไม่มีรูปภาพของคุณ';
-        const htmlContent = `
-          <p>เรียนคุณ ${newAttendance.user.firstName} ${newAttendance.user.lastName},</p>
-          <p>การเข้าร่วมของคุณสำหรับวิชา "${assignment.course.nameCourses}" และการบ้าน "${assignment.nameAssignment}" ได้ถูกสร้างเรียบร้อยแล้ว</p>
-          <p>ระบบไม่พบหน้าของคุณในการเช็คชื่อครั้งนี้หากคุณมาเรียนกรุณาเข้ามาเพิ่มภาพของท่านหรือแจ้งอาจารย์ผู้สอน</p>
-          <p>กรุณาเข้าไปตรวจสอบหรือทำการยืนยันใหม่อีกครั้งที่: http://localhost:5173/mappingForStudent/course/12123233/assignment/${assignment.assignmentId}</p>
-          <p>ด้วยความเคารพ,</p>
-          <p><strong>ระบบการเช็คชื่อเถื่อน</strong></p>
-        `;
-        await this.emailService.sendEmail(email, subject, htmlContent);
-      }
+      //   const email = newAttendance.user.email; // Replace this with the actual fetching logic
+      //   const subject = 'แจ้งเตือนไม่มีรูปภาพของคุณ';
+      //   const htmlContent = `
+      //     <p>เรียนคุณ ${newAttendance.user.firstName} ${newAttendance.user.lastName},</p>
+      //     <p>การเข้าร่วมของคุณสำหรับวิชา "${assignment.course.nameCourses}" และการบ้าน "${assignment.nameAssignment}" ได้ถูกสร้างเรียบร้อยแล้ว</p>
+      //     <p>ระบบไม่พบหน้าของคุณในการเช็คชื่อครั้งนี้หากคุณมาเรียนกรุณาเข้ามาเพิ่มภาพของท่านหรือแจ้งอาจารย์ผู้สอน</p>
+      //     <p>กรุณาเข้าไปตรวจสอบหรือทำการยืนยันใหม่อีกครั้งที่: http://localhost:5173/mappingForStudent/course/12123233/assignment/${assignment.assignmentId}</p>
+      //     <p>ด้วยความเคารพ,</p>
+      //     <p><strong>ระบบการเช็คชื่อเถื่อน</strong></p>
+      //   `;
+      //   await this.emailService.sendEmail(email, subject, htmlContent);
+      // }
 
       return this.attendanceRepository.save(newAttendance);
     } catch (error) {
@@ -117,27 +117,27 @@ export class AttendancesService {
       }
 
       // Fetch user's email from the database based on userId
-      const email = user.email;
-      console.log('email', email);
+      // const email = user.email;
+      // console.log('email', email);
 
-      const subject = 'ยืนยันการเข้าร่วมด้วยภาพถ่าย';
-      const htmlContent = `
-        <p>เรียนคุณ ${user.firstName} ${user.lastName},</p>
-        <p>การเข้าร่วมของคุณสำหรับวิชา "${courseName}" และการบ้าน "${assignmentName}" ได้ถูกสร้างเรียบร้อยแล้ว</p>
-        <p>กรุณาตรวจสอบภาพที่แนบมานี้เพื่อยืนยันว่าคุณได้เข้าร่วม เนื่องจากอาจารย์ได้ปฎิเสธรูปที่คาดว่าจะเป็นคุณ</p>
-         <p>ที่คือรูปที่ถูกปฏิเสธ</p><br/>
-        <img src="cid:attendanceImage" alt="Attendance Image" /><br/>
-        <p>กรุณาเข้าไปตรวจสอบหรือทำการยืนยันใหม่อีกครั้งที่: http://localhost:5173/mappingForStudent/course/12123233/assignment/${assignmentId}</p>
-        <p>ด้วยความเคารพ,</p>
-        <p><strong>ระบบการเช็คชื่อเถื่อน</strong></p>
-      `;
+      // const subject = 'ยืนยันการเข้าร่วมด้วยภาพถ่าย';
+      // const htmlContent = `
+      //   <p>เรียนคุณ ${user.firstName} ${user.lastName},</p>
+      //   <p>การเข้าร่วมของคุณสำหรับวิชา "${courseName}" และการบ้าน "${assignmentName}" ได้ถูกสร้างเรียบร้อยแล้ว</p>
+      //   <p>กรุณาตรวจสอบภาพที่แนบมานี้เพื่อยืนยันว่าคุณได้เข้าร่วม เนื่องจากอาจารย์ได้ปฎิเสธรูปที่คาดว่าจะเป็นคุณ</p>
+      //    <p>ที่คือรูปที่ถูกปฏิเสธ</p><br/>
+      //   <img src="cid:attendanceImage" alt="Attendance Image" /><br/>
+      //   <p>กรุณาเข้าไปตรวจสอบหรือทำการยืนยันใหม่อีกครั้งที่: http://localhost:5173/mappingForStudent/course/12123233/assignment/${assignmentId}</p>
+      //   <p>ด้วยความเคารพ,</p>
+      //   <p><strong>ระบบการเช็คชื่อเถื่อน</strong></p>
+      // `;
 
-      await this.emailService.sendEmailWithEmbeddedImage(
-        email,
-        subject,
-        htmlContent,
-        imagePath,
-      );
+      // await this.emailService.sendEmailWithEmbeddedImage(
+      //   email,
+      //   subject,
+      //   htmlContent,
+      //   imagePath,
+      // );
     } catch (error) {
       console.error('เกิดข้อผิดพลาดในการส่งอีเมลยืนยันการเข้าร่วม:', error);
     }
