@@ -1,22 +1,30 @@
 version: '3.8'
+
 services:
-  nestjs-app:
+  nest-app:
+    image: kaewmanee/nest-app:latest
     build:
       context: .
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
-      DB_HOST: mysql
-      DB_PORT: 3306
-      DB_USERNAME: root
-      DB_PASSWORD: yourpassword
-      DB_DATABASE: creativethinking
-    depends_on:
-      - mysql
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_USERNAME=root
+      - DB_PASSWORD=yourpassword
+      - DB_DATABASE=creativethinking
+      - SMTP_HOST=smtp.email.com
+      - SMTP_SERVICE=gmail
+      - SMTP_PORT=587
+      - SMTP_SECURE=true
+      - SMTP_USER=thanawuth.rod@gmail.com
+      - SMTP_PASS=zfvxkkhzzbnzxmvg
     volumes:
       - .:/app
       - /app/node_modules
+    depends_on:
+      - mysql
     command: npm run start:dev
 
   mysql:
@@ -25,7 +33,7 @@ services:
       MYSQL_ROOT_PASSWORD: yourpassword
       MYSQL_DATABASE: creativethinking
     ports:
-      - "3306:3306"
+      - '3306:3306'
     volumes:
       - mysql_data:/var/lib/mysql
 
@@ -36,7 +44,7 @@ services:
       PMA_USER: root
       PMA_PASSWORD: yourpassword
     ports:
-      - "8080:80"
+      - '8080:80'
     depends_on:
       - mysql
 
