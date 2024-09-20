@@ -11,6 +11,8 @@ import { Repository } from 'typeorm';
 import { User } from 'src/users/entities/user.entity';
 import * as nodemailer from 'nodemailer';
 import { EmailService } from 'src/emails/emails.service';
+import * as fs from 'fs';
+import * as path from 'path';
 @Injectable()
 export class NotiforupdateService {
   constructor(
@@ -117,14 +119,45 @@ export class NotiforupdateService {
     return JSON.stringify(Array.from(floatArray));
   }
 
+  private copyImages(
+    sourceFolder: string,
+    destinationFolder: string,
+    filenames: string[],
+  ) {
+    // Ensure the destination folder exists
+    if (!fs.existsSync(destinationFolder)) {
+      fs.mkdirSync(destinationFolder, { recursive: true });
+    }
+
+    // Copy each image file from source to destination
+    for (const filename of filenames) {
+      const sourcePath = path.join(sourceFolder, filename);
+      const destinationPath = path.join(destinationFolder, filename);
+      fs.copyFileSync(sourcePath, destinationPath);
+      console.log(`Copied ${sourcePath} to ${destinationPath}`);
+    }
+  }
+
   async confirmNotification(id: number) {
-    const notification = await this.notiforupdateRepository.findOneBy({
-      notiforupdateId: id,
+    // Fetch the notification by its ID
+    const notification = await this.notiforupdateRepository.findOne({
+      where: { notiforupdateId: id },
+      relations: ['userSender', 'userReceive'],
     });
-    if (!notification) throw new NotFoundException('Notification not found');
+    console.log('Noti: ', notification);
+
+    if (!notification) {
+      throw new NotFoundException('Notification not found');
+    }
+
+    const user = await this.userRepository.findOne({
+      where: { userId: notification.userSender.userId },
+    });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
 
     // Update user profile with new images
-    const user = await this.userRepository.findOneBy({ userId: id });
     user.image1 = notification.image1;
     user.image2 = notification.image2;
     user.image3 = notification.image3;
@@ -147,27 +180,54 @@ export class NotiforupdateService {
       : null;
     await this.userRepository.save(user);
 
-    // Save the status confirmation
+    // Define source and destination folders
+    const sourceFolder = './notiforupdate_images';
+    const destinationFolder = './user_images';
+
+    // List of image filenames to copy
+    const imagesToCopy = [
+      notification.image1,
+      notification.image2,
+      notification.image3,
+      notification.image4,
+      notification.image5,
+    ];
+
+    // Copy the images from the source to the destination folder
+    await this.copyImages(sourceFolder, destinationFolder, imagesToCopy);
+
+    // Update the status confirmation for the notification and then delete after save
     notification.statusConfirmation = 'confirmed';
     await this.notiforupdateRepository.save(notification);
+    // remove notice after save
+    await this.notiforupdateRepository.delete(notification.notiforupdateId);
 
-    return { message: 'Notification confirmed and user updated' };
+    return {
+      message: 'Notification confirmed, user updated, and images copied',
+    };
   }
 
+  //reject notification
   async rejectNotification(id: number) {
-    const user = await this.userRepository.findOneBy({ userId: id });
-    const notification = await this.notiforupdateRepository.findOneBy({
-      notiforupdateId: id,
-      userSender: user,
+    // Fetch the notification by its ID
+    const notification = await this.notiforupdateRepository.findOne({
+      where: { notiforupdateId: id },
+      relations: ['userSender'],
     });
-    if (!notification) throw new NotFoundException('Notification not found');
 
-    // Send email to student to re-upload image
-    await this.sendReUploadEmail(notification.userReceive.userId);
+    if (!notification) {
+      throw new NotFoundException('Notification not found');
+    }
+
+    // Send an email to the user requesting re-upload
+    // await this.sendReUploadEmail(notification.userSender.userId);
+
+    // Update the notification status to 'rejected'
     notification.statusConfirmation = 'rejected';
     await this.notiforupdateRepository.save(notification);
+    await this.notiforupdateRepository.delete(notification.notiforupdateId);
 
-    return { message: 'Notification rejected and email sent' };
+    return { message: 'Notification rejected, re-upload email sent' };
   }
 
   async sendReUploadEmail(userId: number) {
@@ -215,9 +275,12 @@ export class NotiforupdateService {
 
   //findOne
   async findOne(id: number) {
-    const notiforupdate = await this.notiforupdateRepository.findOneBy({
-      notiforupdateId: id,
+    const notiforupdate = await this.notiforupdateRepository.findOne({
+      where: { notiforupdateId: id },
+      relations: ['userSender', 'userReceive'],
     });
+
+    console.log(notiforupdate);
     if (!notiforupdate) {
       throw new NotFoundException('Notification not found');
     }
@@ -239,7 +302,6 @@ export class NotiforupdateService {
     return this.notiforupdateRepository.delete(id);
   }
 
-  //getNotificationByUserReceive
   // getNotificationByUserReceive
   async getNotificationByUserReceive(userId: number) {
     const notifications = await this.notiforupdateRepository.find({

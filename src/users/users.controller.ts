@@ -215,6 +215,31 @@ export class UsersController {
     res.status(200).sendFile(filename, { root: './user_images' });
   }
 
+  //get user images by userId
+  @Get(':id/images')
+  async getUserImages(@Param('id') id: string) {
+    try {
+      // Fetch the user using the provided ID
+      const user = await this.usersService.findOne(+id);
+      if (!user) {
+        throw new BadRequestException('User not found');
+      }
+
+      // Assuming the images are stored in the properties `image1`, `image2`, ..., `image5`
+      const images = [];
+      if (user.image1) images.push(user.image1);
+      if (user.image2) images.push(user.image2);
+      if (user.image3) images.push(user.image3);
+      if (user.image4) images.push(user.image4);
+      if (user.image5) images.push(user.image5);
+
+      return { images };
+    } catch (error) {
+      console.error('Error fetching user images:', error);
+      throw new BadRequestException('Failed to fetch user images');
+    }
+  }
+
   // @UseGuards(JwtAuthGuard, RolesGuard)
   // @Roles(Role.Teacher, Role.Admin)
   @Get(':stdId/qr')
