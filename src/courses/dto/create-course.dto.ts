@@ -20,16 +20,22 @@ export class CreateCourseDto {
   stdAmount: number;
 
   @IsNotEmpty()
-  timeInLab: Date;
+  dayInLab: string;
 
   @IsNotEmpty()
-  timeOutLab: Date;
+  dayInLec: string;
 
   @IsNotEmpty()
-  timeInLec: Date;
+  timeInLab: string;
 
   @IsNotEmpty()
-  timeOutLec: Date;
+  timeOutLab: string;
+
+  @IsNotEmpty()
+  timeInLec: string;
+
+  @IsNotEmpty()
+  timeOutLec: string;
 
   @IsNotEmpty()
   fullScore: number;

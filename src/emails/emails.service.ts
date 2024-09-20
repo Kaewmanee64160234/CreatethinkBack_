@@ -1,36 +1,35 @@
 import { Injectable } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class EmailService {
   private transporter: nodemailer.Transporter;
 
-  constructor() {
+  constructor(private configService: ConfigService) {
     this.transporter = nodemailer.createTransport({
-      host: 'smtp.email.com',
-      service: 'gmail',
-      port: 587,
-      secure: true,
+      host: this.configService.get<string>('SMTP_HOST'),
+      service: this.configService.get<string>('SMTP_SERVICE'),
+      port: this.configService.get<number>('SMTP_PORT'),
+      secure: this.configService.get<boolean>('SMTP_SECURE'),
       auth: {
-        user: 'thanawuth.rod@gmail.com',
-        pass: 'zfvxkkhzzbnzxmvg',
+        user: this.configService.get<string>('SMTP_USER'),
+        pass: this.configService.get<string>('SMTP_PASS'),
       },
     });
   }
 
   async sendEmail(to: string, subject: string, text: string) {
     const info = await this.transporter.sendMail({
-      from: 'thanawuth.rod@gmail.com',
+      from: this.configService.get<string>('SMTP_USER'),
       subject: 'ระบบเช็คชื่อเถื่อน',
       to,
-      html: `
-      <p>${text}</p><br/>
-    `,
+      html: `<p>${text}</p><br/>`,
       text,
     });
-    // Check the email it really sends
     console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
   }
+
   async sendEmailWithEmbeddedImage(
     to: string,
     subject: string,
@@ -39,22 +38,19 @@ export class EmailService {
   ) {
     subject = 'ระบบเช็คชื่อเข้าเรียนเถื่อน';
     const info = await this.transporter.sendMail({
-      from: 'thanawuth.rod@gmail.com',
+      from: this.configService.get<string>('SMTP_USER'),
       to,
       subject,
-      html: `
-        <p>${text}</p><br/>
-      `,
+      html: `<p>${text}</p><br/>`,
       attachments: [
         {
-          filename: 'attendance_image.jpg', // Name to display in the email
-          path: imagePath, // Path to the image file on your server
-          cid: 'attendanceImage', // Content-ID reference in the email
+          filename: 'attendance_image.jpg',
+          path: imagePath,
+          cid: 'attendanceImage',
         },
       ],
     });
 
-    // Check the email it really sends
     console.log('Email sent to:', to + ' with embedded image:', imagePath);
     console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
   }
