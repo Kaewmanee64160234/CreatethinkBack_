@@ -39,6 +39,9 @@ export class CoursesService {
     course.session = createCourseDto.session;
     course.stdAmount = createCourseDto.stdAmount;
     course.timeInLab = createCourseDto.timeInLab;
+    course.dayInLab = createCourseDto.dayInLab;
+    course.dayInLec = createCourseDto.dayInLec;
+    course.timeInLab = createCourseDto.timeInLab;
     course.timeOutLab = createCourseDto.timeOutLab;
     course.timeInLec = createCourseDto.timeInLec;
     course.timeOutLec = createCourseDto.timeOutLec;
@@ -128,13 +131,12 @@ export class CoursesService {
     }
     return this.courseRepository.softRemove(course);
   }
-  async findCoursesByTeacherId(id: string) {
+  async findCoursesByTeacherId(id: number) {
     const courses = await this.courseRepository.find({
-      where: { user: { userId: parseInt(id) } },
-      relations: ['user'],
+      where: { user: { userId: id } },
     });
     if (!courses || courses.length === 0) {
-      throw new NotFoundException('Courses not found for this user');
+      throw new NotFoundException('Courses not found for this teacherId');
     }
     return courses;
   }

@@ -57,9 +57,9 @@ export class CoursesController {
     return this.coursesService.remove(id);
   }
 
-  @Get('teach/:teachId')
-  async findCoursesByTeacherId(@Param('teachId') teachId: string) {
-    return this.coursesService.findCoursesByTeacherId(teachId);
+  @Get('teach/:userId')
+  async findCoursesByTeacherId(@Param('userId') userId: number) {
+    return this.coursesService.findCoursesByTeacherId(userId);
   }
 
   // @Get('/student/:studentId')
