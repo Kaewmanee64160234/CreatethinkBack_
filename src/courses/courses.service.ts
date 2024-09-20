@@ -55,13 +55,23 @@ export class CoursesService {
     const workbook = XLSX.read(file.buffer, { type: 'buffer' });
     const sheetName = workbook.SheetNames[0];
     const worksheet = workbook.Sheets[sheetName];
-    let jsonData: { id: number; name: string }[] =
-      XLSX.utils.sheet_to_json(worksheet);
 
-    jsonData = jsonData.filter((entry) => {
-      const id = entry['__EMPTY_1'];
-      const name = entry['__EMPTY_2'];
-      // Check for non-empty and valid integer ID
+    let jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 }); // Read as 2D array for positional access
+
+    const dataStartIndex = jsonData.findIndex(
+      (row: string[]) => row.includes('รหัสประจำตัว') && row.includes('ชื่อ'),
+    );
+    console.log('dataStartIndex:', dataStartIndex);
+
+    if (dataStartIndex === -1) {
+      console.error('Table headers not found in the file.');
+      return [];
+    }
+    jsonData = jsonData.slice(dataStartIndex + 1);
+
+    jsonData = jsonData.filter((row) => {
+      const id = row[1];
+      const name = row[2];
       return (
         id &&
         !isNaN(Number(id)) &&
@@ -71,14 +81,12 @@ export class CoursesService {
       );
     });
 
-    // Optionally, rename keys
-    jsonData = jsonData.map((entry) => ({
-      id: Number(entry['__EMPTY_1']),
-      name: entry['__EMPTY_2'].replace(/นาย|นางสาว|นาง/g, '').trim(),
-    }));
+    jsonData = jsonData.map((row) => ({
+      id: Number(row[1]),
+      name: row[2].replace(/นาย|นางสาว|นาง/g, '').trim(),
+    })) as { id: number; name: string }[];
 
-    // Sort by id in ascending order
-    jsonData.sort((a, b) => a.id - b.id);
+    jsonData.sort((a: { id: number }, b: { id: number }) => a.id - b.id);
 
     console.log('Processed data:', jsonData);
     return jsonData;
@@ -122,7 +130,7 @@ export class CoursesService {
   }
   async findCoursesByTeacherId(id: string) {
     const courses = await this.courseRepository.find({
-      where: { user: { teacherId: id } },
+      where: { user: { userId: parseInt(id) } },
       relations: ['user'],
     });
     if (!courses || courses.length === 0) {

@@ -690,6 +690,8 @@ export class UsersService {
         return user;
       }
     } catch (error) {
+      console.log(error);
+
       throw new Error('Error fetching user');
     }
   }
