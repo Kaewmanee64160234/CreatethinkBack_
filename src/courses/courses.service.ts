@@ -58,36 +58,46 @@ export class CoursesService {
     const sheetName = workbook.SheetNames[0];
     const worksheet = workbook.Sheets[sheetName];
 
-    let jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 }); // Read as 2D array for positional access
+    let jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
-    const dataStartIndex = jsonData.findIndex(
-      (row: string[]) => row.includes('รหัสประจำตัว') && row.includes('ชื่อ'),
+    const headerRowIndex = jsonData.findIndex(
+      (row) =>
+        (row as string[]).includes('รหัสประจำตัว') &&
+        (row as string[]).includes('ชื่อ'),
     );
-    console.log('dataStartIndex:', dataStartIndex);
 
-    if (dataStartIndex === -1) {
+    console.log('Header row index:', headerRowIndex);
+
+    if (headerRowIndex === -1) {
       console.error('Table headers not found in the file.');
       return [];
     }
-    jsonData = jsonData.slice(dataStartIndex + 1);
+    const headers = jsonData[headerRowIndex] as string[];
+    const idIndex = headers.indexOf('รหัสประจำตัว');
+    const nameIndex = headers.indexOf('ชื่อ');
 
-    jsonData = jsonData.filter((row) => {
-      const id = row[1];
-      const name = row[2];
-      return (
-        id &&
-        !isNaN(Number(id)) &&
-        Number.isInteger(Number(id)) &&
-        name &&
-        name.trim() !== ''
-      );
-    });
+    if (idIndex === -1 || nameIndex === -1) {
+      console.error('Required headers not found.');
+      return [];
+    }
 
-    jsonData = jsonData.map((row) => ({
-      id: Number(row[1]),
-      name: row[2].replace(/นาย|นางสาว|นาง/g, '').trim(),
-    })) as { id: number; name: string }[];
-
+    jsonData = jsonData.slice(headerRowIndex + 1);
+    jsonData = jsonData
+      .filter((row) => {
+        const id = row[idIndex];
+        const name = row[nameIndex];
+        return (
+          id &&
+          !isNaN(Number(id)) &&
+          Number.isInteger(Number(id)) &&
+          name &&
+          name.trim() !== ''
+        );
+      })
+      .map((row) => ({
+        id: Number(row[idIndex]),
+        name: row[nameIndex].replace(/นาย|นางสาว|นาง/g, '').trim(),
+      }));
     jsonData.sort((a: { id: number }, b: { id: number }) => a.id - b.id);
 
     console.log('Processed data:', jsonData);
