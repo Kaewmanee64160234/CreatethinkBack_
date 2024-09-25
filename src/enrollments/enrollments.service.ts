@@ -82,7 +82,7 @@ export class EnrollmentsService {
     if (!enrollment) {
       throw new NotFoundException('enrollment not found');
     }
-    return this.enrollmentRepository.softRemove(enrollment);
+    return this.enrollmentRepository.remove(enrollment);
   }
 
   async findCoursesByStudentId(id: string) {

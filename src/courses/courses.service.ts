@@ -134,12 +134,24 @@ export class CoursesService {
   }
 
   async remove(id: string) {
-    const course = await this.courseRepository.findOneBy({ coursesId: id });
+    const course = await this.courseRepository.findOne({
+      where: { coursesId: id },
+      relations: ['enrollments'], // Make sure to load the enrollments
+    });
+
     if (!course) {
-      throw new NotFoundException('course not found');
+      throw new NotFoundException('Course not found');
     }
-    return this.courseRepository.softRemove(course);
+
+    // Manually delete enrollments related to the course
+    if (course.enrollments && course.enrollments.length > 0) {
+      await this.enrollmentRepository.remove(course.enrollments);
+    }
+
+    // Then delete the course
+    return this.courseRepository.remove(course);
   }
+
   async findCoursesByTeacherId(id: number) {
     const courses = await this.courseRepository.find({
       where: { user: { userId: id } },

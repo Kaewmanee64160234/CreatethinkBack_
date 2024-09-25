@@ -86,7 +86,9 @@ export class Course {
   @JoinColumn()
   user: User;
 
-  @OneToMany(() => Enrollment, (enrollment) => enrollment.course)
+  @OneToMany(() => Enrollment, (enrollment) => enrollment.course, {
+    cascade: true,
+  })
   enrollments: Enrollment[];
 
   @OneToMany(() => Assignment, (assignment) => assignment.course)
