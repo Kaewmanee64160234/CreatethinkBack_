@@ -36,32 +36,6 @@ export class Course {
   session: string;
 
   @Column()
-  stdAmount: number;
-
-  // @Column({
-  //   type: 'timestamp',
-  //   default: () => 'CURRENT_TIMESTAMP',
-  // })
-  // timeInLab: Date;
-
-  // @Column({
-  //   type: 'timestamp',
-  //   default: () => 'CURRENT_TIMESTAMP',
-  // })
-  // timeOutLab: Date;
-
-  // @Column({
-  //   type: 'timestamp',
-  //   default: () => 'CURRENT_TIMESTAMP',
-  // })
-  // timeInLec: Date;
-
-  // @Column({
-  //   type: 'timestamp',
-  //   default: () => 'CURRENT_TIMESTAMP',
-  // })
-  // timeOutLec: Date;
-  @Column()
   dayInLab: string;
 
   @Column()

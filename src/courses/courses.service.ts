@@ -37,7 +37,6 @@ export class CoursesService {
     course.typeCourses = createCourseDto.typeCourses;
     course.credit = createCourseDto.credit;
     course.session = createCourseDto.session;
-    course.stdAmount = createCourseDto.stdAmount;
     course.dayInLab = createCourseDto.dayInLab;
     course.dayInLec = createCourseDto.dayInLec;
     course.timeInLab = createCourseDto.timeInLab;
@@ -162,14 +161,4 @@ export class CoursesService {
     }
     return courses;
   }
-
-  // async findCoursesByStudentId(id: string) {
-  //   const courses = await this.courseRepository.find({
-  //     where: { user: { studentId: id } },
-  //   });
-  //   if (!courses || courses.length === 0) {
-  //     throw new NotFoundException('Courses not found for this studentId');
-  //   }
-  //   return courses;
-  // }
 }
