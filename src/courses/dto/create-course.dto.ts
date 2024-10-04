@@ -17,9 +17,6 @@ export class CreateCourseDto {
   session: string;
 
   @IsNotEmpty()
-  stdAmount: number;
-
-  @IsNotEmpty()
   dayInLab: string;
 
   @IsNotEmpty()

@@ -137,98 +137,36 @@ export class UsersService {
     }
     return true;
   }
-
   processFile = (file) => {
-    try {
-      const workbook = XLSX.read(file.buffer, { type: 'buffer' });
-      const sheetName = workbook.SheetNames[0];
-      const worksheet = workbook.Sheets[sheetName];
-      const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 }); // Read the sheet as a 2D array
-
-      // Find the row that contains the headers
-      const headerRowIndex = jsonData.findIndex(
-        (row: unknown) =>
-          Array.isArray(row) &&
-          row.includes('รหัสประจำตัว') &&
-          row.includes('ชื่อ-สกุล') &&
-          row.includes('สาขา'),
+    const workbook = XLSX.read(file.buffer, { type: 'buffer' });
+    const sheetName = workbook.SheetNames[0];
+    const worksheet = workbook.Sheets[sheetName];
+    const jsonData = XLSX.utils.sheet_to_json(worksheet);
+    const filteredData = jsonData.map((item) => {
+      const idKey = Object.keys(item).find((key) =>
+        /รหัสประจำตัว|รหัสนิสิต/.test(key),
+      );
+      const nameKey = Object.keys(item).find((key) =>
+        /ชื่อ|ชื่อ-สกุล|ชื่อ-นามสกุล/.test(key),
       );
 
-      // If the header row is not found, return an empty array
-      if (headerRowIndex === -1) {
-        console.error('Table headers not found in the file.');
-        return [];
-      }
+      const majorKey = Object.keys(item).find((key) =>
+        /สาขา|สาขาที่เรียน/.test(key),
+      );
 
-      // Convert data to JSON starting from the header row
-      const tableData = XLSX.utils.sheet_to_json(worksheet, {
-        range: headerRowIndex,
-      });
+      const yearKey = Object.keys(item).find((key) =>
+        /รหัสประจำตัว|รหัสนิสิต/.test(key),
+      );
 
-      // Process the data to extract the fields
-      const filteredData = tableData
-        .map((item, index) => {
-          // Extract fields using Regular Expressions
-          const idKey = Object.keys(item).find((key) =>
-            /รหัสประจำตัว/.test(key.trim()),
-          );
-
-          const nameKey = Object.keys(item).find((key) =>
-            /ชื่อ|ชื่อ-สกุล/.test(key.trim()),
-          );
-
-          const majorKey = Object.keys(item).find((key) =>
-            /สาขา|สาขาที่เรียน|สาขาวิชา/.test(key.trim()),
-          );
-
-          // Log the extracted keys for each row
-          console.log(`Row ${index + 1} extracted keys:`, {
-            idKey,
-            nameKey,
-            majorKey,
-          });
-
-          // If the keys are not found, skip this row
-          if (!idKey || !nameKey || !majorKey) {
-            return null;
-          }
-
-          // Extract year from the ID field, taking the first 2 characters
-          const year = idKey ? String(item[idKey]).trim().substring(0, 2) : '';
-
-          return {
-            id: idKey ? String(item[idKey]).trim() : '',
-            name: nameKey
-              ? String(item[nameKey])
-                  .replace(/นาย|นางสาว|นาง/g, '')
-                  .trim()
-              : '',
-            major: majorKey ? String(item[majorKey]).trim() : '',
-            year: year,
-          };
-        })
-        // Filter out rows where essential fields are missing or marked as '__EMPTY'
-        .filter(
-          (item) =>
-            item && item.id && item.id !== '__EMPTY' && item.name && item.major,
-        );
-
-      // Log the filtered data before sorting
-      console.log('Filtered data before sorting:', filteredData);
-
-      // Sort the data based on 'id', handling non-numeric values gracefully
-      const sortedData = filteredData.sort((a, b) => {
-        const idA = isNaN(Number(a.id)) ? a.id : parseInt(a.id, 10);
-        const idB = isNaN(Number(b.id)) ? b.id : parseInt(b.id, 10);
-        return idA < idB ? -1 : idA > idB ? 1 : 0;
-      });
-
-      console.log('Processed data:', sortedData);
-      return sortedData;
-    } catch (error) {
-      console.error('Error processing file:', error);
-      return [];
-    }
+      return {
+        id: item[idKey],
+        name: item[nameKey].replace(/นาย|นางสาว|นาง/g, '').trim(),
+        major: item[majorKey],
+        year: item[yearKey].toString().substring(0, 2),
+      };
+    });
+    console.log('Processed data:', filteredData);
+    return filteredData;
   };
 
   async findAll() {
@@ -299,7 +237,10 @@ export class UsersService {
   }
 
   async findOne(id: number) {
-    const user = await this.userRepository.findOneBy({ userId: id });
+    const user = await this.userRepository.findOne({
+      where: { userId: id },
+      relations: ['enrollments'],
+    });
     if (!user) {
       throw new NotFoundException('User not found');
     } else {
