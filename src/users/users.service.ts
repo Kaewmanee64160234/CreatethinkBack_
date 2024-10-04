@@ -758,18 +758,38 @@ export class UsersService {
       throw new Error('Failed to generate QR code for order');
     }
   }
+  async getUsersByRole(role: string) {
+    return await this.userRepository.find({ where: { role } });
+  }
 
-  //getUserByStudentId
   async searchUsers(search: string): Promise<User[]> {
     return (
       this.userRepository
         .createQueryBuilder('user')
         .where('user.studentId LIKE :search', { search: `%${search}%` })
         // .orWhere('user.adminId LIKE :search', { search: `%${search}%` })
-        .orWhere('user.teacherId LIKE :search', { search: `%${search}%` })
+        // .orWhere('user.teacherId LIKE :search', { search: `%${search}%` })
         .orWhere('user.firstName LIKE :search', { search: `%${search}%` })
         .orWhere('user.lastName LIKE :search', { search: `%${search}%` })
+        .orWhere("CONCAT(user.firstName, ' ', user.lastName) LIKE :search", {
+          search: `%${search}%`,
+        })
+        .orWhere('user.year LIKE :search', { search: `%${search}%` })
         .getMany()
     );
+  }
+  async searchUsersYear(search: string): Promise<User[]> {
+    return this.userRepository
+      .createQueryBuilder('user')
+      .where('user.year LIKE :search', { search: `%${search}%` })
+      .getMany();
+  }
+
+  //searchMajor
+  async searchUsersMajor(search: string): Promise<User[]> {
+    return this.userRepository
+      .createQueryBuilder('user')
+      .where('user.major LIKE :search', { search: `%${search}%` })
+      .getMany();
   }
 }

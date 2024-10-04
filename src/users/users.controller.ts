@@ -34,6 +34,23 @@ export class UsersController {
     return this.usersService.searchUsers(search);
   }
 
+  //search years
+  @Get('search/year')
+  async searchYears(@Query('year') year: string): Promise<User[]> {
+    return this.usersService.searchUsersYear(year);
+  }
+
+  //search majors
+  @Get('search/major')
+  async searchMajors(@Query('major') major: string): Promise<User[]> {
+    return this.usersService.searchUsersMajor(major);
+  }
+
+  @Get('teachers')
+  getTeachers() {
+    return this.usersService.getUsersByRole('อาจารย์');
+  }
+
   @Post('upload')
   @UseInterceptors(
     FileInterceptor('file', {
@@ -93,7 +110,7 @@ export class UsersController {
 
   // @UseGuards(JwtAuthGuard, RolesGuard)
   @Get()
-  @Roles(Role.Admin, Role.Teacher)
+  @Roles(Role.Admin)
   findAll() {
     return this.usersService.findAll();
   }

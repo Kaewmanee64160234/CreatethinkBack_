@@ -9,7 +9,7 @@ import { Notiforupdate } from './entities/notiforupdate.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from 'src/users/entities/user.entity';
-import * as nodemailer from 'nodemailer';
+// import * as nodemailer from 'nodemailer';
 import { EmailService } from 'src/emails/emails.service';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -54,7 +54,7 @@ export class NotiforupdateService {
 
       newNotiforupdate.userSender = user;
       newNotiforupdate.userReceive = userReceive;
-      await this.sendEmailToTeacher(Number(userReceive.userId), user);
+      // await this.sendEmailToTeacher(Number(userReceive.userId), user);
 
       return await this.notiforupdateRepository.save(newNotiforupdate);
     } catch (error) {
@@ -196,6 +196,12 @@ export class NotiforupdateService {
     // Copy the images from the source to the destination folder
     await this.copyImages(sourceFolder, destinationFolder, imagesToCopy);
 
+    // // If confirm then send email เรียนคุณ userFirstName + user lastname
+    // await this.emailService.sendEmail(
+    //   notification.userSender.email,
+    //   'ยืนยันการแจ้งเตือน',
+    //   `การอัปโหลดล่าสุดของคุณได้รับการยืนยันแล้ว`,
+    // );
     // Update the status confirmation for the notification and then delete after save
     notification.statusConfirmation = 'confirmed';
     await this.notiforupdateRepository.save(notification);
@@ -222,52 +228,61 @@ export class NotiforupdateService {
     // Send an email to the user requesting re-upload
     // await this.sendReUploadEmail(notification.userSender.userId);
 
+    //If reject then send an email
+    // await this.emailService.sendEmail(
+    //   notification.userSender.email,
+    //   'การแจ้งเตือนถูกปฏิเสธ',
+    //   `การอัปโหลดล่าสุดของคุณไม่ตรงตามมาตรฐานที่กำหนด โปรดอัปโหลดรูปภาพที่จำเป็นอีกครั้ง`,
+    // );
     // Update the notification status to 'rejected'
     notification.statusConfirmation = 'rejected';
     await this.notiforupdateRepository.save(notification);
     await this.notiforupdateRepository.delete(notification.notiforupdateId);
 
-    return { message: 'Notification rejected, re-upload email sent' };
-  }
-
-  async sendReUploadEmail(userId: number) {
-    // Fetch user details by userId
-    const user = await this.userRepository.findOneBy({ userId });
-
-    if (!user) {
-      throw new NotFoundException(`User with ID ${userId} not found`);
-    }
-
-    // Create a transporter object using the default SMTP transport
-    const transporter = nodemailer.createTransport({
-      host: 'smtp.example.com', // Your SMTP server
-      port: 587, // Port (587 for TLS, 465 for SSL)
-      secure: false, // true for 465, false for other ports
-      auth: {
-        user: 'your-email@example.com', // Your email address
-        pass: 'your-email-password', // Your email password
-      },
-    });
-
-    // Set up email data
-    const mailOptions = {
-      from: '"Your Name" <your-email@example.com>', // Sender address
-      to: user.email, // Recipient address
-      subject: 'Re-upload Required', // Subject line
-      text: `Hello ${user.firstName},\n\nYour recent upload did not meet the required standards. Please re-upload the necessary images.\n\nThank you.\n\nBest regards,\nYour Team`, // Plain text body
-      html: `<p>Hello ${user.firstName},</p><p>Your recent upload did not meet the required standards. Please re-upload the necessary images.</p><p>Thank you.</p><p>Best regards,<br>Your Team</p>`, // HTML body
+    return {
+      message:
+        'การอัปโหลดล่าสุดของคุณไม่ตรงตามมาตรฐานที่กำหนด โปรดอัปโหลดรูปภาพที่จำเป็นอีกครั้ง',
     };
-
-    // Send the email
-    try {
-      const info = await transporter.sendMail(mailOptions);
-      console.log('Message sent: %s', info.messageId);
-      return { message: 'Re-upload email sent successfully' };
-    } catch (error) {
-      console.error('Error sending email: %s', error.message);
-      throw new Error('Failed to send re-upload email');
-    }
   }
+
+  // async sendReUploadEmail(userId: number) {
+  //   // Fetch user details by userId
+  //   const user = await this.userRepository.findOneBy({ userId });
+
+  //   if (!user) {
+  //     throw new NotFoundException(`User with ID ${userId} not found`);
+  //   }
+
+  //   // Create a transporter object using the default SMTP transport
+  //   const transporter = nodemailer.createTransport({
+  //     host: 'smtp.example.com', // Your SMTP server
+  //     port: 587, // Port (587 for TLS, 465 for SSL)
+  //     secure: false, // true for 465, false for other ports
+  //     auth: {
+  //       user: 'your-email@example.com', // Your email address
+  //       pass: 'your-email-password', // Your email password
+  //     },
+  //   });
+
+  //   // Set up email data
+  //   const mailOptions = {
+  //     from: '"Your Name" <your-email@example.com>', // Sender address
+  //     to: user.email, // Recipient address
+  //     subject: 'Re-upload Required', // Subject line
+  //     text: `Hello ${user.firstName},\n\nYour recent upload did not meet the required standards. Please re-upload the necessary images.\n\nThank you.\n\nBest regards,\nYour Team`, // Plain text body
+  //     html: `<p>Hello ${user.firstName},</p><p>Your recent upload did not meet the required standards. Please re-upload the necessary images.</p><p>Thank you.</p><p>Best regards,<br>Your Team</p>`, // HTML body
+  //   };
+
+  //   // Send the email
+  //   try {
+  //     const info = await transporter.sendMail(mailOptions);
+  //     console.log('Message sent: %s', info.messageId);
+  //     return { message: 'Re-upload email sent successfully' };
+  //   } catch (error) {
+  //     console.error('Error sending email: %s', error.message);
+  //     throw new Error('Failed to send re-upload email');
+  //   }
+  // }
 
   findAll() {
     return this.notiforupdateRepository.find();
