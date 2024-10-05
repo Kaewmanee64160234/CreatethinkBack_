@@ -95,10 +95,12 @@ export class EnrollmentsService {
     const enrollment = await this.enrollmentRepository.find({
       where: { user: { userId: user.userId } },
       relations: ['course', 'course.user'],
+      order: {
+        course: {
+          nameCourses: 'ASC',
+        },
+      },
     });
-    // if (!enrollment || enrollment.length === 0) {
-    //   throw new NotFoundException('enrollment not found for this studentId');
-    // }
     return enrollment;
   }
 
@@ -106,6 +108,11 @@ export class EnrollmentsService {
     const enrollments = await this.enrollmentRepository.find({
       where: { course: { coursesId: id } },
       relations: ['user'],
+      order: {
+        user: {
+          studentId: 'ASC',
+        },
+      },
     });
     console.log('1', enrollments);
     if (!enrollments || enrollments.length === 0) {

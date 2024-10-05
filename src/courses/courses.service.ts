@@ -155,6 +155,9 @@ export class CoursesService {
     const courses = await this.courseRepository.find({
       where: { user: { userId: id } },
       relations: ['user'],
+      order: {
+        nameCourses: 'ASC',
+      },
     });
     if (!courses || courses.length === 0) {
       throw new NotFoundException('Courses not found for this user');
