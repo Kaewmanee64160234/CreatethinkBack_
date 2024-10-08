@@ -713,41 +713,71 @@ export class UsersService {
         where: { enrollments: { course: Equal(courseId) } },
         relations: ['enrollments', 'enrollments.course'],
       });
+
       if (!user) {
         throw new NotFoundException('Course not found');
       } else {
         user.map((user) => {
-          user.faceDescriptor1 = user.faceDescriptor1
-            ? this.float32ArrayToBase64(
-                new Float32Array(JSON.parse(user.faceDescriptor1)),
-              )
-            : null;
-          user.faceDescriptor2 = user.faceDescriptor2
-            ? this.float32ArrayToBase64(
-                new Float32Array(JSON.parse(user.faceDescriptor2)),
-              )
-            : null;
-          user.faceDescriptor3 = user.faceDescriptor3
-            ? this.float32ArrayToBase64(
-                new Float32Array(JSON.parse(user.faceDescriptor3)),
-              )
-            : null;
-          user.faceDescriptor4 = user.faceDescriptor4
-            ? this.float32ArrayToBase64(
-                new Float32Array(JSON.parse(user.faceDescriptor4)),
-              )
-            : null;
-          user.faceDescriptor5 = user.faceDescriptor5
-            ? this.float32ArrayToBase64(
-                new Float32Array(JSON.parse(user.faceDescriptor5)),
-              )
-            : null;
+          try {
+            user.faceDescriptor1 = user.faceDescriptor1
+              ? this.float32ArrayToBase64(
+                  new Float32Array(JSON.parse(user.faceDescriptor1)),
+                )
+              : null;
+          } catch (e) {
+            console.error('Error parsing faceDescriptor1:', e);
+            user.faceDescriptor1 = null;
+          }
+
+          try {
+            user.faceDescriptor2 = user.faceDescriptor2
+              ? this.float32ArrayToBase64(
+                  new Float32Array(JSON.parse(user.faceDescriptor2)),
+                )
+              : null;
+          } catch (e) {
+            console.error('Error parsing faceDescriptor2:', e);
+            user.faceDescriptor2 = null;
+          }
+
+          try {
+            user.faceDescriptor3 = user.faceDescriptor3
+              ? this.float32ArrayToBase64(
+                  new Float32Array(JSON.parse(user.faceDescriptor3)),
+                )
+              : null;
+          } catch (e) {
+            console.error('Error parsing faceDescriptor3:', e);
+            user.faceDescriptor3 = null;
+          }
+
+          try {
+            user.faceDescriptor4 = user.faceDescriptor4
+              ? this.float32ArrayToBase64(
+                  new Float32Array(JSON.parse(user.faceDescriptor4)),
+                )
+              : null;
+          } catch (e) {
+            console.error('Error parsing faceDescriptor4:', e);
+            user.faceDescriptor4 = null;
+          }
+
+          try {
+            user.faceDescriptor5 = user.faceDescriptor5
+              ? this.float32ArrayToBase64(
+                  new Float32Array(JSON.parse(user.faceDescriptor5)),
+                )
+              : null;
+          } catch (e) {
+            console.error('Error parsing faceDescriptor5:', e);
+            user.faceDescriptor5 = null;
+          }
         });
+
         return user;
       }
     } catch (error) {
-      console.log(error);
-
+      console.error('Error fetching user:', error);
       throw new Error('Error fetching user');
     }
   }
