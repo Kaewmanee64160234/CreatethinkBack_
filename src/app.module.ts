@@ -23,16 +23,16 @@ import { Notiforupdate } from './notiforupdate/entities/notiforupdate.entity';
   imports: [
     // Load environment variables from .env or .env.local
     ConfigModule.forRoot({
-      envFilePath: ['.env.local', '.env'], // Loads .env.local first, then .env if not found
+      // envFilePath: ['.env.local', '.env'], // Loads .env.local first, then .env if not found
       isGlobal: true,
     }),
     TypeOrmModule.forRoot({
       type: 'mysql',
-      host: process.env.DB_HOST,
-      port: parseInt(process.env.DB_PORT, 10),
-      username: process.env.DB_USERNAME,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_DATABASE,
+      host: 'localhost',
+      port: 3306,
+      username: 'root',
+      // password: 'yourpassword',
+      database: 'creativethinking',
       entities: [
         User,
         Room,
