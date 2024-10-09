@@ -1,6 +1,8 @@
 import {
+  BadRequestException,
   // BadRequestException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -32,6 +34,14 @@ export class UsersService {
   ) {}
   async create(createUserDto: CreateUserDto) {
     try {
+      // Check if email already exists
+      const existingUser = await this.userRepository.findOne({
+        where: { email: createUserDto.email },
+      });
+      if (existingUser) {
+        throw new BadRequestException('Email already exists');
+      }
+
       const newUser = new User();
       newUser.firstName = createUserDto.firstName;
       newUser.lastName = createUserDto.lastName;
@@ -315,6 +325,15 @@ export class UsersService {
       const user = await this.userRepository.findOneBy({ userId: id });
       if (!user) {
         throw new NotFoundException('User not found');
+      }
+      // Check if studentId already exists
+      if (updateUserDto.studentId) {
+        const existingUser = await this.userRepository.findOneBy({
+          studentId: updateUserDto.studentId,
+        });
+        if (existingUser && existingUser.userId !== id) {
+          throw new BadRequestException('Student ID already exists');
+        }
       }
 
       // Define the directory for user images
@@ -731,18 +750,78 @@ export class UsersService {
       throw new Error('Failed to generate QR code for order');
     }
   }
+  // users.service.ts
+  async getUsersByRole(role: string) {
+    try {
+      // Assuming you're using TypeORM and have a `role` field in your User entity
+      const users = await this.userRepository.find({ where: { role } });
+      return users;
+    } catch (error) {
+      console.error('Error fetching users by role:', error);
+      throw new InternalServerErrorException('Failed to fetch users by role');
+    }
+  }
 
-  //getUserByStudentId
   async searchUsers(search: string): Promise<User[]> {
     return (
       this.userRepository
         .createQueryBuilder('user')
         .where('user.studentId LIKE :search', { search: `%${search}%` })
         // .orWhere('user.adminId LIKE :search', { search: `%${search}%` })
-        .orWhere('user.teacherId LIKE :search', { search: `%${search}%` })
+        // .orWhere('user.teacherId LIKE :search', { search: `%${search}%` })
         .orWhere('user.firstName LIKE :search', { search: `%${search}%` })
         .orWhere('user.lastName LIKE :search', { search: `%${search}%` })
+        .orWhere("CONCAT(user.firstName, ' ', user.lastName) LIKE :search", {
+          search: `%${search}%`,
+        })
+        .orWhere('user.year LIKE :search', { search: `%${search}%` })
         .getMany()
     );
+  }
+  async searchUsersYear(search: string): Promise<User[]> {
+    return this.userRepository
+      .createQueryBuilder('user')
+      .where('user.year LIKE :search', { search: `%${search}%` })
+      .getMany();
+  }
+
+  //searchMajor
+  async searchUsersMajor(search: string): Promise<User[]> {
+    return this.userRepository
+      .createQueryBuilder('user')
+      .where('user.major LIKE :search', { search: `%${search}%` })
+      .getMany();
+  }
+  //checkEmailDuplicate
+  async checkEmailDuplicate(email: string): Promise<User> {
+    return this.userRepository.findOne({ where: { email } });
+  }
+
+  //searchUsersStatus
+  async searchUsersStatus(search: string): Promise<User[]> {
+    return this.userRepository
+      .createQueryBuilder('user')
+      .where('user.status LIKE :search', { search: `%${search}%` })
+      .getMany();
+  }
+
+  //getUserPaginations
+  async getUserPagination(
+    page: number,
+    limit: number,
+  ): Promise<{ data: User[]; total: number }> {
+    console.log('page:', page);
+    console.log('limit:', limit);
+
+    const [data, total] = await this.userRepository.findAndCount({
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    return { data, total };
+  }
+  //checkStudentIdDuplicate
+  async checkStudentIdDuplicate(studentId: string): Promise<User> {
+    return this.userRepository.findOne({ where: { studentId } });
   }
 }
