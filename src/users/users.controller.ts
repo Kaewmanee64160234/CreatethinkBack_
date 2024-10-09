@@ -12,6 +12,8 @@ import {
   Res,
   Query,
   UploadedFile,
+  // UsePipes,
+  // ValidationPipe,
 } from '@nestjs/common';
 import { Role } from '../types/Role.enum';
 import { UsersService } from './users.service';
@@ -28,6 +30,34 @@ import { Roles } from 'src/authorize/roles.decorator';
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
+  //getStudent by role == นิสิต
+  @Get('students')
+  async getStudents() {
+    return this.usersService.getUsersByRole('นิสิต');
+  }
+
+  //getTeacher by role == อาจารย์
+  @Get('teachers')
+  async getTeacher() {
+    return this.usersService.getUsersByRole('อาจารย์');
+  }
+
+  // users.controller.ts
+  @Get('admins')
+  async getAdmins() {
+    return await this.usersService.getUsersByRole('แอดมิน');
+  }
+  //getUserpagination
+  @Get('pagination')
+  async getUserPagination(
+    @Query('page') page: 1,
+    @Query('limit') limit: 20,
+  ): Promise<{ data: User[]; total: number }> {
+    console.log('page: ', page);
+    console.log('limit: ', limit);
+
+    return this.usersService.getUserPagination(page, limit);
+  }
 
   @Get('search')
   async searchUsers(@Query('search') search: string): Promise<User[]> {
@@ -44,6 +74,12 @@ export class UsersController {
   @Get('search/major')
   async searchMajors(@Query('major') major: string): Promise<User[]> {
     return this.usersService.searchUsersMajor(major);
+  }
+
+  //search status
+  @Get('search/status')
+  async searchStatus(@Query('status') status: string): Promise<User[]> {
+    return this.usersService.searchUsersStatus(status);
   }
 
   @Get('teachers')
@@ -65,6 +101,7 @@ export class UsersController {
   }
 
   @Post()
+  // @UsePipes(new ValidationPipe({ whitelist: true }))
   @UseInterceptors(
     FilesInterceptor('files', 5, {
       storage: diskStorage({
@@ -263,5 +300,17 @@ export class UsersController {
   async generateQrCode(@Param('stdId') stdId: string): Promise<string> {
     const link = `http://127.0.0.1:5173/confirmRegister/${stdId}`;
     return await this.usersService.generateQrCodeForOrder(link);
+  }
+
+  //check email duplicate
+  @Get('email/:email')
+  async checkEmailDuplicate(@Param('email') email: string) {
+    return await this.usersService.checkEmailDuplicate(email);
+  }
+
+  //check student Id duplicate
+  @Get('studentId/:studentId')
+  async checkStudentIdDuplicate(@Param('studentId') studentId: string) {
+    return await this.usersService.checkStudentIdDuplicate(studentId);
   }
 }

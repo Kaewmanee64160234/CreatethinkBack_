@@ -54,7 +54,13 @@ export class NotiforupdateService {
 
       newNotiforupdate.userSender = user;
       newNotiforupdate.userReceive = userReceive;
-      // await this.sendEmailToTeacher(Number(userReceive.userId), user);
+
+      //sendEmailToTeacher
+      await this.sendEmailToTeacher(
+        userReceive.firstName,
+        userReceive.lastName,
+        user,
+      );
 
       return await this.notiforupdateRepository.save(newNotiforupdate);
     } catch (error) {
@@ -63,19 +69,32 @@ export class NotiforupdateService {
     }
   }
 
-  async sendEmailToTeacher(teacherId: number, userSender: User) {
+  async sendEmailToTeacher(
+    teacherFirstName: string,
+    teacherLastName: string,
+    userSender: User,
+  ) {
+    // Find the teacher based on first name and last name
     const teacherUser = await this.userRepository.findOne({
-      where: { userId: teacherId },
+      where: {
+        firstName: teacherFirstName,
+        lastName: teacherLastName,
+      },
     });
+
+    // If the teacher is not found, throw an exception
     if (!teacherUser) {
       throw new NotFoundException('Teacher not found');
     }
+
+    // Construct email subject and content
     const subject = 'คำขอยืนยันการอัปเดตภาพใหม่';
     const htmlContent = `
-      <p>มีคำขอยืนยันการอัปเดตภาพจากนิสิตชื่อ ${userSender.firstName}.</p>
-      <p>กรุณาเข้าสู่ระบบเพื่อตรวจสอบและอนุมัติหรือปฏิเสธคำขอนี้.</p>
+      <p>มีคำขอยืนยันการอัปเดตภาพจากนิสิตชื่อ ${userSender.firstName} ${userSender.lastName}.</p>
+      <p>กรุณาเข้าสู่ระบบเพื่อตรวจสอบและอนุมัติหากข้อมูลนี้ถูกต้อง.</p>
     `;
 
+    // Send an email to the teacher's email address
     await this.emailService.sendEmail(teacherUser.email, subject, htmlContent);
   }
 

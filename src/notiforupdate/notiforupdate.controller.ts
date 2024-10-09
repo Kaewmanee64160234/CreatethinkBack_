@@ -9,15 +9,15 @@ import {
   Get,
   Body,
   Delete,
-  NotFoundException,
   Res,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { v4 as uuidv4 } from 'uuid';
-import { extname, join } from 'path';
+import { extname } from 'path';
 import { NotiforupdateService } from './notiforupdate.service';
 import { UpdateNotiforupdateDto } from './dto/update-notiforupdate.dto';
+import { User } from 'src/users/entities/user.entity';
 
 @Controller('notiforupdates')
 export class NotiforupdateController {
@@ -144,6 +144,20 @@ export class NotiforupdateController {
   getImage(@Param('filename') filename: string, @Res() res) {
     res.status(200).sendFile(filename, { root: './notiforupdate_images' });
   }
+
+  @Post('sendEmailToTeacher')
+  async sendEmailToTeacher(
+    @Body('teacherFirstName') teacherFirstName: string,
+    @Body('teacherLastName') teacherLastName: string,
+    @Body('userSender') userSender: User,
+  ): Promise<void> {
+    await this.notiforupdateService.sendEmailToTeacher(
+      teacherFirstName,
+      teacherLastName,
+      userSender,
+    );
+  }
+
   // // get images user
   // @Get(':id/image/:imageKey')
   // async getImageById(
