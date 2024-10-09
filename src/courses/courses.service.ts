@@ -154,7 +154,6 @@ export class CoursesService {
   async findCoursesByTeacherId(id: number) {
     const courses = await this.courseRepository.find({
       where: { user: { userId: id } },
-
       relations: ['user'],
       order: {
         nameCourses: 'ASC',

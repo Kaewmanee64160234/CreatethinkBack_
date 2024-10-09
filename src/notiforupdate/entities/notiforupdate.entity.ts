@@ -49,6 +49,7 @@ export class Notiforupdate {
 
   @ManyToOne(() => User, (user) => user.notiforupdates)
   userReceive: User;
+
   @ManyToOne(() => User, (user) => user.notiforupdates)
   userSender: User;
 
