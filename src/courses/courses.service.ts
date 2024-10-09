@@ -154,10 +154,16 @@ export class CoursesService {
   async findCoursesByTeacherId(id: number) {
     const courses = await this.courseRepository.find({
       where: { user: { userId: id } },
+<<<<<<< HEAD
+=======
       relations: ['user'],
+      order: {
+        nameCourses: 'ASC',
+      },
+>>>>>>> 2b0152890fb95586a28afe7ba5031760194bb412
     });
     if (!courses || courses.length === 0) {
-      throw new NotFoundException('Courses not found for this user');
+      throw new NotFoundException('Courses not found for this teacherId');
     }
     return courses;
   }

@@ -596,36 +596,36 @@ export class UsersService {
         throw new Error('User email is missing');
       }
 
-      const email = updatedUser.email;
-      let subject = '';
-      let htmlContent = '';
+      // const email = updatedUser.email;
+      // let subject = '';
+      // let htmlContent = '';
 
-      if (updatedUser.registerStatus === 'confirmed') {
-        console.log('Sending email confirmed');
-        subject = 'สถานะการลงทะเบียน: ยืนยันแล้ว';
-        htmlContent = `
-        <p>เรียนคุณ ${updatedUser.firstName} ${updatedUser.lastName},</p>
-        <p>สถานะการลงทะเบียนของคุณได้รับการยืนยันเรียบร้อยแล้ว</p>
-        <p>สามารถตรวจสอบการลงทะเบียนของคุณได้ที่ http://localhost:5173/userProfile </p>
-        <p>ด้วยความเคารพ,</p>
-        <p><strong>ระบบการเช็คชื่อเถื่อน</strong></p>
-      `;
-        await this.emailService.sendEmail(email, subject, htmlContent);
-      }
-      if (updatedUser.registerStatus === 'reConfirmed') {
-        console.log('Sending email notConfirmed');
-        subject = 'สถานะการลงทะเบียน: ถูกปฎิเสธ';
-        htmlContent = `
-        <p>เรียนคุณ ${updatedUser.firstName} ${updatedUser.lastName},</p>
-        <p>สถานะการลงทะเบียนของคุณยังไม่ได้รับการยืนยัน</p>
-        <p>กรุณาตรวจสอบและยืนยันข้อมูลของคุณอีกครั้งโดยเร็วที่สุดได้ที่ http://localhost:5173/userProfile</p>
-        <p>ด้วยความเคารพ,</p>
-        <p><strong>ระบบการเช็คชื่อเถื่อน</strong></p>
-      `;
-        await this.emailService.sendEmail(email, subject, htmlContent);
-      } else {
-        throw new Error('Unknown register status');
-      }
+      // if (updatedUser.registerStatus === 'confirmed') {
+      //   console.log('Sending email confirmed');
+      //   subject = 'สถานะการลงทะเบียน: ยืนยันแล้ว';
+      //   htmlContent = `
+      //   <p>เรียนคุณ ${updatedUser.firstName} ${updatedUser.lastName},</p>
+      //   <p>สถานะการลงทะเบียนของคุณได้รับการยืนยันเรียบร้อยแล้ว</p>
+      //   <p>สามารถตรวจสอบการลงทะเบียนของคุณได้ที่ http://localhost:5173/userProfile </p>
+      //   <p>ด้วยความเคารพ,</p>
+      //   <p><strong>ระบบการเช็คชื่อเถื่อน</strong></p>
+      // `;
+      //   await this.emailService.sendEmail(email, subject, htmlContent);
+      // }
+      // if (updatedUser.registerStatus === 'reConfirmed') {
+      //   console.log('Sending email notConfirmed');
+      //   subject = 'สถานะการลงทะเบียน: ถูกปฎิเสธ';
+      //   htmlContent = `
+      //   <p>เรียนคุณ ${updatedUser.firstName} ${updatedUser.lastName},</p>
+      //   <p>สถานะการลงทะเบียนของคุณยังไม่ได้รับการยืนยัน</p>
+      //   <p>กรุณาตรวจสอบและยืนยันข้อมูลของคุณอีกครั้งโดยเร็วที่สุดได้ที่ http://localhost:5173/userProfile</p>
+      //   <p>ด้วยความเคารพ,</p>
+      //   <p><strong>ระบบการเช็คชื่อเถื่อน</strong></p>
+      // `;
+      //   await this.emailService.sendEmail(email, subject, htmlContent);
+      // } else {
+      //   throw new Error('Unknown register status');
+      // }
 
       return updatedUser;
     } catch (error) {
@@ -673,39 +673,71 @@ export class UsersService {
         where: { enrollments: { course: Equal(courseId) } },
         relations: ['enrollments', 'enrollments.course'],
       });
+
       if (!user) {
         throw new NotFoundException('Course not found');
       } else {
         user.map((user) => {
-          user.faceDescriptor1 = user.faceDescriptor1
-            ? this.float32ArrayToBase64(
-                new Float32Array(JSON.parse(user.faceDescriptor1)),
-              )
-            : null;
-          user.faceDescriptor2 = user.faceDescriptor2
-            ? this.float32ArrayToBase64(
-                new Float32Array(JSON.parse(user.faceDescriptor2)),
-              )
-            : null;
-          user.faceDescriptor3 = user.faceDescriptor3
-            ? this.float32ArrayToBase64(
-                new Float32Array(JSON.parse(user.faceDescriptor3)),
-              )
-            : null;
-          user.faceDescriptor4 = user.faceDescriptor4
-            ? this.float32ArrayToBase64(
-                new Float32Array(JSON.parse(user.faceDescriptor4)),
-              )
-            : null;
-          user.faceDescriptor5 = user.faceDescriptor5
-            ? this.float32ArrayToBase64(
-                new Float32Array(JSON.parse(user.faceDescriptor5)),
-              )
-            : null;
+          try {
+            user.faceDescriptor1 = user.faceDescriptor1
+              ? this.float32ArrayToBase64(
+                  new Float32Array(JSON.parse(user.faceDescriptor1)),
+                )
+              : null;
+          } catch (e) {
+            console.error('Error parsing faceDescriptor1:', e);
+            user.faceDescriptor1 = null;
+          }
+
+          try {
+            user.faceDescriptor2 = user.faceDescriptor2
+              ? this.float32ArrayToBase64(
+                  new Float32Array(JSON.parse(user.faceDescriptor2)),
+                )
+              : null;
+          } catch (e) {
+            console.error('Error parsing faceDescriptor2:', e);
+            user.faceDescriptor2 = null;
+          }
+
+          try {
+            user.faceDescriptor3 = user.faceDescriptor3
+              ? this.float32ArrayToBase64(
+                  new Float32Array(JSON.parse(user.faceDescriptor3)),
+                )
+              : null;
+          } catch (e) {
+            console.error('Error parsing faceDescriptor3:', e);
+            user.faceDescriptor3 = null;
+          }
+
+          try {
+            user.faceDescriptor4 = user.faceDescriptor4
+              ? this.float32ArrayToBase64(
+                  new Float32Array(JSON.parse(user.faceDescriptor4)),
+                )
+              : null;
+          } catch (e) {
+            console.error('Error parsing faceDescriptor4:', e);
+            user.faceDescriptor4 = null;
+          }
+
+          try {
+            user.faceDescriptor5 = user.faceDescriptor5
+              ? this.float32ArrayToBase64(
+                  new Float32Array(JSON.parse(user.faceDescriptor5)),
+                )
+              : null;
+          } catch (e) {
+            console.error('Error parsing faceDescriptor5:', e);
+            user.faceDescriptor5 = null;
+          }
         });
+
         return user;
       }
     } catch (error) {
+      console.error('Error fetching user:', error);
       throw new Error('Error fetching user');
     }
   }
