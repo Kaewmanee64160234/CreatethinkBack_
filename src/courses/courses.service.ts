@@ -7,7 +7,6 @@ import { Course } from './entities/course.entity';
 import { Repository } from 'typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { Enrollment } from 'src/enrollments/entities/enrollment.entity';
-import { v4 as uuidv4 } from 'uuid';
 import * as XLSX from 'xlsx';
 
 @Injectable()
@@ -28,12 +27,11 @@ export class CoursesService {
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    const shortUuid = uuidv4().substr(0, 10);
+    // const shortUuid = uuidv4().substr(0, 4);
     // Create course instance and set properties including the primary key
     const course = new Course();
     course.coursesId = createCourseDto.coursesId; // Set the primary key value
     course.nameCourses = createCourseDto.nameCourses;
-    course.codeCourses = shortUuid;
     course.typeCourses = createCourseDto.typeCourses;
     course.credit = createCourseDto.credit;
     course.session = createCourseDto.session;
@@ -135,7 +133,7 @@ export class CoursesService {
   async remove(id: string) {
     const course = await this.courseRepository.findOne({
       where: { coursesId: id },
-      relations: ['enrollments'], // Make sure to load the enrollments
+      relations: ['enrollments', 'assignments'], // Make sure to load the enrollments
     });
 
     if (!course) {

@@ -37,7 +37,9 @@ export class Assignment {
   })
   attendances: Attendance[];
 
-  @ManyToOne(() => Course, (course) => course.assignments)
+  @ManyToOne(() => Course, (course) => course.assignments, {
+    onDelete: 'CASCADE',
+  })
   course: Course;
 
   @CreateDateColumn()
