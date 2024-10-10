@@ -260,7 +260,7 @@ export class AttendancesService {
   //update
   async update(id: number, updateAttendanceDto: UpdateAttendanceDto) {
     try {
-      console.log(id);
+      console.log(updateAttendanceDto);
 
       const user = await this.userRepository.findOne({
         where: { studentId: updateAttendanceDto.studentId },
@@ -272,8 +272,9 @@ export class AttendancesService {
       });
       if (
         attendance != null &&
-        attendance.attendanceStatus !== 'present' &&
-        attendance.attendanceStatus !== 'absent'
+        attendance.attendanceConfirmStatus === 'confirmed' &&
+        attendance.attendanceConfirmStatus === 'confirmed' &&
+        attendance.attendanceStatus === 'present'
       ) {
         // send nopermition exeption 403
 
@@ -305,12 +306,11 @@ export class AttendancesService {
         attendance_.attendanceScore = updateAttendanceDto.attendanceScore;
 
         attendance_.user = user;
-        //'if in time' 15 min late set attendanceStatus to 'late'
-        const currentDate = new Date();
-        const assignmentDate = new Date(updateAttendanceDto.assignMentTime);
-        const diff = Math.abs(currentDate.getTime() - assignmentDate.getTime());
-        attendance_.attendanceStatus =
-          Math.ceil(diff / (1000 * 60)) > 2 ? 'late' : 'present';
+
+        attendance_.attendanceStatus = updateAttendanceDto.attendanceStatus;
+        attendance_.attendanceConfirmStatus =
+          updateAttendanceDto.attendanceConfirmStatus;
+        console.log('attendance_', attendance_);
 
         const attSave = await this.attendanceRepository.save(attendance_);
         console.log('attSave', attSave);
@@ -391,8 +391,18 @@ export class AttendancesService {
         throw new NotFoundException('attendance not found');
       }
       attendance.attendanceConfirmStatus = 'confirmed';
-      attendance.attendanceStatus = 'present';
-
+      if (attendance.attendanceStatus === 'absent') {
+        // check timestamp late morethan 15 minutes ago
+        const currentDate = new Date();
+        const assignmentDate = new Date(attendance.assignment.assignMentTime);
+        const diffMs = currentDate.getTime() - assignmentDate.getTime();
+        const diffMins = Math.round(((diffMs % 86400000) % 3600000) / 60000);
+        if (diffMins > 15) {
+          attendance.attendanceStatus = 'late';
+        } else {
+          attendance.attendanceStatus = 'present';
+        }
+      }
       return this.attendanceRepository.save(attendance);
     } catch (error) {
       console.log(error);
