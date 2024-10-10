@@ -6,7 +6,6 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
-  Generated,
   JoinColumn,
   ManyToOne,
   OneToMany,
@@ -21,10 +20,6 @@ export class Course {
 
   @Column()
   nameCourses: string;
-
-  @Column()
-  @Generated('uuid')
-  codeCourses: string;
 
   @Column()
   typeCourses: string;
@@ -65,7 +60,9 @@ export class Course {
   })
   enrollments: Enrollment[];
 
-  @OneToMany(() => Assignment, (assignment) => assignment.course)
+  @OneToMany(() => Assignment, (assignment) => assignment.course, {
+    cascade: true,
+  })
   assignments: Assignment[];
 
   @CreateDateColumn()
