@@ -127,7 +127,7 @@ export class AttendancesController {
   // getAttendanceByCourseId
   @Get('/courses/:courseId')
   getAttendanceByCourseId(@Param('courseId') courseId: string) {
-    return this.attendancesService.getAttendanceByCourseId(+courseId);
+    return this.attendancesService.getAttendanceByCourseId(courseId);
   }
   // checkAllAttendance
 

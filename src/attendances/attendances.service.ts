@@ -244,7 +244,7 @@ export class AttendancesService {
     try {
       const attendances = await this.attendanceRepository.find({
         where: { assignment: { assignmentId: assignmentId } },
-        relations: ['user'],
+        relations: ['user', 'assignment', 'assignment.course'],
       });
       if (!attendances) {
         throw new NotFoundException('attendances not found');
@@ -424,12 +424,14 @@ export class AttendancesService {
     return this.attendanceRepository.save(attendance);
   }
   //get attendance by couse id
-  async getAttendanceByCourseId(courseId: number) {
+  async getAttendanceByCourseId(courseId: string) {
     try {
       const attendances = await this.attendanceRepository.find({
         where: { assignment: { course: { coursesId: String(courseId) } } },
         relations: ['user', 'assignment'],
       });
+      console.log(attendances);
+
       if (!attendances) {
         throw new NotFoundException('attendances not found');
       } else {
