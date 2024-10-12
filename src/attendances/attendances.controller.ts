@@ -43,6 +43,11 @@ export class AttendancesController {
     createAttendanceDto.attendanceImage = file ? file.filename : 'noimage.jpg';
     return this.attendancesService.create(createAttendanceDto);
   }
+  // revalidateAttendance
+  @Get('revalidate/:assignmentId')
+  revalidateAttendance(@Param('assignmentId') assignmentId: string) {
+    return this.attendancesService.revalidateAttendance(+assignmentId);
+  }
 
   @Get()
   findAll() {
@@ -74,7 +79,6 @@ export class AttendancesController {
     // set the attributes image
     updateAttendanceDto.attendanceImage = file ? file.filename : 'noimage.jpg';
     console.log(updateAttendanceDto.attendanceImage);
-
     console.log(file.filename);
 
     return this.attendancesService.update(+id, updateAttendanceDto);
@@ -127,7 +131,7 @@ export class AttendancesController {
   // getAttendanceByCourseId
   @Get('/courses/:courseId')
   getAttendanceByCourseId(@Param('courseId') courseId: string) {
-    return this.attendancesService.getAttendanceByCourseId(+courseId);
+    return this.attendancesService.getAttendanceByCourseId(courseId);
   }
   // checkAllAttendance
 

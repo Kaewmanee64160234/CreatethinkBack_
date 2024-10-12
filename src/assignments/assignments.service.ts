@@ -202,4 +202,32 @@ export class AssignmentsService {
       throw new Error('Error fetching assignment');
     }
   }
+  // Backend: Service method for fetching paginated assignments
+  async getAssignmentByCourseIdPaginate(
+    courseId: string,
+    page: number,
+    limit: number,
+  ) {
+    try {
+      const [data, total] = await this.assignmentRepository.findAndCount({
+        where: {
+          course: { coursesId: courseId },
+          statusAssignment: 'completed',
+        },
+        relations: ['course', 'course.user'],
+        order: { createdDate: 'desc' },
+        take: limit,
+        skip: (page - 1) * limit,
+      });
+
+      return {
+        data, // Paginated data
+        total, // Total number of assignments
+        page, // Current page number
+        lastPage: Math.ceil(total / limit), // Calculate the last page
+      };
+    } catch (error) {
+      throw new Error('Error fetching assignment');
+    }
+  }
 }

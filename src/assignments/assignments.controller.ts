@@ -10,6 +10,7 @@ import {
   UploadedFiles,
   BadRequestException,
   Res,
+  Query,
 } from '@nestjs/common';
 import { AssignmentsService } from './assignments.service';
 import { CreateAssignmentDto } from './dto/create-assignment.dto';
@@ -94,6 +95,19 @@ export class AssignmentsController {
   @Get('course/:id')
   getAssignmentByCourseId(@Param('id') id: string) {
     return this.assignmentsService.getAssignmentByCourseId(id);
+  }
+  // getAssignmentByCourseIdPaginate query params paginate
+  @Get('course/:id/paginate')
+  getAssignmentByCourseIdPaginate(
+    @Param('id') id: string,
+    @Query('page') page: string,
+    @Query('limit') limit: string,
+  ) {
+    return this.assignmentsService.getAssignmentByCourseIdPaginate(
+      id,
+      +page,
+      +limit,
+    );
   }
 
   // get image files getImageFiles by assigment id
