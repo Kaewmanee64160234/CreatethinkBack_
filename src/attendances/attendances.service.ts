@@ -254,7 +254,7 @@ export class AttendancesService {
       if (!attendances) {
         throw new NotFoundException('attendances not found');
       } else {
-        console.log(attendances.length);
+        // console.log(attendances.length);
         return attendances;
       }
     } catch (error) {
@@ -277,13 +277,12 @@ export class AttendancesService {
       });
       if (
         attendance != null &&
-        attendance.attendanceConfirmStatus === 'confirmed' &&
-        attendance.attendanceConfirmStatus === 'confirmed' &&
-        attendance.attendanceStatus === 'present'
+        attendance.attendanceConfirmStatus === 'confirmed'
       ) {
-        // send nopermition exeption 403
-
-        throw new HttpErrorByCode[403]('You do not have permission to update');
+        // send 403
+        throw new InternalServerErrorException(
+          'This attendance has already been confirmed',
+        );
       } else {
         console.log('attendanceUpdate', updateAttendanceDto);
 
@@ -293,11 +292,28 @@ export class AttendancesService {
             assignment: { assignmentId: +updateAttendanceDto.assignmentId },
             user: { studentId: updateAttendanceDto.studentId },
           },
+          relations: ['assignment'],
         });
         console.log('attendance_', attendance_);
+        if (attendance_.attendanceStatus === 'absent') {
+          // check time
+          const currentDate = new Date();
+          const assignmentDate = new Date(
+            attendance_.assignment.assignMentTime,
+          );
+          const diffMs = currentDate.getTime() - assignmentDate.getTime();
+          const diffMins = Math.round(((diffMs % 86400000) % 3600000) / 60000);
+          if (diffMins > 15) {
+            attendance_.attendanceStatus = 'late';
+          } else {
+            attendance_.attendanceStatus = 'present';
+          }
+          attendance_.attendanceConfirmStatus = 'recheck';
+        } else {
+          attendance_.attendanceConfirmStatus =
+            updateAttendanceDto.attendanceConfirmStatus;
+        }
 
-        attendance_.attendanceConfirmStatus =
-          updateAttendanceDto.attendanceConfirmStatus;
         attendance_.attendanceStatus = updateAttendanceDto.attendanceStatus;
         if (attendance_.attendanceImage === 'noimage.jpg') {
           attendance_.attendanceImage = updateAttendanceDto.attendanceImage;
@@ -324,6 +340,7 @@ export class AttendancesService {
     } catch (error) {
       console.log('--------------');
       console.log(error);
+      throw new InternalServerErrorException('Error updating attendance');
     }
 
     // console.log(updateAttendanceDto);
@@ -367,7 +384,7 @@ export class AttendancesService {
   //get attendance by status
   async getAttendanceByStatusInAssignment(assignmentId: number) {
     try {
-      console.log(assignmentId);
+      // console.log(assignmentId);
       const attendances = await this.attendanceRepository.find({
         where: {
           attendanceConfirmStatus: In(['recheck']),
@@ -425,7 +442,7 @@ export class AttendancesService {
     attendance.attendanceConfirmStatus = 'confirmed';
     attendance.attendanceStatus = 'absent';
     attendance.attendanceImage = 'noimage.jpg';
-    console.log(attendance);
+    // console.log(attendance);
     return this.attendanceRepository.save(attendance);
   }
   //get attendance by couse id
@@ -435,7 +452,7 @@ export class AttendancesService {
         where: { assignment: { course: { coursesId: String(courseId) } } },
         relations: ['user', 'assignment'],
       });
-      console.log(attendances);
+      // console.log(attendances);
 
       if (!attendances) {
         throw new NotFoundException('attendances not found');
@@ -454,7 +471,7 @@ export class AttendancesService {
         relations: ['user', 'assignment', 'assignment.course'],
       });
 
-      console.log(attendances);
+      // console.log(attendances);
 
       if (!attendances) {
         throw new NotFoundException('Attendances not found');
@@ -512,7 +529,7 @@ export class AttendancesService {
           }
 
           // Update the best attendance if necessary (optional)
-          bestAttendance.attendanceConfirmStatus = 'confirmed';
+          bestAttendance.attendanceConfirmStatus = 'notconfirm';
           await this.attendanceRepository.save(bestAttendance);
         }
       }
