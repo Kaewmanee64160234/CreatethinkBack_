@@ -9,7 +9,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { Equal, Repository } from 'typeorm';
+import { Brackets, Equal, Not, Repository } from 'typeorm';
 import { Course } from 'src/courses/entities/course.entity';
 import * as XLSX from 'xlsx';
 // import { isEqual } from 'lodash';
@@ -321,6 +321,16 @@ export class UsersService {
     try {
       // console.log('Updating user with ID:', id);
       // console.log('Update DTO:', updateUserDto);
+
+      // Check if email already exists but if current email then do nothing
+      const existingUser = await this.userRepository.findOne({
+        where: { email: updateUserDto.email },
+      });
+
+      if (existingUser && existingUser.userId !== id) {
+        throw new BadRequestException('Email already exists');
+      }
+
       // Find the existing user by ID
       const user = await this.userRepository.findOneBy({ userId: id });
       if (!user) {
@@ -763,21 +773,24 @@ export class UsersService {
   }
 
   async searchUsers(search: string): Promise<User[]> {
-    return (
-      this.userRepository
-        .createQueryBuilder('user')
-        .where('user.studentId LIKE :search', { search: `%${search}%` })
-        // .orWhere('user.adminId LIKE :search', { search: `%${search}%` })
-        // .orWhere('user.teacherId LIKE :search', { search: `%${search}%` })
-        .orWhere('user.firstName LIKE :search', { search: `%${search}%` })
-        .orWhere('user.lastName LIKE :search', { search: `%${search}%` })
-        .orWhere("CONCAT(user.firstName, ' ', user.lastName) LIKE :search", {
+    return this.userRepository
+      .createQueryBuilder('user')
+      .where('user.studentId LIKE :search', { search: `%${search}%` })
+      .orWhere('user.firstName LIKE :search', { search: `%${search}%` })
+      .orWhere('user.lastName LIKE :search', { search: `%${search}%` })
+      .orWhere("CONCAT(user.firstName, ' ', user.lastName) LIKE :search", {
+        search: `%${search}%`,
+      })
+      .orWhere(
+        "CONCAT(user.studentId, ' ', user.firstName, ' ', user.lastName) LIKE :search",
+        {
           search: `%${search}%`,
-        })
-        .orWhere('user.year LIKE :search', { search: `%${search}%` })
-        .getMany()
-    );
+        },
+      )
+      .orWhere('user.year LIKE :search', { search: `%${search}%` })
+      .getMany();
   }
+
   async searchUsersYear(search: string): Promise<User[]> {
     return this.userRepository
       .createQueryBuilder('user')
@@ -786,22 +799,109 @@ export class UsersService {
   }
 
   //searchMajor
-  async searchUsersMajor(search: string): Promise<User[]> {
-    return this.userRepository
-      .createQueryBuilder('user')
-      .where('user.major LIKE :search', { search: `%${search}%` })
-      .getMany();
+  // async searchUsersMajor(search: string): Promise<User[]> {
+  //   return this.userRepository
+  //     .createQueryBuilder('user')
+  //     .where('user.major LIKE :search', { search: `%${search}%` })
+  //     .getMany();
+  // }
+
+  //searchUsersMajorPagination
+  async searchUsersMajorPagination(
+    search: string,
+    page: number,
+    limit: number,
+  ): Promise<{ data: User[]; total: number }> {
+    console.log('page:', page);
+    console.log('limit:', limit);
+
+    const [data, total] = await this.userRepository.findAndCount({
+      where: { major: search },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    return { data, total };
   }
-  //checkEmailDuplicate
-  async checkEmailDuplicate(email: string): Promise<User> {
-    return this.userRepository.findOne({ where: { email } });
+  async checkEmailDuplicate(email: string, userId?: number): Promise<User> {
+    // Check if there is a user with the same email, excluding the current user's email
+    return this.userRepository.findOne({
+      where: { email },
+      // Exclude the current user's email by adding a condition
+      ...(userId && { where: { email, userId: Not(userId) } }),
+    });
   }
 
   //searchUsersStatus
-  async searchUsersStatus(search: string): Promise<User[]> {
+  // async searchUsersStatus(search: string): Promise<User[]> {
+  //   return this.userRepository
+  //     .createQueryBuilder('user')
+  //     .where('user.status LIKE :search', { search: `%${search}%` })
+  //     .getMany();
+  // }
+
+  //searchUsersStatusPagination
+  async searchUsersStatusPagination(
+    search: string,
+    page: number,
+    limit: number,
+  ): Promise<{ data: User[]; total: number }> {
+    console.log('page:', page);
+    console.log('limit:', limit);
+
+    const [data, total] = await this.userRepository.findAndCount({
+      where: { status: search },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    return { data, total };
+  }
+
+  //searchUsersByMajorAndStatusPagination
+  async searchUsersByMajorAndStatusPagination(
+    major: string,
+    status: string,
+    page: number,
+    limit: number,
+  ): Promise<{ data: User[]; total: number }> {
+    console.log('page:', page);
+    console.log('limit:', limit);
+
+    const [data, total] = await this.userRepository.findAndCount({
+      where: { major, status },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    return { data, total };
+  }
+
+  // searchUsersStatusTeacher
+  // async searchUsersStatusTeacher(
+  //   status: string = 'ดำรงตำแหน่ง',
+  // ): Promise<User[]> {
+  //   return this.userRepository
+  //     .createQueryBuilder('user')
+  //     .where('user.status = :status', { status })
+  //     .orWhere('user.role = :role', { role: 'อาจารย์' })
+  //     .getMany();
+  // }
+  // searchUsersStatusTeacherAdmin
+  async searchUsersStatusTeacherAdmin(
+    status: string = 'ดำรงตำแหน่ง',
+  ): Promise<User[]> {
     return this.userRepository
       .createQueryBuilder('user')
-      .where('user.status LIKE :search', { search: `%${search}%` })
+      .where('user.status = :status', { status })
+      .andWhere(
+        new Brackets((qb) => {
+          qb.where('user.role = :role1', { role1: 'อาจารย์' }).orWhere(
+            'user.role = :role2',
+            { role2: 'แอดมิน' },
+          );
+        }),
+      )
       .getMany();
   }
 
@@ -823,5 +923,60 @@ export class UsersService {
   //checkStudentIdDuplicate
   async checkStudentIdDuplicate(studentId: string): Promise<User> {
     return this.userRepository.findOne({ where: { studentId } });
+  }
+
+  //getTeacher
+  async getTeacher(): Promise<User[]> {
+    return this.userRepository.find({ where: { role: 'อาจารย์' } });
+  }
+
+  //getTeacherPagination
+  async getTeacherPagination(
+    page: number,
+    limit: number,
+  ): Promise<{ data: User[]; total: number }> {
+    console.log('page:', page);
+    console.log('limit:', limit);
+
+    const [data, total] = await this.userRepository.findAndCount({
+      where: { role: 'อาจารย์' },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    return { data, total };
+  }
+
+  //getStudentPagination
+  async getStudentPagination(
+    page: number,
+    limit: number,
+  ): Promise<{ data: User[]; total: number }> {
+    console.log('page:', page);
+    console.log('limit:', limit);
+
+    const [data, total] = await this.userRepository.findAndCount({
+      where: { role: 'นิสิต' },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    return { data, total };
+  }
+  //getAdminPagination
+  async getAdminPagination(
+    page: number,
+    limit: number,
+  ): Promise<{ data: User[]; total: number }> {
+    console.log('page:', page);
+    console.log('limit:', limit);
+
+    const [data, total] = await this.userRepository.findAndCount({
+      where: { role: 'แอดมิน' },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    return { data, total };
   }
 }

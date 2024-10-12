@@ -30,23 +30,7 @@ import { Roles } from 'src/authorize/roles.decorator';
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
-  //getStudent by role == นิสิต
-  @Get('students')
-  async getStudents() {
-    return this.usersService.getUsersByRole('นิสิต');
-  }
 
-  //getTeacher by role == อาจารย์
-  @Get('teachers')
-  async getTeacher() {
-    return this.usersService.getUsersByRole('อาจารย์');
-  }
-
-  // users.controller.ts
-  @Get('admins')
-  async getAdmins() {
-    return await this.usersService.getUsersByRole('แอดมิน');
-  }
   //getUserpagination
   @Get('pagination')
   async getUserPagination(
@@ -57,6 +41,46 @@ export class UsersController {
     console.log('limit: ', limit);
 
     return this.usersService.getUserPagination(page, limit);
+  }
+  //paginate get student
+  @Get('students/pagination')
+  async getStudentPagination(
+    @Query('page') page: 1,
+    @Query('limit') limit: 20,
+  ): Promise<{ data: User[]; total: number }> {
+    console.log('page: ', page);
+    console.log('limit: ', limit);
+
+    return this.usersService.getStudentPagination(page, limit);
+  }
+
+  //getTeacher
+  @Get('teachers')
+  async getTeacher(): Promise<User[]> {
+    return this.usersService.getTeacher();
+  }
+
+  //paginate get teacher
+  @Get('teachers/pagination')
+  async getTeacherPagination(
+    @Query('page') page: 1,
+    @Query('limit') limit: 20,
+  ): Promise<{ data: User[]; total: number }> {
+    console.log('page: ', page);
+    console.log('limit: ', limit);
+
+    return this.usersService.getTeacherPagination(page, limit);
+  }
+  //paginate get admin
+  @Get('admins/pagination')
+  async getAdminPagination(
+    @Query('page') page: 1,
+    @Query('limit') limit: 20,
+  ): Promise<{ data: User[]; total: number }> {
+    console.log('page: ', page);
+    console.log('limit: ', limit);
+
+    return this.usersService.getAdminPagination(page, limit);
   }
 
   @Get('search')
@@ -70,21 +94,66 @@ export class UsersController {
     return this.usersService.searchUsersYear(year);
   }
 
-  //search majors
-  @Get('search/major')
-  async searchMajors(@Query('major') major: string): Promise<User[]> {
-    return this.usersService.searchUsersMajor(major);
+  // //searchStatusTeacher
+  // @Get('search/statusTeacher')
+  // async searchStatusTeacher(@Query('status') status: string): Promise<User[]> {
+  //   return this.usersService.searchUsersStatusTeacher(status);
+  // }
+
+  //search status Teacher and Admin
+  @Get('search/statusTeacherAdmin')
+  async searchStatusTeacherAdmin(
+    @Query('status') status: string,
+  ): Promise<User[]> {
+    return this.usersService.searchUsersStatusTeacherAdmin(status);
+  }
+
+  // //search majors
+  // @Get('search/major')
+  // async searchMajors(@Query('major') major: string): Promise<User[]> {
+  //   return this.usersService.searchUsersMajor(major);
+  // }
+
+  //search majors paginate
+  @Get('search/major/pagination')
+  async searchMajorsPagination(
+    @Query('major') major: string,
+    @Query('page') page: 1,
+    @Query('limit') limit: 20,
+  ): Promise<{ data: User[]; total: number }> {
+    return this.usersService.searchUsersMajorPagination(major, page, limit);
   }
 
   //search status
-  @Get('search/status')
-  async searchStatus(@Query('status') status: string): Promise<User[]> {
-    return this.usersService.searchUsersStatus(status);
+  // @Get('search/status')
+  // async searchStatus(@Query('status') status: string): Promise<User[]> {
+  //   return this.usersService.searchUsersStatus(status);
+  // }
+
+  //searchUsersByMajorAndStatus pagination
+  @Get('search/major-status/pagination')
+  async searchUsersByMajorAndStatusPagination(
+    @Query('major') major: string,
+    @Query('status') status: string,
+    @Query('page') page: 1,
+    @Query('limit') limit: 20,
+  ): Promise<{ data: User[]; total: number }> {
+    return this.usersService.searchUsersByMajorAndStatusPagination(
+      major,
+      status,
+      page,
+      limit,
+    );
   }
 
-  @Get('teachers')
-  getTeachers() {
-    return this.usersService.getUsersByRole('อาจารย์');
+  //search status paginate
+  @Get('search/status/pagination')
+  async searchStatusPagination(
+    @Query('status') status: string,
+    @Query('page') page: 1,
+    @Query('limit') limit: 20,
+  ): Promise<{ data: User[]; total: number }> {
+    return this.usersService.searchUsersStatusPagination(status, page, limit);
   }
 
   @Post('upload')
@@ -302,10 +371,12 @@ export class UsersController {
     return await this.usersService.generateQrCodeForOrder(link);
   }
 
-  //check email duplicate
   @Get('email/:email')
-  async checkEmailDuplicate(@Param('email') email: string) {
-    return await this.usersService.checkEmailDuplicate(email);
+  async checkEmailDuplicate(
+    @Param('email') email: string,
+    @Query('userId') userId: number,
+  ) {
+    return await this.usersService.checkEmailDuplicate(email, userId);
   }
 
   //check student Id duplicate
