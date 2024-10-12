@@ -1,5 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  HttpStatus,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateAttendanceDto } from './dto/create-attendance.dto';
 import { UpdateAttendanceDto } from './dto/update-attendance.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -439,6 +444,107 @@ export class AttendancesService {
       }
     } catch (error) {
       console.log(error);
+    }
+  }
+
+  async revalidateAttendance(assignmentId: number) {
+    try {
+      const attendances = await this.attendanceRepository.find({
+        where: { assignment: { assignmentId: assignmentId } },
+        relations: ['user', 'assignment', 'assignment.course'],
+      });
+
+      console.log(attendances);
+
+      if (!attendances) {
+        throw new NotFoundException('Attendances not found');
+      }
+
+      // Extract user IDs from the attendance records, skipping null users
+      const usersInAttendanceIds = new Set(
+        attendances
+          .filter((a) => a.user) // Filter out attendances with null or undefined users
+          .map((a) => a.user.userId),
+      );
+
+      // Get all users enrolled in the course
+      const usersInCourse = await this.enrollmentRepository.find({
+        where: {
+          course: { coursesId: attendances[0].assignment.course.coursesId },
+        },
+        relations: ['user', 'course', 'user.attendance'],
+      });
+
+      const usersInCourseList = usersInCourse.map(
+        (enrollment) => enrollment.user,
+      );
+
+      // Find users who are in the course but not in the attendance records
+      const usersToCreateAttendance = usersInCourseList.filter(
+        (user) => !usersInAttendanceIds.has(user.userId),
+      );
+
+      // Group attendances by userId to find duplicates, skip null users
+      const groupedAttendances = attendances.reduce((group, att) => {
+        if (!att.user) {
+          return group; // Skip records where the user is null or undefined
+        }
+
+        const userId = att.user.userId;
+        if (!group[userId]) {
+          group[userId] = [];
+        }
+        group[userId].push(att);
+        return group;
+      }, {});
+
+      // Process duplicate attendances
+      for (const userId in groupedAttendances) {
+        const userAttendances = groupedAttendances[userId];
+        if (userAttendances.length > 1) {
+          // Sort attendances by score (assuming attendanceScore exists)
+          userAttendances.sort((a, b) => b.attendanceScore - a.attendanceScore);
+          const bestAttendance = userAttendances[0];
+
+          // Remove all duplicate attendances except the one with the highest score
+          for (let i = 1; i < userAttendances.length; i++) {
+            await this.attendanceRepository.remove(userAttendances[i]);
+          }
+
+          // Update the best attendance if necessary (optional)
+          bestAttendance.attendanceConfirmStatus = 'confirmed';
+          await this.attendanceRepository.save(bestAttendance);
+        }
+      }
+
+      // Remove image if it exists
+      const imagePath = join('./', 'attendance_image');
+      const image = attendances[0].attendanceImage;
+      const imageFullPath = join(imagePath, image);
+
+      try {
+        await fsPromises.unlink(imageFullPath);
+      } catch (error) {
+        console.error('Error removing image:', error);
+      }
+
+      // Create attendance records for users without existing records
+      for (const user of usersToCreateAttendance) {
+        const newAttendance = new Attendance();
+        newAttendance.user = user;
+        newAttendance.assignment = attendances[0].assignment;
+        newAttendance.attendanceDate = new Date();
+        newAttendance.attendanceStatus = 'absent';
+        newAttendance.attendanceConfirmStatus = 'notconfirm';
+        newAttendance.attendanceImage = 'noimage.jpg';
+
+        await this.attendanceRepository.save(newAttendance);
+      }
+
+      return 'Attendance revalidated';
+    } catch (error) {
+      console.log(error);
+      throw new InternalServerErrorException('Error revalidating attendance');
     }
   }
 
