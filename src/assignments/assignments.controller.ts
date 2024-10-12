@@ -28,7 +28,7 @@ export class AssignmentsController {
 
   @Post()
   @UseInterceptors(
-    FilesInterceptor('files', 10, {
+    FilesInterceptor('files', 20, {
       storage: diskStorage({
         destination: './assignment_images',
         filename: (req, file, cb) => {
@@ -42,7 +42,7 @@ export class AssignmentsController {
     @Body() createAssignmentDto: CreateAssignmentDto,
     @UploadedFiles() files: Array<Express.Multer.File>,
   ) {
-    if (!files || files.length === 0 || files.length > 10) {
+    if (!files || files.length === 0 || files.length > 20) {
       throw new BadRequestException('Between 1 and 5 images are required.');
     }
 
