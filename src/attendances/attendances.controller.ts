@@ -10,10 +10,12 @@ import {
   UploadedFile,
   Patch,
   Res,
+  UploadedFiles,
+  BadRequestException,
 } from '@nestjs/common';
 import { AttendancesService } from './attendances.service';
 import { CreateAttendanceDto } from './dto/create-attendance.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { UpdateAttendanceDto } from './dto/update-attendance.dto';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
@@ -43,6 +45,43 @@ export class AttendancesController {
     createAttendanceDto.attendanceImage = file ? file.filename : 'noimage.jpg';
     return this.attendancesService.create(createAttendanceDto);
   }
+
+  @Post('upload')
+  @UseInterceptors(
+    FilesInterceptor('images', 500, {
+      storage: diskStorage({
+        destination: './attendance_image',
+        filename: (req, file, cb) => {
+          const tempFilename = uuidv4() + extname(file.originalname);
+          cb(null, tempFilename);
+        },
+      }),
+    }),
+  )
+  async createMany(
+    @UploadedFiles() files: Array<Express.Multer.File>,
+    @Body('attendances') attendances: string,
+  ) {
+    try {
+      // Parse the attendances JSON string
+      const parsedAttendances: CreateAttendanceDto[] = JSON.parse(attendances);
+
+      // Map the files to their corresponding attendance records
+      parsedAttendances.forEach((attendance, index) => {
+        attendance.attendanceImage = files[index]
+          ? files[index].filename
+          : 'noimage.jpg';
+      });
+      console.log(parsedAttendances);
+
+      // Save the attendance records
+      return this.attendancesService.createMany(parsedAttendances);
+    } catch (error) {
+      console.error('Error creating multiple attendances:', error);
+      throw new BadRequestException('Failed to create attendances.');
+    }
+  }
+
   // revalidateAttendance
   @Get('revalidate/:assignmentId')
   revalidateAttendance(@Param('assignmentId') assignmentId: string) {

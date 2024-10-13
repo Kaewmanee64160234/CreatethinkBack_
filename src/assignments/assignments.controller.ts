@@ -32,6 +32,8 @@ export class AssignmentsController {
       storage: diskStorage({
         destination: './assignment_images',
         filename: (req, file, cb) => {
+          console.log('Received file:', file);
+
           const uniqueSuffix = `${Date.now()}-${uuid4()}${extname(file.originalname)}`;
           cb(null, uniqueSuffix);
         },
@@ -40,17 +42,17 @@ export class AssignmentsController {
   )
   async create(
     @Body() createAssignmentDto: CreateAssignmentDto,
-    @UploadedFiles() files: Array<Express.Multer.File>,
+    @UploadedFiles() files: Array<Express.Multer.File> = [], // Default to empty array if no files are uploaded
   ) {
-    if (!files || files.length === 0 || files.length > 20) {
-      throw new BadRequestException('Between 1 and 5 images are required.');
-    }
-
     console.log('Received data:', createAssignmentDto);
     console.log('Received files:', files);
 
-    // Map the file names to the DTO
-    createAssignmentDto.assignmentImages = files.map((file) => file.filename);
+    // Only map file names if files are provided
+    if (files.length > 0) {
+      createAssignmentDto.assignmentImages = files.map((file) => file.filename);
+    } else {
+      createAssignmentDto.assignmentImages = []; // Ensure it's an empty array if no files are uploaded
+    }
 
     try {
       const result = await this.assignmentsService.create(createAssignmentDto);
