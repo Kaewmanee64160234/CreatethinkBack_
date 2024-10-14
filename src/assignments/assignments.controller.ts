@@ -80,6 +80,8 @@ export class AssignmentsController {
   }
 
   @Get()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  // @Roles(Role.Teacher)
   findAll() {
     return this.assignmentsService.findAll();
   }

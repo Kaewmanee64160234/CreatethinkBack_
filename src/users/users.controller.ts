@@ -359,8 +359,6 @@ export class UsersController {
 
   // getUserByCourseId
   @Get('/course/:courseId')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.Admin, Role.Teacher)
   getUserByCourseId(@Param('courseId') courseId: string) {
     return this.usersService.getUserByCourseId(courseId);
   }

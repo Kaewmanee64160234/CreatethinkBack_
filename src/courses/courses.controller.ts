@@ -52,8 +52,6 @@ export class CoursesController {
   }
 
   @Get(':id')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.Teacher)
   findOne(@Param('id') id: string) {
     return this.coursesService.findOne(id);
   }
