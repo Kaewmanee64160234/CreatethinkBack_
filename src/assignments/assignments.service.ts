@@ -170,6 +170,30 @@ export class AssignmentsService {
       console.error(`Error deleting file: ${filePath}`, error);
     }
   }
+  // updateImage
+  async updateImage(
+    id: number,
+    assignmentImages: string[],
+  ): Promise<Assignment> {
+    try {
+      // Check if assignment exists
+      const assignment = await this.assignmentRepository.findOne({
+        where: { assignmentId: id },
+      });
+
+      if (!assignment) {
+        throw new NotFoundException('Assignment not found');
+      }
+
+      // Update assignment images
+      assignment.assignmentImages = assignmentImages;
+
+      return this.assignmentRepository.save(assignment);
+    } catch (error) {
+      console.error('Error updating assignment image:', error);
+      throw new Error('Internal server error: ' + error.message);
+    }
+  }
 
   //get Assginment by course id
   async getAssignmentByCourseId(courseId: string) {
