@@ -158,7 +158,9 @@ export class CoursesService {
       },
     });
     if (!courses || courses.length === 0) {
-      throw new NotFoundException('Courses not found for this teacherId');
+      // throw new NotFoundException('Courses not found for this teacherId');
+      console.log('No courses found for this teacherId');
+      return courses;
     }
     return courses;
   }
