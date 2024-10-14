@@ -11,6 +11,7 @@ import {
   BadRequestException,
   Res,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { AssignmentsService } from './assignments.service';
 import { CreateAssignmentDto } from './dto/create-assignment.dto';
@@ -21,12 +22,18 @@ import { extname } from 'path';
 // impoet uuid from
 import { v4 as uuid4 } from 'uuid';
 import { Response } from 'express';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { RolesGuard } from 'src/authorize/roles.guard';
+import { Roles } from 'src/authorize/roles.decorator';
+import { Role } from 'src/types/Role.enum';
 
 @Controller('assignments')
 export class AssignmentsController {
   constructor(private readonly assignmentsService: AssignmentsService) {}
 
   @Post()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Teacher)
   @UseInterceptors(
     FilesInterceptor('files', 20, {
       storage: diskStorage({
@@ -66,6 +73,8 @@ export class AssignmentsController {
   }
 
   @Get('image/filename/:filename')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Teacher)
   async serveImage(@Param('filename') filename: string, @Res() res: Response) {
     res.status(200).sendFile(filename, { root: './assignment_images' });
   }
@@ -81,6 +90,8 @@ export class AssignmentsController {
   }
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Teacher)
   async update(
     @Param('id') id: number,
     @Body() updateAssignmentDto: UpdateAssignmentDto,
@@ -89,6 +100,8 @@ export class AssignmentsController {
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Teacher)
   async deleteAssignment(@Param('id') id: number) {
     return await this.assignmentsService.remove(id);
   }
