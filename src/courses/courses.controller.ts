@@ -46,7 +46,7 @@ export class CoursesController {
 
   @Get()
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.Teacher)
+  @Roles(Role.Teacher, Role.Student)
   findAll() {
     return this.coursesService.findAll();
   }

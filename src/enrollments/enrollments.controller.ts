@@ -54,7 +54,7 @@ export class EnrollmentsController {
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.Student)
+  @Roles(Role.Student, Role.Teacher)
   remove(@Param('id') id: string) {
     return this.enrollmentsService.remove(+id);
   }
@@ -67,7 +67,7 @@ export class EnrollmentsController {
 
   @Get('/course/:courseId')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.Student)
+  @Roles(Role.Student, Role.Teacher)
   async findStdByCourseId(@Param('courseId') courseId: string) {
     return this.enrollmentsService.findStdByCourseId(courseId);
   }

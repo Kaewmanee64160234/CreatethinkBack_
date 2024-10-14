@@ -64,7 +64,7 @@ export class UsersController {
   //getTeacher
   @Get('teachers')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.Admin)
+  @Roles(Role.Admin, Role.Student)
   async getTeacher(): Promise<User[]> {
     return this.usersService.getTeacher();
   }
@@ -246,7 +246,7 @@ export class UsersController {
   // @UseGuards(JwtAuthGuard, RolesGuard)
   @Get()
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.Admin)
+  @Roles(Role.Admin, Role.Teacher)
   findAll() {
     return this.usersService.findAll();
   }
