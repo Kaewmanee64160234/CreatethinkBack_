@@ -22,15 +22,7 @@ import { AuthController } from './auth.controller';
     }),
     TypeOrmModule.forFeature([User]),
   ],
-  providers: [
-    AuthService,
-    // LocalStrategy,
-    JwtStrategy,
-    // {
-    //   provide: APP_GUARD,
-    //   useClass: RolesGuard,
-    // },
-  ],
+  providers: [AuthService, JwtStrategy],
 
   exports: [AuthService],
   controllers: [AuthController],
