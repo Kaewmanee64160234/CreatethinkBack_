@@ -114,9 +114,10 @@ export class EnrollmentsService {
         },
       },
     });
-    console.log('1', enrollments);
     if (!enrollments || enrollments.length === 0) {
-      throw new NotFoundException('No enrollments found for this course ID');
+      // throw new NotFoundException('No enrollments found for this course ID');
+      console.log('No enrollments found for this course ID');
+      return enrollments;
     }
     return enrollments;
   }
