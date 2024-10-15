@@ -182,31 +182,41 @@ export class UsersService {
   async findAll() {
     const users = await this.userRepository.find();
     return users.map((user) => {
-      user.faceDescriptor1 = user.faceDescriptor1
-        ? this.float32ArrayToBase64(
-            new Float32Array(JSON.parse(user.faceDescriptor1)),
-          )
-        : null;
-      user.faceDescriptor2 = user.faceDescriptor2
-        ? this.float32ArrayToBase64(
-            new Float32Array(JSON.parse(user.faceDescriptor2)),
-          )
-        : null;
-      user.faceDescriptor3 = user.faceDescriptor3
-        ? this.float32ArrayToBase64(
-            new Float32Array(JSON.parse(user.faceDescriptor3)),
-          )
-        : null;
-      user.faceDescriptor4 = user.faceDescriptor4
-        ? this.float32ArrayToBase64(
-            new Float32Array(JSON.parse(user.faceDescriptor4)),
-          )
-        : null;
-      user.faceDescriptor5 = user.faceDescriptor5
-        ? this.float32ArrayToBase64(
-            new Float32Array(JSON.parse(user.faceDescriptor5)),
-          )
-        : null;
+      try {
+        user.faceDescriptor1 = user.faceDescriptor1
+          ? this.float32ArrayToBase64(
+              new Float32Array(JSON.parse(user.faceDescriptor1.trim())),
+            )
+          : null;
+        user.faceDescriptor2 = user.faceDescriptor2
+          ? this.float32ArrayToBase64(
+              new Float32Array(JSON.parse(user.faceDescriptor2.trim())),
+            )
+          : null;
+        user.faceDescriptor3 = user.faceDescriptor3
+          ? this.float32ArrayToBase64(
+              new Float32Array(JSON.parse(user.faceDescriptor3.trim())),
+            )
+          : null;
+        user.faceDescriptor4 = user.faceDescriptor4
+          ? this.float32ArrayToBase64(
+              new Float32Array(JSON.parse(user.faceDescriptor4.trim())),
+            )
+          : null;
+        user.faceDescriptor5 = user.faceDescriptor5
+          ? this.float32ArrayToBase64(
+              new Float32Array(JSON.parse(user.faceDescriptor5.trim())),
+            )
+          : null;
+      } catch (error) {
+        console.error('Error parsing faceDescriptor:', error);
+        user.faceDescriptor1 =
+          user.faceDescriptor2 =
+          user.faceDescriptor3 =
+          user.faceDescriptor4 =
+          user.faceDescriptor5 =
+            null;
+      }
       return user;
     });
   }
