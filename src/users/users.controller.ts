@@ -403,7 +403,7 @@ export class UsersController {
   // @Roles(Role.Teacher, Role.Admin)
   @Get(':stdId/qr')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.Admin, Role.Teacher, Role.Student)
+  @Roles(Role.Student)
   async generateQrCode(@Param('stdId') stdId: string): Promise<string> {
     const link = `http://localhost:5173/confirmRegister/${stdId}`;
     return await this.usersService.generateQrCodeForOrder(link);
