@@ -264,19 +264,20 @@ export class NotiforupdateService {
     };
   }
 
-  //getNotificationByStatus
-  async getNotificationByStatus(status: string) {
+  //getNotification last created by userId
+  async getNotificationLastCreated(userId: number) {
     const notifications = await this.notiforupdateRepository.find({
-      where: { statusConfirmation: status },
+      where: { userSender: { userId: userId } },
+      order: { createdDate: 'DESC' },
+      take: 1,
     });
 
     if (!notifications || notifications.length === 0) {
       throw new NotFoundException('Notifications not found');
     }
 
-    return notifications;
+    return notifications[0];
   }
-
   // async sendReUploadEmail(userId: number) {
   //   // Fetch user details by userId
   //   const user = await this.userRepository.findOneBy({ userId });
@@ -349,11 +350,14 @@ export class NotiforupdateService {
     return this.notiforupdateRepository.delete(id);
   }
 
-  // getNotificationByUserReceive
   async getNotificationByUserReceive(userId: number) {
     const notifications = await this.notiforupdateRepository.find({
-      where: { userReceive: { userId: userId } }, // Directly matching userId
+      where: {
+        userReceive: { userId }, // Match the userId in the relation
+        statusConfirmation: 'pending', // Only get notifications with pending status
+      },
       relations: ['userSender'], // Load userSender relations
+      order: { createdDate: 'DESC' }, // Order by createdDate in descending order
     });
 
     if (!notifications || notifications.length === 0) {

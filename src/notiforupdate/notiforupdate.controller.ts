@@ -123,10 +123,11 @@ export class NotiforupdateController {
   ) {
     return this.notiforupdateService.update(+id, updateNotiforupdateDto);
   }
+
   //getNotificationByUserReceive
   @Get('userReceive/:id')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.Admin, Role.Teacher, Role.Student)
+  // @UseGuards(JwtAuthGuard, RolesGuard)
+  // @Roles(Role.Admin, Role.Teacher, Role.Student)
   getNotificationByUserReceive(@Param('id') id: string) {
     return this.notiforupdateService.getNotificationByUserReceive(+id);
   }
@@ -183,12 +184,11 @@ export class NotiforupdateController {
     );
   }
 
-  //get notification status
-  @Get('status/:status')
-  getNotificationByStatus(@Param('status') status: string) {
-    return this.notiforupdateService.getNotificationByStatus(status);
+  ////getNotification last created by userId
+  @Get('lastCreated/:id')
+  async getNotificationLastCreatedByUserId(@Param('id') id: string) {
+    return this.notiforupdateService.getNotificationLastCreated(+id);
   }
-
   // // get images user
   // @Get(':id/image/:imageKey')
   // async getImageById(
