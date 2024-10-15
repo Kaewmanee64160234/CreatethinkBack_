@@ -135,8 +135,8 @@ export class UsersController {
 
   //search majors paginate
   @Get('search/major/pagination')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.Admin)
+  // @UseGuards(JwtAuthGuard, RolesGuard)
+  // @Roles(Role.Admin)
   async searchMajorsPagination(
     @Query('major') major: string,
     @Query('page') page: 1,
