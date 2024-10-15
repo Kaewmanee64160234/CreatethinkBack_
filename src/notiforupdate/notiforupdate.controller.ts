@@ -158,6 +158,12 @@ export class NotiforupdateController {
     );
   }
 
+  //get notification status
+  @Get('status/:status')
+  getNotificationByStatus(@Param('status') status: string) {
+    return this.notiforupdateService.getNotificationByStatus(status);
+  }
+
   // // get images user
   // @Get(':id/image/:imageKey')
   // async getImageById(

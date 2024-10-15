@@ -225,7 +225,7 @@ export class NotiforupdateService {
     notification.statusConfirmation = 'confirmed';
     await this.notiforupdateRepository.save(notification);
     // remove notice after save
-    await this.notiforupdateRepository.delete(notification.notiforupdateId);
+    // await this.notiforupdateRepository.delete(notification.notiforupdateId);
 
     return {
       message: 'Notification confirmed, user updated, and images copied',
@@ -256,12 +256,25 @@ export class NotiforupdateService {
     // Update the notification status to 'rejected'
     notification.statusConfirmation = 'rejected';
     await this.notiforupdateRepository.save(notification);
-    await this.notiforupdateRepository.delete(notification.notiforupdateId);
+    // await this.notiforupdateRepository.delete(notification.notiforupdateId);
 
     return {
       message:
         'การอัปโหลดล่าสุดของคุณไม่ตรงตามมาตรฐานที่กำหนด โปรดอัปโหลดรูปภาพที่จำเป็นอีกครั้ง',
     };
+  }
+
+  //getNotificationByStatus
+  async getNotificationByStatus(status: string) {
+    const notifications = await this.notiforupdateRepository.find({
+      where: { statusConfirmation: status },
+    });
+
+    if (!notifications || notifications.length === 0) {
+      throw new NotFoundException('Notifications not found');
+    }
+
+    return notifications;
   }
 
   // async sendReUploadEmail(userId: number) {
