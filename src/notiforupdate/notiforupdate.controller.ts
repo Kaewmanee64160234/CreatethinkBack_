@@ -10,6 +10,7 @@ import {
   Body,
   Delete,
   Res,
+  UseGuards,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -18,11 +19,17 @@ import { extname } from 'path';
 import { NotiforupdateService } from './notiforupdate.service';
 import { UpdateNotiforupdateDto } from './dto/update-notiforupdate.dto';
 import { User } from 'src/users/entities/user.entity';
+import { Roles } from 'src/authorize/roles.decorator';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { RolesGuard } from 'src/authorize/roles.guard';
+import { Role } from 'src/types/Role.enum';
 
 @Controller('notiforupdates')
 export class NotiforupdateController {
   constructor(private readonly notiforupdateService: NotiforupdateService) {}
   @Post()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Admin, Role.Teacher, Role.Student)
   @UseInterceptors(
     FilesInterceptor('files', 5, {
       storage: diskStorage({
@@ -79,27 +86,37 @@ export class NotiforupdateController {
   }
 
   @Patch(':id/confirm')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Admin, Role.Teacher)
   async confirm(@Param('id') id: string) {
     console.log(`Received confirm request for notification ID: ${id}`);
     return this.notiforupdateService.confirmNotification(+id);
   }
 
   @Patch(':id/reject')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Admin, Role.Teacher)
   reject(@Param('id') id: string) {
     return this.notiforupdateService.rejectNotification(+id);
   }
 
   @Get()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Admin, Role.Teacher)
   findAll() {
     return this.notiforupdateService.findAll();
   }
 
   @Get(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Admin, Role.Teacher, Role.Student)
   findOne(@Param('id') id: string) {
     return this.notiforupdateService.findOne(+id);
   }
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Admin, Role.Teacher, Role.Student)
   update(
     @Param('id') id: string,
     @Body() updateNotiforupdateDto: UpdateNotiforupdateDto,
@@ -108,11 +125,16 @@ export class NotiforupdateController {
   }
   //getNotificationByUserReceive
   @Get('userReceive/:id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Admin, Role.Teacher, Role.Student)
   getNotificationByUserReceive(@Param('id') id: string) {
     return this.notiforupdateService.getNotificationByUserReceive(+id);
   }
 
   @Delete(':id')
+  @Get('userReceive/:id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Admin, Role.Teacher)
   remove(@Param('id') id: string) {
     return this.notiforupdateService.remove(+id);
   }
@@ -146,6 +168,9 @@ export class NotiforupdateController {
   }
 
   @Post('sendEmailToTeacher')
+  @Get('userReceive/:id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Admin, Role.Teacher, Role.Student)
   async sendEmailToTeacher(
     @Body('teacherFirstName') teacherFirstName: string,
     @Body('teacherLastName') teacherLastName: string,

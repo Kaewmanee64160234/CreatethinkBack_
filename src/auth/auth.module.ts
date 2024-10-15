@@ -18,19 +18,11 @@ import { AuthController } from './auth.controller';
     PassportModule,
     JwtModule.register({
       secret: jwtConstants.secret,
-      signOptions: { expiresIn: '24h' },
+      signOptions: { expiresIn: '3h' },
     }),
     TypeOrmModule.forFeature([User]),
   ],
-  providers: [
-    AuthService,
-    // LocalStrategy,
-    JwtStrategy,
-    // {
-    //   provide: APP_GUARD,
-    //   useClass: RolesGuard,
-    // },
-  ],
+  providers: [AuthService, JwtStrategy],
 
   exports: [AuthService],
   controllers: [AuthController],

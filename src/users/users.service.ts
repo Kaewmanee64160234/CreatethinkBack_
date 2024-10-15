@@ -182,31 +182,41 @@ export class UsersService {
   async findAll() {
     const users = await this.userRepository.find();
     return users.map((user) => {
-      user.faceDescriptor1 = user.faceDescriptor1
-        ? this.float32ArrayToBase64(
-            new Float32Array(JSON.parse(user.faceDescriptor1)),
-          )
-        : null;
-      user.faceDescriptor2 = user.faceDescriptor2
-        ? this.float32ArrayToBase64(
-            new Float32Array(JSON.parse(user.faceDescriptor2)),
-          )
-        : null;
-      user.faceDescriptor3 = user.faceDescriptor3
-        ? this.float32ArrayToBase64(
-            new Float32Array(JSON.parse(user.faceDescriptor3)),
-          )
-        : null;
-      user.faceDescriptor4 = user.faceDescriptor4
-        ? this.float32ArrayToBase64(
-            new Float32Array(JSON.parse(user.faceDescriptor4)),
-          )
-        : null;
-      user.faceDescriptor5 = user.faceDescriptor5
-        ? this.float32ArrayToBase64(
-            new Float32Array(JSON.parse(user.faceDescriptor5)),
-          )
-        : null;
+      try {
+        user.faceDescriptor1 = user.faceDescriptor1
+          ? this.float32ArrayToBase64(
+              new Float32Array(JSON.parse(user.faceDescriptor1.trim())),
+            )
+          : null;
+        user.faceDescriptor2 = user.faceDescriptor2
+          ? this.float32ArrayToBase64(
+              new Float32Array(JSON.parse(user.faceDescriptor2.trim())),
+            )
+          : null;
+        user.faceDescriptor3 = user.faceDescriptor3
+          ? this.float32ArrayToBase64(
+              new Float32Array(JSON.parse(user.faceDescriptor3.trim())),
+            )
+          : null;
+        user.faceDescriptor4 = user.faceDescriptor4
+          ? this.float32ArrayToBase64(
+              new Float32Array(JSON.parse(user.faceDescriptor4.trim())),
+            )
+          : null;
+        user.faceDescriptor5 = user.faceDescriptor5
+          ? this.float32ArrayToBase64(
+              new Float32Array(JSON.parse(user.faceDescriptor5.trim())),
+            )
+          : null;
+      } catch (error) {
+        console.error('Error parsing faceDescriptor:', error);
+        user.faceDescriptor1 =
+          user.faceDescriptor2 =
+          user.faceDescriptor3 =
+          user.faceDescriptor4 =
+          user.faceDescriptor5 =
+            null;
+      }
       return user;
     });
   }
@@ -679,73 +689,45 @@ export class UsersService {
 
   async getUserByCourseId(courseId: string) {
     try {
-      const user = await this.userRepository.find({
+      const users = await this.userRepository.find({
         where: { enrollments: { course: Equal(courseId) } },
         relations: ['enrollments', 'enrollments.course'],
       });
 
-      if (!user) {
-        throw new NotFoundException('Course not found');
-      } else {
-        user.map((user) => {
-          try {
-            user.faceDescriptor1 = user.faceDescriptor1
-              ? this.float32ArrayToBase64(
-                  new Float32Array(JSON.parse(user.faceDescriptor1)),
-                )
-              : null;
-          } catch (e) {
-            console.error('Error parsing faceDescriptor1:', e);
-            user.faceDescriptor1 = null;
-          }
-
-          try {
-            user.faceDescriptor2 = user.faceDescriptor2
-              ? this.float32ArrayToBase64(
-                  new Float32Array(JSON.parse(user.faceDescriptor2)),
-                )
-              : null;
-          } catch (e) {
-            console.error('Error parsing faceDescriptor2:', e);
-            user.faceDescriptor2 = null;
-          }
-
-          try {
-            user.faceDescriptor3 = user.faceDescriptor3
-              ? this.float32ArrayToBase64(
-                  new Float32Array(JSON.parse(user.faceDescriptor3)),
-                )
-              : null;
-          } catch (e) {
-            console.error('Error parsing faceDescriptor3:', e);
-            user.faceDescriptor3 = null;
-          }
-
-          try {
-            user.faceDescriptor4 = user.faceDescriptor4
-              ? this.float32ArrayToBase64(
-                  new Float32Array(JSON.parse(user.faceDescriptor4)),
-                )
-              : null;
-          } catch (e) {
-            console.error('Error parsing faceDescriptor4:', e);
-            user.faceDescriptor4 = null;
-          }
-
-          try {
-            user.faceDescriptor5 = user.faceDescriptor5
-              ? this.float32ArrayToBase64(
-                  new Float32Array(JSON.parse(user.faceDescriptor5)),
-                )
-              : null;
-          } catch (e) {
-            console.error('Error parsing faceDescriptor5:', e);
-            user.faceDescriptor5 = null;
-          }
-        });
-
-        return user;
+      if (!users || users.length === 0) {
+        throw new NotFoundException('Course not found or no users enrolled.');
       }
+
+      users.forEach((user) => {
+        // Helper function to safely parse JSON
+        const safeParseDescriptor = (
+          descriptor: string | null,
+          descriptorIndex: number,
+        ) => {
+          try {
+            return descriptor
+              ? this.float32ArrayToBase64(
+                  new Float32Array(JSON.parse(descriptor)),
+                )
+              : null;
+          } catch (error) {
+            console.error(
+              `Error parsing faceDescriptor${descriptorIndex}:`,
+              error,
+            );
+            return null; // If parsing fails, return null
+          }
+        };
+
+        // Attempt to parse all face descriptors
+        user.faceDescriptor1 = safeParseDescriptor(user.faceDescriptor1, 1);
+        user.faceDescriptor2 = safeParseDescriptor(user.faceDescriptor2, 2);
+        user.faceDescriptor3 = safeParseDescriptor(user.faceDescriptor3, 3);
+        user.faceDescriptor4 = safeParseDescriptor(user.faceDescriptor4, 4);
+        user.faceDescriptor5 = safeParseDescriptor(user.faceDescriptor5, 5);
+      });
+
+      return users;
     } catch (error) {
       console.error('Error fetching user:', error);
       throw new Error('Error fetching user');

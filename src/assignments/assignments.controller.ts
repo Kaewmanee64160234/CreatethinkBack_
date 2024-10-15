@@ -11,6 +11,7 @@ import {
   BadRequestException,
   Res,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { AssignmentsService } from './assignments.service';
 import { CreateAssignmentDto } from './dto/create-assignment.dto';
@@ -21,17 +22,25 @@ import { extname } from 'path';
 // impoet uuid from
 import { v4 as uuid4 } from 'uuid';
 import { Response } from 'express';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { RolesGuard } from 'src/authorize/roles.guard';
+import { Roles } from 'src/authorize/roles.decorator';
+import { Role } from 'src/types/Role.enum';
 
 @Controller('assignments')
 export class AssignmentsController {
   constructor(private readonly assignmentsService: AssignmentsService) {}
 
   @Post()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Teacher)
   @UseInterceptors(
-    FilesInterceptor('files', 10, {
+    FilesInterceptor('files', 20, {
       storage: diskStorage({
         destination: './assignment_images',
         filename: (req, file, cb) => {
+          console.log('Received file:', file);
+
           const uniqueSuffix = `${Date.now()}-${uuid4()}${extname(file.originalname)}`;
           cb(null, uniqueSuffix);
         },
@@ -40,17 +49,18 @@ export class AssignmentsController {
   )
   async create(
     @Body() createAssignmentDto: CreateAssignmentDto,
-    @UploadedFiles() files: Array<Express.Multer.File>,
+    @UploadedFiles() files: Array<Express.Multer.File> = [], // Default to empty array if no files are uploaded
   ) {
-    if (!files || files.length === 0 || files.length > 10) {
-      throw new BadRequestException('Between 1 and 5 images are required.');
-    }
-
     console.log('Received data:', createAssignmentDto);
     console.log('Received files:', files);
 
-    // Map the file names to the DTO
-    createAssignmentDto.assignmentImages = files.map((file) => file.filename);
+    // Only map file names if files are provided
+    if (files.length > 0) {
+      createAssignmentDto.assignmentImages = files.map((file) => file.filename);
+    } else {
+      createAssignmentDto.assignmentImages = []; // Ensure it's an empty array if no files are uploaded
+    }
+    console.log(createAssignmentDto.assignmentImages);
 
     try {
       const result = await this.assignmentsService.create(createAssignmentDto);
@@ -63,12 +73,52 @@ export class AssignmentsController {
     }
   }
 
+  // update assigment by uplode image
+  @Patch(':id/image')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Teacher)
+  @UseInterceptors(
+    FilesInterceptor('files', 20, {
+      storage: diskStorage({
+        destination: './assignment_images',
+        filename: (req, file, cb) => {
+          console.log('Received file:', file);
+
+          const uniqueSuffix = `${Date.now()}-${uuid4()}${extname(file.originalname)}`;
+          cb(null, uniqueSuffix);
+        },
+      }),
+    }),
+  )
+  async updateImage(
+    @Param('id') id: number,
+    @UploadedFiles() files: Array<Express.Multer.File> = [], // Default to empty array if no files are uploaded
+  ) {
+    console.log('Received files:', files);
+
+    // Only map file names if files are provided
+    if (files.length > 0) {
+      const assignmentImages = files.map((file) => file.filename);
+      const result = await this.assignmentsService.updateImage(
+        id,
+        assignmentImages,
+      );
+      return result;
+    } else {
+      throw new BadRequestException(
+        'No files provided for assignment image update',
+      );
+    }
+  }
+
   @Get('image/filename/:filename')
   async serveImage(@Param('filename') filename: string, @Res() res: Response) {
     res.status(200).sendFile(filename, { root: './assignment_images' });
   }
 
   @Get()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  // @Roles(Role.Teacher)
   findAll() {
     return this.assignmentsService.findAll();
   }
@@ -79,6 +129,8 @@ export class AssignmentsController {
   }
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Teacher)
   async update(
     @Param('id') id: number,
     @Body() updateAssignmentDto: UpdateAssignmentDto,
@@ -87,6 +139,8 @@ export class AssignmentsController {
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Teacher)
   async deleteAssignment(@Param('id') id: number) {
     return await this.assignmentsService.remove(id);
   }

@@ -12,6 +12,7 @@ import {
   Res,
   Query,
   UploadedFile,
+  UseGuards,
   // UsePipes,
   // ValidationPipe,
 } from '@nestjs/common';
@@ -26,6 +27,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { User } from './entities/user.entity';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { Roles } from 'src/authorize/roles.decorator';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { RolesGuard } from 'src/authorize/roles.guard';
 
 @Controller('users')
 export class UsersController {
@@ -33,6 +36,8 @@ export class UsersController {
 
   //getUserpagination
   @Get('pagination')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Admin)
   async getUserPagination(
     @Query('page') page: 1,
     @Query('limit') limit: 20,
@@ -44,6 +49,8 @@ export class UsersController {
   }
   //paginate get student
   @Get('students/pagination')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Admin)
   async getStudentPagination(
     @Query('page') page: 1,
     @Query('limit') limit: 20,
@@ -56,12 +63,16 @@ export class UsersController {
 
   //getTeacher
   @Get('teachers')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Student, Role.Teacher)
   async getTeacher(): Promise<User[]> {
     return this.usersService.getTeacher();
   }
 
   //paginate get teacher
   @Get('teachers/pagination')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Admin)
   async getTeacherPagination(
     @Query('page') page: 1,
     @Query('limit') limit: 20,
@@ -73,6 +84,8 @@ export class UsersController {
   }
   //paginate get admin
   @Get('admins/pagination')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Admin)
   async getAdminPagination(
     @Query('page') page: 1,
     @Query('limit') limit: 20,
@@ -84,12 +97,16 @@ export class UsersController {
   }
 
   @Get('search')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Admin)
   async searchUsers(@Query('search') search: string): Promise<User[]> {
     return this.usersService.searchUsers(search);
   }
 
   //search years
   @Get('search/year')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Admin)
   async searchYears(@Query('year') year: string): Promise<User[]> {
     return this.usersService.searchUsersYear(year);
   }
@@ -102,6 +119,8 @@ export class UsersController {
 
   //search status Teacher and Admin
   @Get('search/statusTeacherAdmin')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Admin)
   async searchStatusTeacherAdmin(
     @Query('status') status: string,
   ): Promise<User[]> {
@@ -116,6 +135,8 @@ export class UsersController {
 
   //search majors paginate
   @Get('search/major/pagination')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Admin)
   async searchMajorsPagination(
     @Query('major') major: string,
     @Query('page') page: 1,
@@ -132,6 +153,8 @@ export class UsersController {
 
   //searchUsersByMajorAndStatus pagination
   @Get('search/major-status/pagination')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Admin)
   async searchUsersByMajorAndStatusPagination(
     @Query('major') major: string,
     @Query('status') status: string,
@@ -148,6 +171,8 @@ export class UsersController {
 
   //search status paginate
   @Get('search/status/pagination')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Admin)
   async searchStatusPagination(
     @Query('status') status: string,
     @Query('page') page: 1,
@@ -157,6 +182,8 @@ export class UsersController {
   }
 
   @Post('upload')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Admin)
   @UseInterceptors(
     FileInterceptor('file', {
       limits: { fileSize: 10 * 1024 * 1024 }, // Limit file size to 10MB
@@ -170,6 +197,8 @@ export class UsersController {
   }
 
   @Post()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Admin)
   // @UsePipes(new ValidationPipe({ whitelist: true }))
   @UseInterceptors(
     FilesInterceptor('files', 5, {
@@ -216,7 +245,8 @@ export class UsersController {
 
   // @UseGuards(JwtAuthGuard, RolesGuard)
   @Get()
-  @Roles(Role.Admin)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Admin, Role.Teacher)
   findAll() {
     return this.usersService.findAll();
   }
@@ -232,6 +262,8 @@ export class UsersController {
   }
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Admin, Role.Teacher, Role.Student)
   @UseInterceptors(
     FilesInterceptor('files', 5, {
       storage: diskStorage({
@@ -292,6 +324,8 @@ export class UsersController {
     }
   }
   @Patch(':id/register-status')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Admin, Role.Teacher)
   async updateRegisterStatus(
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
@@ -311,6 +345,8 @@ export class UsersController {
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Admin)
   remove(@Param('id') id: number) {
     return this.usersService.remove(id);
   }
@@ -366,6 +402,8 @@ export class UsersController {
   // @UseGuards(JwtAuthGuard, RolesGuard)
   // @Roles(Role.Teacher, Role.Admin)
   @Get(':stdId/qr')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Student)
   async generateQrCode(@Param('stdId') stdId: string): Promise<string> {
     const link = `http://localhost:5173/confirmRegister/${stdId}`;
     return await this.usersService.generateQrCodeForOrder(link);

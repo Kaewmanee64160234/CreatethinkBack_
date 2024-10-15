@@ -9,11 +9,16 @@ import {
   BadRequestException,
   UploadedFile,
   UseInterceptors,
+  UseGuards,
 } from '@nestjs/common';
 import { CoursesService } from './courses.service';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { RolesGuard } from 'src/authorize/roles.guard';
+import { Role } from 'src/types/Role.enum';
+import { Roles } from 'src/authorize/roles.decorator';
 
 @Controller('courses')
 export class CoursesController {
@@ -25,6 +30,8 @@ export class CoursesController {
   }
 
   @Post('upload')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Teacher)
   @UseInterceptors(
     FileInterceptor('file', {
       limits: { fileSize: 10 * 1024 * 1024 }, // Limit file size to 10MB
@@ -38,6 +45,8 @@ export class CoursesController {
   }
 
   @Get()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Teacher, Role.Student)
   findAll() {
     return this.coursesService.findAll();
   }
@@ -48,16 +57,22 @@ export class CoursesController {
   }
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Teacher)
   update(@Param('id') id: string, @Body() updateCourseDto: UpdateCourseDto) {
     return this.coursesService.update(id, updateCourseDto);
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Teacher)
   remove(@Param('id') id: string) {
     return this.coursesService.remove(id);
   }
 
   @Get('teach/:userId')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Teacher)
   async findCoursesByTeacherId(@Param('userId') userId: number) {
     return this.coursesService.findCoursesByTeacherId(userId);
   }

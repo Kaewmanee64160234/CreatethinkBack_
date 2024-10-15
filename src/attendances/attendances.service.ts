@@ -87,6 +87,85 @@ export class AttendancesService {
     }
   }
 
+  async createMany(
+    createAttendanceDtos: CreateAttendanceDto[],
+  ): Promise<Attendance[]> {
+    try {
+      // console.log('Received DTOs:', createAttendanceDtos);
+
+      const newAttendances: Attendance[] = [];
+
+      // Iterate over the array of attendance DTOs
+      console.log('createAttendanceDtos', createAttendanceDtos[0]);
+
+      for (const createAttendanceDto of createAttendanceDtos) {
+        // console.log('Received DTO:', createAttendanceDto);
+
+        // Find the assignment related to the current attendance
+        const assignment = await this.assignmentRepository.findOne({
+          where: { assignmentId: createAttendanceDto.assignmentId },
+          relations: ['course'],
+        });
+
+        if (!assignment) {
+          throw new Error(
+            `Assignment with ID ${createAttendanceDto.assignmentId} not found`,
+          );
+        }
+
+        // Create a new Attendance object
+        const newAttendance = new Attendance();
+
+        // Fetch the user (or set to null if the user is not found)
+        newAttendance.user =
+          createAttendanceDto.user === null
+            ? null
+            : await this.userRepository.findOne({
+                where: { studentId: createAttendanceDto.studentId + '' },
+              });
+
+        newAttendance.attendanceDate = new Date();
+        newAttendance.attendanceImage =
+          createAttendanceDto.attendanceImage || 'noimage.jpg';
+        newAttendance.attendanceConfirmStatus =
+          createAttendanceDto.attendanceConfirmStatus;
+        newAttendance.attendanceScore =
+          createAttendanceDto.attendanceScore * 100;
+
+        const currentDate = new Date();
+        const assignmentDate = new Date(assignment.assignMentTime);
+        newAttendance.attendanceStatus = createAttendanceDto.attendanceStatus;
+        newAttendance.assignment = assignment;
+
+        // Add the new attendance to the array
+        newAttendances.push(newAttendance);
+
+        // Optionally send an email if there is no image
+        if (newAttendance.attendanceImage === 'noimage.jpg') {
+          // const email = newAttendance.user?.email; // Make sure user is defined and has an email
+          // if (email) {
+          //   const subject = 'แจ้งเตือนไม่มีรูปภาพของคุณ';
+          //   const htmlContent = `
+          //     <p>เรียนคุณ ${newAttendance.user.firstName} ${newAttendance.user.lastName},</p>
+          //     <p>การเข้าร่วมของคุณสำหรับวิชา "${assignment.course.nameCourses}" และการบ้าน "${assignment.nameAssignment}" ได้ถูกสร้างเรียบร้อยแล้ว</p>
+          //     <p>ระบบไม่พบหน้าของคุณในการเช็คชื่อครั้งนี้หากคุณมาเรียนกรุณาเข้ามาเพิ่มภาพของท่านหรือแจ้งอาจารย์ผู้สอน</p>
+          //     <p>กรุณาเข้าไปตรวจสอบหรือทำการยืนยันใหม่อีกครั้งที่: http://localhost:5173/mappingForStudent/course/12123233/assignment/${assignment.assignmentId}</p>
+          //     <p>ด้วยความเคารพ,</p>
+          //     <p><strong>ระบบการเช็คชื่อเถื่อน</strong></p>
+          //   `;
+          //   await this.emailService.sendEmail(email, subject, htmlContent);
+          // }
+        }
+      }
+
+      // Save all new attendance records in the database at once
+      return this.attendanceRepository.save(newAttendances);
+    } catch (error) {
+      console.error('Error in createMany attendances:', error);
+      throw new Error('Error creating multiple attendances');
+    }
+  }
+
   findAll() {
     return this.attendanceRepository.find({
       relations: ['user'],
@@ -439,9 +518,10 @@ export class AttendancesService {
     if (!attendance) {
       throw new NotFoundException('attendance not found');
     }
-    attendance.attendanceConfirmStatus = 'confirmed';
+    attendance.attendanceConfirmStatus = 'notconfirm';
     attendance.attendanceStatus = 'absent';
     attendance.attendanceImage = 'noimage.jpg';
+    attendance.attendanceScore = 0;
     // console.log(attendance);
     return this.attendanceRepository.save(attendance);
   }
