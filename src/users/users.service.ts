@@ -961,4 +961,53 @@ export class UsersService {
 
     return { data, total };
   }
+  // getFilterAllUser
+  async getFilteredUsers(
+    role: string,
+    major: string,
+    search: string, // One field for search term
+    status: string,
+    page: number = 1,
+    limit: number = 20,
+  ) {
+    const queryBuilder = this.userRepository.createQueryBuilder('user');
+
+    // Apply filters for role, major, and status
+    if (role) {
+      queryBuilder.andWhere('user.role = :role', { role });
+    }
+    if (major) {
+      queryBuilder.andWhere('user.major = :major', { major });
+    }
+    if (status) {
+      queryBuilder.andWhere('user.status = :status', { status });
+    }
+
+    // Handle search for firstName, lastName, or studentId
+    if (search) {
+      queryBuilder.andWhere(
+        '(user.firstName LIKE :search OR user.lastName LIKE :search OR user.studentId LIKE :search)',
+        { search: `%${search}%` },
+      );
+    }
+
+    // Pagination logic
+    queryBuilder.skip((page - 1) * limit).take(limit);
+
+    // Log the query for debugging
+    console.log(queryBuilder.getQuery());
+
+    // Execute query and get results
+    const [users, total] = await queryBuilder.getManyAndCount();
+
+    return {
+      data: users,
+      meta: {
+        totalItems: total,
+        currentPage: page,
+        totalPages: Math.ceil(total / limit),
+        itemsPerPage: limit,
+      },
+    };
+  }
 }

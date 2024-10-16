@@ -111,6 +111,28 @@ export class UsersController {
     return this.usersService.searchUsersYear(year);
   }
 
+  // getFilteredUsers
+  @Get('filter')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Admin)
+  async getFilteredUsers(
+    @Query('role') role: string,
+    @Query('major') major: string,
+    @Query('status') status: string,
+    @Query('search') search: string,
+    @Query('page') page: 1,
+    @Query('limit') limit: 20,
+  ) {
+    return this.usersService.getFilteredUsers(
+      role,
+      major,
+      search, // One field for search term
+      status,
+      page,
+      limit,
+    );
+  }
+
   // //searchStatusTeacher
   // @Get('search/statusTeacher')
   // async searchStatusTeacher(@Query('status') status: string): Promise<User[]> {
