@@ -993,7 +993,7 @@ export class UsersService {
     // Handle search for firstName, lastName, or studentId
     if (search) {
       queryBuilder.andWhere(
-        '(user.firstName LIKE :search OR user.lastName LIKE :search OR user.studentId LIKE :search)',
+        `CONCAT(user.studentId, ' ', user.firstName, ' ', user.lastName) LIKE :search`,
         { search: `%${search}%` },
       );
     }
