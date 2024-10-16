@@ -25,7 +25,7 @@ import { Response } from 'express';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { RolesGuard } from 'src/authorize/roles.guard';
 import { Roles } from 'src/authorize/roles.decorator';
-import { Role } from 'src/types/Role.enum';
+import { Role } from 'src/types/role.enum';
 
 @Controller('assignments')
 export class AssignmentsController {

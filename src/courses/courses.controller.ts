@@ -17,7 +17,7 @@ import { UpdateCourseDto } from './dto/update-course.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { RolesGuard } from 'src/authorize/roles.guard';
-import { Role } from 'src/types/Role.enum';
+import { Role } from 'src/types/role.enum';
 import { Roles } from 'src/authorize/roles.decorator';
 
 @Controller('courses')

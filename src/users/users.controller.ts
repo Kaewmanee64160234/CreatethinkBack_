@@ -16,7 +16,7 @@ import {
   // UsePipes,
   // ValidationPipe,
 } from '@nestjs/common';
-import { Role } from '../types/Role.enum';
+import { Role } from '../types/role.enum';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';

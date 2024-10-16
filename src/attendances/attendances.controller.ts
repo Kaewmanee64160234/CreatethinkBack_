@@ -22,7 +22,7 @@ import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import { Response } from 'express';
-import { Role } from 'src/types/Role.enum';
+import { Role } from 'src/types/role.enum';
 import { Roles } from 'src/authorize/roles.decorator';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { RolesGuard } from 'src/authorize/roles.guard';

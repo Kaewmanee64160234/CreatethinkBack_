@@ -12,7 +12,7 @@ import { EnrollmentsService } from './enrollments.service';
 import { CreateEnrollmentDto } from './dto/create-enrollment.dto';
 import { UpdateEnrollmentDto } from './dto/update-enrollment.dto';
 import { Roles } from 'src/authorize/roles.decorator';
-import { Role } from 'src/types/Role.enum';
+import { Role } from 'src/types/role.enum';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { RolesGuard } from 'src/authorize/roles.guard';
 
