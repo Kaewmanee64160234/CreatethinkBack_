@@ -69,6 +69,14 @@ export class UsersController {
     return this.usersService.getTeacher();
   }
 
+  //getTeacher by major
+  @Get('teachers/major')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Admin)
+  async getTeacherByMajor(@Query('major') major: string): Promise<User[]> {
+    return this.usersService.getTeacherByMajor(major);
+  }
+
   //paginate get teacher
   @Get('teachers/pagination')
   @UseGuards(JwtAuthGuard, RolesGuard)

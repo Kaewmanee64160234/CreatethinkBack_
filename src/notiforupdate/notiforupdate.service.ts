@@ -27,12 +27,16 @@ export class NotiforupdateService {
   async create(createNotiforupdateDto: CreateNotiforupdateDto) {
     try {
       console.log('Data received in service:', createNotiforupdateDto.userId);
+      console.log(
+        'Data received in service:',
+        createNotiforupdateDto.userRecieve,
+      );
 
       const user = await this.userRepository.findOne({
         where: { userId: +createNotiforupdateDto.userId },
       });
       const userReceive = await this.userRepository.findOne({
-        where: { userId: 1 },
+        where: { userId: +createNotiforupdateDto.userRecieve }, // Dynamic user receive
       });
 
       if (!user) {

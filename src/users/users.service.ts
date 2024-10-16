@@ -805,6 +805,12 @@ export class UsersService {
 
     return { data, total };
   }
+  //getTeacherByMajor
+  async getTeacherByMajor(major: string): Promise<User[]> {
+    return this.userRepository.find({
+      where: { role: 'อาจารย์', major },
+    });
+  }
   async checkEmailDuplicate(email: string, userId?: number): Promise<User> {
     // Check if there is a user with the same email, excluding the current user's email
     return this.userRepository.findOne({
@@ -907,11 +913,12 @@ export class UsersService {
     return this.userRepository.findOne({ where: { studentId } });
   }
 
-  //getTeacher
   async getTeacher(): Promise<User[]> {
-    return this.userRepository.find({ where: { role: 'อาจารย์' } });
+    return this.userRepository.find({
+      where: { role: 'อาจารย์' },
+      select: ['userId', 'firstName', 'lastName', 'major'], // Ensure the major field is selected
+    });
   }
-
   //getTeacherPagination
   async getTeacherPagination(
     page: number,
